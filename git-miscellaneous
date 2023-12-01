@@ -1,0 +1,193 @@
+git add : takes a modified file in your working directory and places the modified version in a staging area.
+git commit : takes everything from the staging area and makes a permanent snapshot of the current state of your repository that is associated with a unique identifier
+
+Git tuts
+To check git version
+$git --version
+TO configure user name 
+$git config --global user.name "Dev Singh"
+TO configure email
+$git config --global user.email "dev@email.com"
+
+to check config list
+$git config --list
+
+This information will be passed with your commet to git repo
+To Create Git repo
+Go to the directory which you want to initilzation as project
+$cd mygitdir
+Run below command
+$git init
+
+".git" direcotry id database or metadata about git repo.
+
+
+Git commit will put directory content to tracking, so git commit command put working directory to staging area.
+
+whenever you add any new file in repo directory then you will need to add it by "git add ." to add in tracked file from untracked file.
+
+$git add .
+
+
+To commit all added files run below commnad
+$git commint -am "Adding doc in repo"
+
+if you will run git log command then it will show you last 10 commit with commit ID
+$git log
+
+
+To filter specfic author commit (by name and email ID)
+$git log --author="Dev Singh"
+
+To clone specifc branch (-b and then give branch name which you want to clone)
+$git clone -b main https://URL
+
+
+if you want to add file and commit file in a single command and this command only commit the file which are tracked file. if you will create a new file and use this command then this will not commit new file.
+$git commit -am "Commit message" 
+
+
+How to setup auth between local machine and git hub account.
+
+To switch to another branch
+$git switch develop
+
+TO check in which branch we are
+$git branch
+
+To create new branch in git
+$git branch develop
+
+To push created branch on remote
+$git push origin develop
+
+How merge branch in main (master) branch
+
+firstly switch to main branch
+$git switch main
+
+$git pull
+
+Now merge branch, here provide the name of the branch, which you want to merge
+$git merge develop
+
+
+Now push changes to remote repo
+$git add .
+$git status
+
+$git commit
+$git push
+
+
+Git RESET - Practically, user can think of it is a "rollback"
+   - Reset points local enviornment back to a previous commit (log history to previous commit)
+
+   - Reset it will completely delete your previous commit and roll back.
+
+Git REVERT - Net effect of the git revert command is similar to reset but it will add a new commit at the end of the chain to "cancel" changes.
+    - Git revert is also reverting the changes but it will put new commit in logs.
+
+
+If commit in the local then Reset is good, if commit is pushed then revert is good option.
+
+To print git log in one line
+$git log --oneline
+
+To reset commit to previous commit
+git soft reset will change only commit history log, not made changes in file
+
+$git reset --soft gitid
+$git log --oneline
+
+
+Now If I want to reset change in git history as well as in git files
+
+I will use hard reset, which will do both 
+$git reset --hard gitid 
+
+If I want to revet changed to previous git commit id
+$git revert HEAD
+
+$git push
+or
+For reverting changes to any commit ID
+$git revert commitid
+
+if you will see your commit then you can see new commit on the top
+$git log --oneline
+
+To check what changes are done in a file before git add and commit
+$git diff filename
+
+if you want to see what are changes between working aread and staging area
+$git diff
+
+How to identify diffrence between 2 commit
+
+now lets identify changes between latest commit and any other old commitid
+$git diff latestcommitid oldcommitid
+
+To list all branches
+$git branch -a
+
+Switch branch in GIT to specfic branch
+$git checkout branchname
+
+Rename branch name
+$git branch -m old_name new_name
+
+
+After merging branch if you want to delete branch then you can run below command
+$git branch -d branch_name
+
+
+To check some graph based commit history
+$git log --oneline --graph
+
+
+To merge main branch to develop
+$git merge main -m "Merging main to develop"
+
+if we will update same file at same point (line) which we have updated in main branch then their will be merging conflict, in this situation we have to manualy select and confirm the code which we want to keep.
+
+
+Git Stash:
+
+Git stash save changes termprarily in working directory and index state WIP on main merging
+$git stash
+$git status
+
+
+To check your all stash list
+$git stash list
+
+To apply your stash
+$git stash apply
+
+After resuming your stash and commiting it to repo you can delete created stash
+$git stash drop
+
+How to add new file also into git stash
+
+$git stash -a
+
+To remove git changs from stash
+$git stash pop
+
+To save only modified files
+$git stash save "Change in 3rd files"
+
+$git stash list
+
+
+stash untracked file 
+git stash -a save "change in new files"
+
+To pop stash with name
+$git stash list
+
+$git stash pop stash@{1}
+
+>>>>>>>>>>>>For Cloning branch>>>>>>>>>>>>>
+$git clone -b master https://gitrepolink/
