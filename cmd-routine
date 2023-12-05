@@ -325,5 +325,42 @@ dnf remove $(dnf repoquery --installonly --latest-limit=-2)
 --latest-limit=-1 will remove all except current one.
 =============================================================================
 
+the job that requested the file read make the request to read then it blocks waiting on data to come back before it can operate on it and so it's CPU run queue, so it's get turn on it's time slice.
 
+
+when you run top command then you see then see %CPU
+%CPU(s): 50.6 us, 48.7 sy, 0.0 ni, 0.0 id, 0.0 wa, 0.6 hi, 0.0 si, 0.0 st
+
+If you see anything under 'wa' section then it is related to disk read/write.
+
+#logwatch --detail=high --service=all
+
+In below command output "vmstat -5m" beow show info related to disk in and disk out
+bo : block in (disk block in)
+bo : block out(disk block out)
+
+
+ps out put "VIRT" "SHR" & "REZ"
+
+"VIRT" Virtual size how much the application requested the memory.
+
+"REZ" how much it is storing/using in the memory.
+
+"SHR" how much it is using between cross linked in the memory.
+
+OOM killer : started killing processes until it has enough memory to run OS.
+
+oom killer works on oom_score, you can find process oom score in below location
+#cd /proc/432
+#cat omm_score
+
+higher the oom score, most unlikly your process will get killed
+by using below command you can adjust oom score
+#cd /proc/432
+#echo 10 > oom_score_adj
+
+
+If you hvae many symbolic links in file system then it can also chew up inode on file system, symbolic links chewed up inode but not data
+df -ihT
+=============================================================================================
 
