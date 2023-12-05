@@ -1,0 +1,329 @@
+df -BG -T|awk '{split($6,a,"%"); if (a[1] > 30) print}'
+
+su - $(df -hPT |awk '/\/usr\/sap\// {print $NF}'|awk -F'/' 'NR==1 {print $NF}')adm
+
+echo "testing email" | mail -s "Testign email" -a test.txt test@example.com
+
+Command to execute in deattach mode
+screen -S CPU -dm bash -c "sar -u 5 >> testing"
+
+Command to kill screen session
+screen -S sleepy -X quit      
+
+screen -ls |awk -F'[.(]' '{print $2}' |awk 'NF'
+
+
+screen -S CPU -dm bash -c "sar -u 5 >> testing"
+
+nc -vzw2 10.1.0.23 53
+
+
+screen -S ${res_file[i]} -dm bash -c "sar -${parm[i]} 5 >> /home/username/sar/$(hostname)/$date_dir/${res_file[i]}/$(echo ${res_file[i]}|
+
+awk -F'/' '$2 == "SWAP_Paging" {print $2} $2 != "SWAP_Paging" {print $1}')"
+
+Not taking full path via tar
+tar -zcvf $(hostname).tar.gz -C sar/hec01v061173/25062021/ .
+
+
+
+$(($(date +%d%m%Y) - 1000000))
+
+If it is acceptable for you, you could transfer the local script via scp to your remote machine and then execute the script without the need of I/O redirection:
+
+scp script.sh $HOST:/tmp/ && ssh -t $HOST "sudo -s bash /tmp/script.sh"
+Another way to fix your issue is to use sudo in non-interactive mode -n but for this you need to set NOPASSWD within the remote machine's sudoers file for the executing user. Then you can use
+
+ssh $HOST "sudo -n -s bash" < script.sh
+
+Pass positional parameters to script.
+
+ssh username8@servername 'sudo -n bash -s -- Hello world information' < test.sh
+
+
+
+For deleting files older than 1 Aug 2020
+serverna:~ # find /opt/data/ -type f -not -newermt "2020-08-01" -delete
+
+Steps performed like below:
+
+serverna:~ # ls -l /opt/data/*|wc -l
+8405
+serverna:~ # find /opt/data/ -type f -not -newermt "2020-08-01"|wc -l
+4052
+serverna:~ # find /opt/data/ -type f -not -newermt "2020-08-01" -delete
+serverna:~ # ls -l /opt/data/*|wc -l
+4353
+serverna:~ #
+
+To extract joebloggs from this string in bash using parameter expansion without any extra processes...
+
+MYVAR="/var/cpanel/users/joebloggs:DNS9=domain.com" 
+
+NAME=${MYVAR%:*}  # retain the part before the colon
+NAME=${NAME##*/}  # retain the part after the last slash
+echo $NAME
+Doesn't depend on joebloggs being at a particular depth in the path.
+
+password change command in single go
+echo 'root:password' | sudo chpasswd
+
+Running with non interactive 
+zypper -n update
+
+zypper --non-interactive in curl
+
+How to create striped volume
+lvcreate --extents 100%FREE --stripes 8 --stripesize 256 --name lv_name vg_name
+
+How to check existing volume is stripped or not
+lvs --segments
+
+rsync -axrvP /datatransfer/export_path/* /import_path/
+
+zypper command to list all availivale version of packages
+zypper search -s openssl
+
+
+if screen is showing attached and you want to take over that screen and check then run below command, on that screen.
+
+screen -r -d 29273.11
+
+ctrl A+D  to deattached screen.
+ctrl C to kill screen session 
+screen  -r 1098.CPU   to attach the screen
+
+ rsync -axrvP /source/* /dest/ 
+
+For just files find /path ! -type f -newermt "YYYY-MM-DD HH:MM:SS" -delete. It saves you from having to pipe everything through xargs, and having to handle filesnames with spaces or other disruptive characters. – 
+jbo5112
+ Sep 20 '19 at 20:33
+
+find /path ! -type f -newermt "YYYY-MM-DD HH:MM:SS" -delete
+
+To delete file older than for certain date
+find /bhf/reged/arch_out  -type f -not  -newermt "2020-08-01"|xargs ls -l|wc -l
+
+find /path -type f -not -newermt "YYYY-MM-DD HH:MI:SS" -delete
+
+To Take permission backup
+ls -lRts /dir1 /dir2
+
+LVM command
+lvs -ao +lv_full_name,devices,stripe_size | egrep XXXX
+
+lvs --segments
+
+To check AWS instance type via command
+ec2metadata --instance-type
+
+For clearing SSSD cache.
+Install sssd-tools and execute below command to clear cache
+sss_cache -u username
+
+Ldap command
+ldapsearch -LL -x uid=user
+
+smbclient //ipaddr/shre -U user -m SMB2 -W domain
+
+zypper lr  (to check repo)
+
+zypper rr 2 (to remove repo)
+
+curl -vx ip:3000 https://google.com
+
+$sudo lsscsi
+The first column listed will contain the LUN, the format is [Host:Channel:Target:LUN].
+
+Listing block devices
+Connect to the VM
+$sudo ls -l /sys/block/*/device
+
+The last column listed will contain the LUN, the format is [Host:Channel:Target:LUN]
+az command
+az vm show -g myResourceGroup -n myVM --query "storageProfile.dataDisks"
+
+#iostat -hymx 1 4
+
+To assign a new UID to user called foo, enter:
+# usermod -u 2005 foo
+
+To assign a new GID to group called foo, enter:
+# groupmod -g 3000 foo
+
+TO add user (adm) in primary (sys) & Secondry (secondl) group 
+useradd -g sys -G second adm
+
+To add user (adm) in primary group (sys)
+useradd -g sys adm
+
+patching commands
+Use the following commands:
+List the patch for a specific CVE#:
+# zypper lp --cve=CVE#
+List the patch for a multiple CVE#s:
+# zypper lp --cve=CVE#,CVE#,CVE#
+Get information about the patch:
+# zypper info -t patch PatchName
+Install the patch using the CVE#:
+# zypper patch --cve=CVE#
+
+During CIFS mount if error comes like below 
+mount(2) system call failed: No route to host.
+
+then we can try below steps
+yum install keyutils
+yum -y install cifs-utils
+
+and then try to remount CIFS storage, hope it will work.
+
+
+AZcopy command to copy data.
+azcopy cp "/usr/sap/*" "https://storageaccountname.blob.core.windows.net/test?sp=racwl&st=2022-10-14T10:19:40Z&se=2022-10-16T18:19:40Z&spr=https&sv=2021-06-08&sr=c&sig=R6QPtHYKGxikqRvI4oY9ipDfSEPX7dpaoNfsH7yg8eY%3D" --recursive=true
+
+To download data from blob:
+
+azcopy copy  "https://storageaccountname.blob.core.windows.net/test/*?sp=racwl&st=2022-10-14T10:19:40Z&se=2022-10-16T18:19:40Z&spr=https&sv=2021-06-08&sr=c&sig=R6QPtHYKGxikqRvI4oY9ipDfSEPX7dpaoNfsH7yg8eY%3D"  "/usr/sap
+/" --recursive 
+
+./azcopy copy  "https://storageaccountname.blob.core.windows.net/test/sapmnt?sp=racwl&st=2022-10-14T10:19:40Z&se=2022-10-16T18:19:40Z&spr=https&sv=2021-06-08&sr=c&sig=R6QPtHYKGxikqRvI4oY9ipDfSEPX7dpaoNfsH7yg8eY%3D"  "/mnt/" --recursive
+
+
+passwrod expire date to never
+# passwd -x -1 krishna
+or
+
+# chage -M -1 krishna
+
+to decompress and show the contents of the file in one command.
+#xz -d -c messages-20230120.xz
+
+
+Excel trick.
+alt H O A  to make row size equal
+alt H O I to make column size as text
+
+
+=========================To download rpm by zypper================================================
+Search the repositories and see the details (all versions and architectures, repositories) - example for python-base:
+
+zypper search --details  python-base
+Download the specified version of the RPM package without installing. Package can be already installed and it won't be changed.
+
+zypper -v install -f --download-only 'python-base=2.6.0'
+Find the downloaded RPM file:
+
+find /var/cache/zypp/packages/ -name 'python-base*'
+=========================================================================================
+Changing timezone to CET
+# timedatectl set-timezone Europe/Brussels
+
+
+######################################################
+To update certificate: command to check:
+openssl x509 -in /etc/pki/rhui/product/content-rhel8-eus.crt -noout -text|grep -E 'Not Before|Not After'
+Command to resolve:
+yum update -y --disablerepo='*' --enablerepo='*microsoft*'
+###################################################
+To check port via tracroute command
+traceroute -T -p 445 172.16.3.5
+
+##############Azure Log query#####
+Perf|where _ResourceId contains "servername" |where CounterName == "% Free Space"
+
+
+#####################
+Find the dependency of installed packge.
+#zypper se -i --requires kernel-default
+
+Find the dependency of that package which is not installed yet
+zypper se --requires packagename
+
+Curl command to check TLS with another version.
+#curl -v  https://macsdbnet.com/api --tlsv1.2 --tls-max 1.2
+
+
+How to run sshd daemon on other port in order to troubleshoot.
+Run below command on which you are having issue while login into by using SSH
+#/usr/sbin/sshd -d -p 1234
+
+Now initiate connection from other machine (client machine)
+#ssh useername@servername -p 1234
+
+
+If you are getting below error then use below command
+"Your account has expired; please contact your system administrator"
+#usermod --expiredate= root
+
+How to activite /etc/security/access.conf in Suse linux
+#pam-config --add --access
+
+
+how to allow AD user by relam command if user is unable to login
+#realm permit bmcdiscovery.linux
+
+to allow everyone
+#realm permit --all
+
+to allow a group
+#realm permit -g ag-linux-admins
+
+In sssd.conf access_provider should be simple
+access_provider = simple
+
+To check port connectivity via traceroute
+#traceroute -T -p 21 172.21.85.31
+
+how to unlock AD account
+#faillock --user ina1absa --reset
+
+====================Stripe volume space increment=============================
+lvextend -i1 -L +25G /dev/mapper/volume1
+lvextend -i1 -L +25G /dev/mapper/volume2
+lvextend -i1 -L +25G /dev/mapper/volume3
+lvextend -i1 -L +25G /dev/mapper/volume4
+
+
+How to encrypt any command
+#echo -n "$(grep root /etc/passwd)"|base64 -w 0
+#cm9vdDp4OjA6MDpyb290Oi9yb290Oi9iaW4vYmFzaA==i
+
+how to run encrypted command
+#echo -n "cm9vdDp4OjA6MDpyb290Oi9yb290Oi9iaW4vYmFzaA=="|base64 -d
+
+System Design :
+https://github.com/donnemartin/system-design-primer#the-system-design-primer
+
+If your AD login doesn't work on Serial console then update below entry in sssd.conf
+from 
+access_provider = ad
+to 
+access_provider = simple
+
+
+Purging Domain Records
+# sss_cache -d LDAP1.com
+
+Purging a User Record
+# sss_cache -u jsmith
+
+For allowing date/time based history in redhat OS. 
+# cat /etc/bashrc |grep -i export
+export HISTTIMEFORMAT="%F %T "
+
+========================================================
+The output doesn't show the server certificate or SSL session. This scenario often occurs if the command traverses a network virtual appliance (NVA) that does SSL packet inspection. This inspection causes the NVA to inject its own SSL certificate into the encrypted session. Because SUSE uses certificate pinning, another injected SSL certificate can break the pinning operation. If pinning is broken, the SUSE repository denies the connection.
+========================================================
+To Validate Certificate
+#openssl s_client -connect IP/URL:443
+
+
+To remove kernel old version on RHEL 8 & 9
+dnf remove $(dnf repoquery --installonly --latest-limit=-2)
+--latest-limit=-2 means to leave two last versions - current and the previous one;
+
+--latest-limit=-1 will remove all except current one.
+=============================================================================
+
+
+
