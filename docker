@@ -1,0 +1,606 @@
+##################################Docker##################
+It also make very easy to package and ship programme.
+Three Innovation that makes Docker the futuristic tool.
+- Docker Image
+- Docker Container Registery
+- Docker Container
+Docker Development Backbone
+- Build --> Ship --> Run
+- Docker Image -->  Docker Registery --> Docker Container
+
+Why use Docker Containers
+- User of Share Operating system
+- Continuous Intergration, Delivery, and Deployment 
+   Docker enables developers to easily pack, ship and run any application as a 
+   lightweight, portable, self sufficent container.
+- Easy to deploy in a Cloud
+
+
+To check Docker version
+#docker version
+
+Verify Docker Engine SetUp & Details
+#docker info
+
+List all docker commands
+#docker (hit enter)
+
+What is Container?
+Containers is an running instance of an Image
+
+What is Image?
+Image is the Application we want to run.
+
+You can have many containers running the same Image.
+
+Docker Centeral Repository (hub.docker.com)
+
+To check docker Info, we will execute below command
+#docker info
+
+To Start any image as container
+#docker container run --publish hostport:containerport imagename
+
+To start container in detach mode, run below command
+#docker container run --publish 80:80 --detach nginx
+
+To Start container on any other port
+#docker container run --publish 8081:80 --detach nginx
+
+To List all running container
+#docker container ls   
+
+To Stop Docker container
+#docker container stop container_id
+
+To List all running and stopped containers
+#docker containers ls -a
+
+Run vs Start Container
+run: start a new container always
+start: start a existing containers
+
+To start exsiting stopped container
+#docker container start container_id
+
+To start docker container with name
+#docker container run --public 80:80 --detach --name containername image_name
+
+To see logs of a specific container
+#docker container logs containername/containerid
+
+To see running process inside the containers
+#docker container top containerid
+
+To remove all usused many containers
+#docker container rm space-separated-container-ids
+
+Note : Firstly stop container and then remove it, you cannot remove running container, only forcefully running container can be removed.
+
+To remove running container forcefully
+#docker container rm -f containerid
+
+Container virtualise the operating system and VMs are virtualise the hardware.
+Containers are just processes.
+Containers are limited what resources they can access.
+
+To check what's running inside my live container
+#docker container top containerid
+
+To check details of running container config
+#docker container inspect containerid
+
+To check performance stats of running container
+#docker container stats containerid
+
+To run container in interactive mode by image, once you will exit then container will be existed
+#docker container run -it --name test-cont apache bash
+
+To get inside running containers.
+#docker container exec -it containerid bash
+
+To run command  inside a container
+#docker container exec -it containerid touch filename
+
+f you want to exit the container's interactive shell session, but do not want to interrupt the processes running in it, press Ctrl+P followed by Ctrl+Q. 
+
+Docker containers and services can be connected with each other.
+Container and services don't need to be aware where they are deployed
+Container and Services can communicate, whether your docker hosts run Linux, Window, or a mix of the two.
+this all possbile because of deafualt drivers in Docker.
+
+Each Container connect to virtual private network called 'bridge'
+
+bridge: this is default network driver of Docker
+
+All Containers on same bridge can communicate each other with-out -p(port)
+
+Best Practic to create networks-:
+ if there are mysql and php application based containers then we can create
+ seprate bridge for them.
+If there are mongo and Pytohon applications bases containers then we can create
+ seprate bridge for them.
+
+Docker Networks is easy to plugged-in in containers.
+User is allow to create Multiple VPN.
+Create Multiple Rules for Single network.
+
+Attach Multiple containers to one network, and attach single
+container to more than one network or no need to attach any network to container.
+
+
+To start container allow traffice from port on host machine
+#docker container run -p 443:443 -d https-image
+
+To find traffic and protocol on container
+#docker port containerid
+
+To check IP address of container
+#docker container inspect -f '{{.NetworkSettings.IPAddress}} containerid
+
+Network for Containers
+
+OuterWorld----->Firewall----->Docker Bridge------(container1 & contanter2)
+
+whenever connected container in same bridge talking to each other then without port communiation can occur
+
+but when communcation is happening Outside then with port communication will work.
+
+Port required to open then connection with host
+
+To List all networks
+#docker network ls
+
+To check all bridge network use filter
+#docker network -f driver=bridge
+
+To check ID and Driver column
+#docker network ls --format "{{.ID}}: {{.Driver}}"
+
+To create new network on Docker host (by default this command will create bridge network)
+#docker network create networkname
+
+To crate bridge network
+#docker network create -d bridge mybridgename
+
+To check config of our created network and running container info in this network
+#docker network inspect mybridgename
+
+To connect network with container
+#docker network connect mybridgename containerid
+
+To disconnect network from container
+#docker network disconnect mybrdigename containerid
+
+To run container from image in specfic created network
+#docker container run -d --name http_server --network mybridgename appacheimage
+
+To ping from one container to second container in interactive mode
+#docker container exec -it container1 ping container2
+
+Docker Network DNS:
+Container uses DNS to communicate (hostname)
+Containers don't use IP address to communicate, they uses hostname
+
+Docker Images --:
+Everything is based on images in docker. Docker Image is a combination of filesystem
+and parameters. Images contains the binaries and dependencies.
+
+Images contains the data require to run the Image.
+
+To list dokcers images of your machine
+#docker images
+
+Images don't contains complete OS.
+
+Docker Images can be downloaded from Docker Hub.
+Images can be commited with changes and have multiple versions. If you don't provide
+a specific version number, the client defaults to latest.
+
+- Base Images : these images have no parent image. these images usually with an OS like Debian, Redhat or ubuntu.
+   usually these images size is big.
+
+- Child Images : these images build on base images and add additional functionality.
+
+- Offical images : Images that are officially maintained and supported by the Docker. Thesare are typically one word long.
+
+- User images : these images creted and shared by users. they build on base images and add/config additional pakcages.
+                user images format user-name/image-name
+
+
+To download docker images from docker repo
+#docker pull ubuntu
+
+To check history of a specific image
+#docker history mysql
+
+To inspect the image
+#docker inspect imagename
+
+Docker Image Tags: Docker tags convey useful information about a specific image version/variant.
+
+Docker images doesn't have name
+Repository is parent directory for image
+
+Tags added to image during the building of image.
+#docker tag sourceimagerepo:tag targetimagerepo:tag
+
+
+Images can be tagged explicitly with the help of Tag command, this command will create new image along with same tag 
+#docker tag ubuntu ubuntunew
+
+To tag image with different tag name.
+#docker tag ubuntu:8.8 ubuntu:dev
+
+you can store your public and private images on hub.docker.com
+
+To push image on hub.docker.com
+Login by using below command
+#docker login
+
+Now tag image with username
+#docker image tag ubuntu dockeruser/ubuntuimage
+
+To push Image on Docker Hub
+#docker image push dockeruser/ubuntuimage
+
+Now you can logout from docker
+#docker logout
+
+
+Docker can build images automatically by reading the instuctions from a Dockerfile.
+
+Dockerfile is text document that contains all the commands a user could call on the command line
+to assemble an image.
+
+Docker image consists of read-only layers each of which represeents a Dockerfile instruction.
+
+To build image from docker file
+#docker build -f dockerfilename
+
+
+Docker file format
+
+1st instructions is FROM
+FROM : this instruction initialized a new build stage and sets the base image for instructions.
+ex-: FROM image-name:tagname
+
+LABEL : LABEL added to image to organize images by project, record licensing information.
+   add a line beginning with LABEL and with one or more key-value pairs.
+ex-: LABEL test.com.version="1.1.1-test"
+
+RUN : RUN instruction will execute any commands in a new layer on top of the current image and commit the results.
+      the resulting committed image will be used for the next step in the Dockerfile.
+ex -:
+ FROM ubuntu:14.04
+ RUN apt-get update
+ RUN apt-get install -y curl
+
+CMD : instruction should be used to run the software contained by your image, along with any arguments.
+ ex -: CMD ["executable","param1","param2"]
+
+Note : there can be one CMD instruction in a Dockefile. if you list more than one CMD then only the last CMD will take effect.
+
+EXPOSE: this instruction indicagtes the ports on which a container listens for connections.
+  ex - : EXPOST portnumber
+
+ENV : ENV instruction sets the environment variable key to the value.
+
+ADD : this instruction copies new files, directories or remote file URLs from src and adds them to the filesystem of the image at the path dest.
+
+ex -: ADD home/* /mydir/ 
+
+VOLUME : this instruction should be used to expose any database storage area, configuration storage, or files/folders created by your docker container.
+
+WORKDIR : this instruction sets the working direcotry for any RUN, CMD, ADD instructions that follow it in the Dockerfile.
+
+Docker build Syntax
+docker build -t imagename:tagname dir
+-t : to mention tag to the image
+imagename : name you want to give to your image.
+tagname : tag ou want to give to your image.
+dir : directory where the dockerfile is present.
+
+Dockerfile examples===================
+
+FROM ubuntu:latest
+LABEL version="0.0.1"
+LABEL maintainer="test@example.com"
+
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install nginx -y
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off"]
+
+To build image from created Dockerfile use below command
+#docker image build -t customname:2.1-tagname /root/
+
+To copy our local content during buidling new image
+cat Dockerfile
+#base image with tag(latest/version)
+FROM nginx:latest
+
+#version and maintainer info of an image
+LABEL version="0.0.1"
+LABEL maintner="main@example.com"
+
+#Work DIR path
+WORKDIR /usr/share/nginx/html
+
+#Now copy your local files to image that path during building new image
+COPY localdirctory .
+
+now you can build the image 
+docker image build -t customname:3.1-tagname /root/
+
+now check your built image by below command
+#docker images
+
+
+To execute any script from docker image
+cat Dockerfile
+
+FROM python:latest
+#version and maintainer info of an image
+LABEL version="0.0.1"
+LABEL maintner="main@example.com"
+
+#ADD  script into image
+ADD script.py /
+
+#Executable command 
+CMD ["python", "./script.py"]
+
+
+To create image from this file
+#docker image build -t imagename:tagversion /root/
+
+To check built image
+#docker images
+
+To execute image to run our script, while executing this no need to define any port. As only script will be executed .
+#docker container run imagename:tagversion
+
+To delete images or built images.
+#docker rm -f imagename:tagversion 
+
+To build image and push to hub.docker.com registry
+firstly login by using your account
+#docker login
+
+secondly execute below command
+#docker image build -t yourdockerusername/imagename:tagversion /dockerfilepath/
+
+thridly push your image 
+#docker push yourdockerusername/imagename:tagversion
+
+
+Data :
+Container persistent Data problem
+Container are immutable, once deploy never change, only re-deploy.
+
+Config change or version upgrade need re-deploy.
+By default all files created inside a container are stored on a writable container layer.
+
+so that data doesn't persist when that container no logner exists and it can be difficult to get the data 
+out of container if another process needs it.
+
+Docker has two options for containers to store files in the host machine, so that files are persisted even after the
+container stops-
+ - Volumes
+ - Bind Mount
+
+
+Volumes : Volumes are stored in a part of the host filesystem which is managed by Docker.
+          Volumes are created and Managed by containers.
+          Volumes can be created by volume command in Docker File.
+          when you create a volume, it is stored within a directory on the Docker host machine.
+          Volumes cannot be removed when user destory the containers.
+
+
+To run mysql containers
+#docker run -d --name mysqlserver -e MYSQL_ALLOW_EMPTY_PASSWORD=True mysql
+
+To check how many volumes present
+#docker volume ls
+
+To stop running containers
+#docker container stop mysqlserver
+
+Now check volume status
+#docker volume ls
+
+To inspect volume
+#docker volume inspect volumeid
+
+To run container and define volume 
+#docker run -d --name mysqlserver -e MYSQL_ALLOW_EMPTY_PASSWORD=True --mount source=mysql-db, destination=/var/lib/mysql mysql
+
+Now run below command and you will new volume created with name mysql-db
+#docker volume ls
+
+Now stop container
+#docker container stop mysqlserver
+
+To check your volume status now
+#docker volume ls
+
+To start new container with same volume
+#docker run -d --name mysqlserver1 -e MYSQL_ALLOW_EMPTY_PASSWORD=True --mount source=mysql-db, destination=/var/lib/mysql mysql
+
+
+Bind Mount -: Bind mount means a file or directory on the host machine is mounted into a container.
+              Mapping of host files into a container files.
+              Bind mounts may be stored anywhere on the host system.
+              Non-Docker processes on the Docker host or a Docker container can  modify them at any time.
+              Bind mount can't be use in DockerFile.
+Cases for bind mounts :
+               Sharing configuration files from the host machine to containers.
+               Sharing source code or build artifacts between a development environment on the Docker host and a container.
+
+To Run container with bind mount
+#docker container run -d --name apache --mount type=bind, source=/localhostpath/, target=/containerpath/ apache
+
+To run containter with mysql-v volume name
+#docker container run -d --name mysql-c -e "MYSQL_ROOT_PASSWORD=mypassword" --mount source=mysql-v, target=/var/lib/mysql mysql:8.0
+
+
+To verify volumes
+#docker volume ls
+
+Now put some data in this running container's database.
+
+To verfiy running container data source on local docker host.
+#docker inspect mysql-c
+
+when you will execute above command then you will see under mounts path of direcotry in source section where volume  has  this directory /var/lib/mysql mapped. mostly volumes path on local docker host "/var/lib/docker/volumes/mysql-c/_data"
+
+Now stop the docker container
+#docker container stop mysql-c
+
+Now remove this container
+#docker container rm mysql-c
+
+Now start the new container with same data volume which was created during previous container creation
+#docker container run -d --name mysql-c -e "MYSQL_ROOT_PASSWORD=mypassword" --mount source=mysql-v, target=/var/lib/mysql mysql:9.0
+
+Now find out docker container IP addresses and try to verify data.
+
+To run nginx with with bind mount location
+#docker container run -p 80:80 --mount type=bind, source="$(pwd)",target=/usr/share/nginx/html nginx
+
+To on bash terminal in running container
+#docker exec -it nginx bash
+
+In Bind mount : If you will make changes in local directory which is mapped to container, you can make changes in local directory and changes will take effect in running container.
+
+Docker Compose: Docker Compse is used to run multiple containers as a single service. Compose provide relationship between multiple containers.
+
+Example : User can start mysql and tomcat container with one YML file without starting each separately.
+
+Define your app's environment with a dockerfile so it can be reproduced anywhere.
+Define the services that make up your app in docker-compose.yml so they can be run together
+in a isolated environment.
+
+Run docker-compose up and compose starts and runs your entire app.
+
+
+To install docker compose, we need to follow 3 stpes.
+firstly download docker-compose from github URL at this location /usr/local/bin/docker-compose
+Secondly give executable permission to binary
+#chmod +x /usr/local/bin/docker-compose
+thridly verify version
+#docker-compose --version
+
+All you need to do is simply remove the dash "-" from your Docker Compose commands so in latest version
+
+docker-compose up becomes docker compose up
+
+so if you are using Docker Compose V2. Please execute the command like "docker compose" instead of "docker-compose".
+
+Docker Compose yml file:
+Yml file can be versioned.
+Version statement should be the FirstLine of File
+YML can be used with docker-compose command.
+Docker-compose.yml if default name of YML file.
+Custom name can be used by command docker-compose -f xxx.yml
+
+Format of docker-compose.yml
+
+version :  # Version of compose file 
+services: # service is the name for a "Container in production"
+ servicesname : #container service name
+   image: #optional, specify if build specific
+   command: # optional, relmand CMD specified in image
+   environment: #optional, similar to -e in docker run command
+   volumes:  #optional, similar to --mount in docker run
+
+ servicesname2:
+
+ volumes: #Optional mounts a linked path on the host machine
+ networks: #Optional, same as docker network
+
+
+preparing "docker-compose.yml"
+
+vi docker-compose.yml
+version: '3' # version of YML file
+
+services:
+  db:
+   image: mysql:5.7
+   volumes:
+     -db_data:/var/lib/mysql
+   restart: always
+   environment:
+      MYSQL_ROOT_PASSWORD: mypassword
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpressuser
+      MYSQL_PASSWORD: wordpress
+ wordpress:
+   depend-on:
+     -db
+   image: wordpress:latest
+   ports:
+      -"8080:80"
+   restart: always
+   environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpressuser
+      WORDPRESS_DB_PASSWORD: wordpress
+
+volumes:
+  db_data:
+
+Below command execute compose yml code and run 2 container 
+#docker compose up -d
+
+now check running container 
+#docker ps
+
+Create another file
+cat application-docker.yml
+
+version : '3'
+services:  # each entry in the services section will create a separate container.
+   distro:
+     image: alpine #image would be donwloaded at Runtime
+     restart: always  # if container go down due to any reason then it restart.
+     container_name: custom_alpine # it will assign container name
+     entrypoint: tail -f /dev/null  # tail -f is ongoing process which run indefinitely and prevent the container from stopping. the defaulf if nothing is running inside the container then it get stopped.
+   database:
+       image: postgres:latest
+       restart: always
+       container_name: posgres_db
+       ports:
+         -"5432:5432"
+       volumes:
+          -../dump:/tmp/
+    web:
+        image: nginx
+        restart: always
+        container_name: nginx_web
+        ports:
+          - "8080:80"
+        volumes:
+          - ./mysite.template:/etc/nginx/conf.d/mysite.template
+        environment:
+          - NGINX_HOST=example.com
+          - NGINX_port=80
+        links: # if anyone of the container will restart then web container will also get restarted
+          - database:db #db is simply alias
+          - distro 
+  volumes:
+       data:
+       external: true # telling docker compose to use a pre-existing external data volume.
+
+Now execute file like below, which will create/run container
+#docker compose -f application-docker.yml up -d
+
+Now execut4e file like below, which will stop and remove container
+#docker compose -f application-docker.yml down
+
+To create volume manually 
+#docker volume create --name=data
+
+#docker volume ls
