@@ -1,0 +1,83 @@
+kdump is a feature of the Linux kernel that creates crash dumps in the event of a kernel crash. When triggered, kdump exports a memory image that can be analyzed for the purposes of debugging and determining the cause of a crash
+
+Looking for some configuration for kernel dump (kdump), what will generate the kerenel core dump file. Just for distinguish we are not talking about application, we are talking about OS itself crashing.
+
+#sed -e "/^#/d;/^$/d" /etc/sysconfig/kdump
+
+To check how much memory is allocated to kdump
+#dmesg|grep crash
+
+how to allocate memory for kdump, open below file and "Search for GRUB_CMDLINE_LINUX" and update "crashkernel=auto" in this file. if you want to reseve memory then update memrory
+vi /etc/default/grub
+GRUB_CMDLINE_LINUX="loglevel=3 console=tty1 console=ttyS0 earlyprintk=ttyS0 rootdelay=300 crashkernel=128M"
+
+Now go to "kdump.conf" file "/etc/kdump.conf" and update this "path /var/crash"
+vi /etc/kdump.conf
+path /var/crash
+
+ In redhat in this file "/etc/sysconfig/kdump" we don't make any changes.
+
+For KDUMP kernal parameters configuration in Linux:
+Non-Maskalble Interrupt (NMI) is a hardware interrupt that cannot be ignored by the processor.It is generally used only for critical hardware errors.
+this feature can be used to signal an operating system when other standard input
+mechanisms(keyboard, ssh, network, etc.) have ceased to function.
+
+#vim /etc/sysctl.conf
+kernel.unknown_nmi_panic = 1
+kernel.panic_on_io_nmi = 1
+kernel.panic_on_unrecovered_nmi = 1
+
+Out of Memory (OOm) kill event
+#vi /etc/sysctl.conf
+vm.panic_on_oom = 1
+
+CPU Soft Lockup event
+#vi /etc/sysctl.conf
+kernel.softlockup_panic = 1
+
+Hung/Blocked Task event
+#vi /etc/sysctl.conf
+kernel.hung_task_panic = 1
+
+Now let's update grub config
+#grub2-mkconfig -o /boot/grub2/grub.cfg
+
+
+Now start kdump service
+#systemctl start kdump.service
+#systemctl enable kdump.service
+
+Now take reboot of the server, as we have changed some kernel parameters.
+
+
+Now let's Crash then kernel
+The SysRq-Facility is a special key combination that, when enabled allows the user to force a system kernel to respond to a specifc command. this feature is mostly for 
+troubleshooting kernel-related problems or to force a response from a system while it is in a non-responsive state(hang).
+
+#echo 1> /proc/sys/kernel/sysrq
+#echo c> /proc/sysrq-trigger
+
+Now VM will be rebooted and go to /var/crash path to check if you kdump has been created here you will find directory name with timestamp and inside this directory you will see 2 files vmcore-dmesg.txt for booting log and vmcore to analzie this file some additional packages are required.
+
+How to Analize Kdump
+below pckage should be installed
+#rpm -qa|grep -i crash
+
+#rpm -qa kernel-debuginfo
+
+those 2 packages should be installed to anaylize kdump vmcore
+
+#crash /lib/debug/lib/modules/$(uname -r)/vmlinux  /var/crash/timestampdirectory/vmcore
+here in below shell now check which cause kernel panic
+crash>dis -l memroyaddress
+
+to check prosess details
+crash>ps
+for checking mount point details
+crash>mount
+for checking network details
+crash>net -a
+
+to check panic task details
+crash> set -p
+
