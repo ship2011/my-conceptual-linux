@@ -81,3 +81,83 @@ crash>net -a
 to check panic task details
 crash> set -p
 
+============some additional info========
+kexec/kdump
+
+Reboots into a new kernel with the old memory 
+Can create a core dump of the kernel
+The core dump can be analyzed later by other tools
+Can send the core dump to other machines (from crashed machine)
+
+
+Kexec:
+Acts similar to the the exec*() system call
+Replaces the old kernel with a new kernel
+ Can be the same kernel that was running
+ Can be a diffrent kernel from what is running
+
+The old kernel still exists in memory, but does not execute 
+Can also be used to do fast reboots
+ For machines with slow firmware start up times (servers)
+
+How does it work:
+ you allocate some reserved memory in kerenl command (crashkernel=256M) and during kernel panic, Panic give instruction to Reserved Memory.
+
+Kdump:
+uses kexec to jump to new fresh kernel on crash
+ Does not need to be the same kernel that was running
+ The original (crashed) kernel is called "boot kernel", "first kernel" or "crashed kernel"
+
+Several options to create a core file
+Local file system (If local file system get corrupted then you can send to to remove fs)
+*Local file system
+*Remote file system
+*Raw partition
+*ssh/scp
+
+*Kdump is the code in the initramdisk 
+*makedumpfile - Utility to create a kernel "core" file
+ - Reads /proc/vmcore
+ - Runs in the second kernel
+ - Create a modified core file
+ - Must have access to debug symbols of the first kernel
+
+On debian how to configure kdump
+#apt-get install kdump-tools
+
+Files:
+ /etc/default/kdump-tools
+ /usr/share/doc/kdump-tools/README.Debian
+
+Tool to update : kdump-config
+kdump-config load
+ Set up symlinks (/var/lib/kdump) and load kdump kernel and initramdisk
+kdump-config status
+ Show the status of kdump (if it is operational or not)
+
+On federo 36 how to configure
+#dnf install kexec-tools
+
+Files:
+ /etc/kdump.conf
+ /etc/sysconfig/kdump
+ /usr/share/doc/kexec-tools/*
+
+Tool to update: kdumpctl
+kdumpctl start
+ Will create a new initramdisk for kdump (if kdump.conf is modified)
+
+kdumpctl rebuild
+ WIll recreate the initramdisk even if kdump.conf is not modified
+
+kdumpctl status
+ Show if the kdump is operational or not
+
+The Crash utility 
+A GDB wrapper that understands the Linux Kernel structures..
+
+Once you are in crash shell
+bt give you backtrace of kernel crash.
+
+crash>bt
+
