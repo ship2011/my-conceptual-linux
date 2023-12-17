@@ -1,0 +1,448 @@
+Docker Swarm
+---------------------------------------------------------
+How to Scale Containers
+How to manange containers or re-create if they Fails/Crash
+How to upgrade the Service with zero downtime
+
+Docker Swarm is a clustering and scheduling tool for docker containers.
+Docker Swarm is native support of Docker for orchestrating clusters of Docker engines.
+
+Orchestration define nodes, services and set how many nodes you want to run and where, and you are done.
+Docker Swarm takes multiple docker engines running on different hosts and lets you use them together.
+
+Docker swarm have town type of Nodes Master(manager) and worker.
+each swarm starts out with one manager node designated as the leader.
+Swarm is highly available thanks to its implementation of the Raft algorithm.
+Raft algorithm :  the leader node is constantly checking in with its fellow manager nodes and syncing their states.
+
+Docker Swarm will help you in below things
+Task Scheduling
+Load Balancing
+Rolling updates
+Security
+
+The cluster management and orchestration features embedded in the docker engine are built using swarmkit.
+
+A swarm consists of multiple docker hosts which run in swarm mode and act as managers (to manage membership and delegation) and workers (which run swarm services).
+
+Host : docker host can be a manager, a worker or perform both roles.
+
+Service : when you create service, you define its optimal state (number of replicas, network and storage resources available to it, ports the service expose to the outside world and more).
+
+Docker swarm also maintains the services desired state. For example if a worker node becomes unavailable then docker schedules that node's tasks on other nodes.
+
+Task: task is a running container which is part of a swarm service and managed by swarm manager.
+
+Node : Node is an instance of the docker engine participating in swarm.
+you can run one or more  nodes in single physical computer or cloud server but production swarm deployments typically include docker nodes distributed across multiple physical and machines.
+
+To deploy your application to a swarm, you submit a servie definition to a manager node, manager node dispatches units of work called tasks to worker nodes.
+
+Manager nodes also perform the orchestration and cluster management functions required to maintain the desired state of the swarm. manager nodes elect a single leader to conduct orchestration tasks.
+
+Worker nodes receive and execute tasks, which dispatched from manager nodes.
+
+Service : service is the definition of the tasks to execute on the manager or worker nodes.
+When you create a service, you specify which container image to use and which commands to execute inside running containers.
+
+Task is carries a docker container and the commands to run inside the container.
+As as task is assigned to a node, it cannot move to another node. It can only run on the assigned node or fail.
+
+Load Balancing : Swarm manager uses ingress load balancing to expose the services hyou want to make available externally to the swarm.
+
+when you will run docker info command then it will show swarm inactive
+#docker info
+
+To Initilize docker swarm
+#docker swarm init
+
+If 2 IP addresses are configured on docker VM then mentioned adertise IP address
+#docker swarm init --adertise-addr 1.1.1.1
+
+To create service we can use blow command (below command create service and run ping command from centosimage)
+#docker service create centosimage ping google.com 
+
+To check running service
+#docker service ls
+
+To inspect service
+#docker service inspect servername/id
+
+To check which container running your service
+1stly check server name/id
+#docker service ls
+2ndly check process id for that service name/id
+#docker service ps centosimage
+
+so when we run service then that service run a container from which a particular task is running.
+
+if want to run 3 replicas of existing service then we can run below command
+#docker service update centosimage --replicas 3
+
+Now validate running services status
+#docker service ls
+
+Now if you want to see how many containers running from that service use below command
+#docker service ps centosimage
+
+Now try to remove one of the running container of service
+#docker container rm -f centosimage.2
+
+Now once again check your running services replicas and you will see still 3 replicas are running
+#docker service ls
+
+Now try to check running container for service, here you will see 4, one in stopped/failed state which was remove and 3 running replicas of service
+#docker service ps centosimage 
+
+To setup multi node Docker swarm cluster
+spin 3 or 4 nodes based on any Linux flavour and install docker on all of these nodes, as well docker machines. Also install docker compose.
+
+now intilized all 3 nodes with their IP addresses 
+#docker swarm init --advertise-addr 1.1.1.1
+#docker swarm init --advertise-addr 2.2.2.2
+#docker swarm init --advertise-addr 3.3.3.3
+
+which node we want to use as manager and join other docker node into that cluster, we will need to find out token of that node
+#docker swarm join-token manager
+
+now you will get one command with token, execute that command on remain 2 servers to add them as worker node in cluster.
+#docker swark join --token tokennumber IPaddress:2377
+
+Now execute below command to see your node status in docker swarm cluster (Leader will be manager and Reachable will be worker node)
+#docker node ls
+
+Now if you will check on your worker node by using below command then you will see no container is running
+#docker container ls
+
+Now create a service on docker leader(Master) node with 6 replicas
+#docker service create --replicas 6  centosimage ping ipaddress
+
+Now if you will execute below command on Master node then you will see running services status 
+#docker service ls
+
+Now when you will run below command on Master node then it will show which container is running on which node.
+#docker service ps centosimage
+
+If you go to worker node and run below command then you will see only running container on that worker node
+#docker container ls
+
+===========Docker Swarm Network===========
+Docker Swarm has new network driver "overlay network".
+
+Overlay network driver creates a distributed network among multiple Docker hosts.
+
+Overlay network allows containers to communicate inside the single swarm.
+When you initialize a swarm or join a docker host to an existing swarm, two new networks get created on that docker host.
+
+Ingress - Ingress is an overlay network, which handles control & data traffic related to swarm services.
+
+If swarm service is not connected with user defined overlay network, it connect to ingress network.
+
+Bridge network: Bridge network called docker_gwbridge, which connects the individual docker node to the other node participating in the swarm.
+
+Rules for user defined Overlay network
+Need the following ports open to traffic and from each docker host participating on an overrlay network:
+tcp port 2377 for cluster management communications
+tcp and udp port 7946 for communication among nodes
+udp port 4789 for overlay network traffic
+
+Before creating an overlay network, docker swarm must be initialised on node or join it to an existing swarm.
+
+To check Docker swarm activi on node
+#docker info|grep -i swarm
+
+To see existing overlay and network (if we are not defining any overlay network then ingress network get created by default)
+#docker network ls
+
+To create an overlay network 
+#docker network create -d overlay overlay_nw
+
+now validate your created network
+#docker network ls
+
+To create service in our created overlay_nw
+#docker service create --name postgress --network overlay_nw -e POSTGRESS_PASSWORD=password postgressimagename
+
+To create another service 
+#docker service create --name servicename --network overlay_nw -p 80:80 imagename
+
+Now check your created services
+#docker service ls
+
+if want to see in our cluster where our service is running
+#docker service ps postgress
+
+now if you will try to access your webservice which running on port 80 from any of 3 nodes it will be accessible, same goes for other services.
+
+Swarm Global traffic management is related to routing mesh.
+routing mesh is mechanism, which is used by swarm global trafic.
+
+you are able to access your webservice from all 3 nodes IPs, which is running on port 80, so that's ability called global traffic management.
+
+Docker Swarm publish services on some ports and allow outer world to access these services. this process called ingress routing mesh.
+
+the routing mesh enables each node in the swarm to accept connections on published ports for any service running in the swarm, even if there's no task running on the node.
+
+Routing mesh routes all incoming requests to published ports on available nodes to an active container.
+
+
+#docker service create --name servicename --network overlay_nw -p 80:80 imagename
+command is Like : -p <publised port>:<container port>
+
+The <Published port> is the port where the swarm makes the service available.
+The <Container port> is the port where the container listens.
+Routing mesh listes on the published port for any IP address assigned to the node.
+
+Deploy Multi node docker app ---:
+To create two network 
+#docker network create -d overlay front_end_ntw
+#docker network create -d overlay back_end_ntw
+
+Now deploy python front end app with 5 replicas in front_end_ntw
+#docker service create --name vote -p 5000:80 --network front_end_ntw --replicas 5 dockersameples/examplevotingapp_vote:before
+
+Now check your containters status which got created during service deployemnt
+#docker service ps vote
+
+Now create 5 replicas of redis
+#docker service create --name redis --network front_end_ntw --replicas 5 redis:version
+
+Now create workker service this will process on redis and store data in postgress, use both network front end and back end 
+#docker service create --name worker --network front_ent_ntw --network back_end_ntw dockersamples/examplevotingapp_worker:latest
+
+#docker service ps worker
+it will show 5 replicas but only single redis comptiable with service then it will show one in ready status.
+
+Now create db service with mount volume /var/lib/postgresql/data only with 1 replica
+#docker service create --name db --network back_end_ntw --mount type=volume,source=db-data,target=/var/lib/postgresql/data postgreimage:version
+
+Now create app on backend network with 1 replica
+#docker service create --name result --network back_end_ntw -p 5001:80 dockersampleimage
+
+now access backend service by using any docker node IP.
+
+
+Stack :  Stack is a group of interrelated services that share dependencies, and can be orchestracted and scaled together.
+
+A single stack is capable of defining and coordinating the functionality of an entire application.
+Complex application may have multiple stacks as well.
+Docker stack uses compose' yaml format and complements the swarm-specific properties for service deployments.
+
+File Name could be like docker-stack.yml
+
+Create Docker File
+#cat DOckerFile
+#use an official python runtime as a parent image
+FROM python:3.7-slim
+
+#Set the working directory to /app in container
+WORKDIR /app
+
+#Copy the current directory contents into the container at /app directory
+COPY . /app
+
+#install any needed packages specified in requirement.txt file
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
+
+#make port 80 available to the world outside this container
+EXPOSE 80
+
+#DEFINE environment variable
+ENV NAME World
+
+#run app.py when the container lunches
+CMD ["python", "app.py"]
+
+Build Image from Docker file
+#docker build --tag=hello .
+
+Now crate docker-compose.yml file
+cat docker-compose.yml
+version: "3"
+services:
+ #service name defined as web
+ web
+  #pull the image from repo
+  image: username/repo:tag
+  #deploy then service
+  deploy:
+     #run 5 instances of that image as a service called web
+     replicas: 5
+     resources:
+       #limiting each one to use, at most 105 of a single core of cpu and 50M ram memory
+       limits:
+          cpus: "0.1"
+          memory: 50M
+     #immedialtely restart container if one fails.
+     restart_policy:
+       condition: on-failure
+  #map port 4000 on the host to web's port 80
+  ports:
+    -"4000:80"
+  #define the default network for services
+  networks:
+    -webnet
+#define the overlay network name which we want to create 
+networks:
+  webnet:
+
+Now deploy the service in docker swarm (service name will prefix for network and service names)
+#docker stack deploy -c docker-compose.yml servicename
+
+To check list of service
+#docker service ls
+
+To list stack name
+#docker stack services servicename
+
+a single container running in this service is called task. so single service can execute multiple tasks.
+
+
+Docker Stack : Scale services
+user can scale services by changing the yaml file and redeploy the yaml 
+
+To resolve presistent data issue with docker swarm
+user can use volumes to define the mount point and restrict the service to execute on specific node.
+
+For adding additional service which will use volumes, use below code in docker-compose.yml
+  redis:
+    image: redis
+    ports:
+       -"6379:6379"
+    volumes:
+       -"/home/docker/data:/data"
+    deploy:
+      placement:
+         constraints: [node.role == manager]
+    command: redis-server --appendonly yes
+    networks:
+      - webnet
+
+now once again deploy stack
+#docker stack deploy -c docker-compose.yml servicename
+
+To check running service status
+#docker service ls
+
+To check how many stack running
+#docker swarm ls
+
+To check how many tasks are running in single stck
+#docker stack ps stackname
+
+To check how many relicas running in service
+#docker stack services stackname
+
+
+Docker Secrets : 
+a secret is a piece of data such as a password SSH private key, SSL certificate, or another piece of data that should not be transmitted over a network or stored unencrypted in a Dockerfile or in your application's source code.
+you can manage sensitive data with docker swarm secrets.
+
+docker centrally manage this data and send to only container that need it.
+docker secrets is only available in the swarm mode, so standalone containers can not use this feature.
+
+only granted service and containers access the secrets data over the network.
+
+another use case for using secrets to provide a layer of abstraction between the container and a set of credentials.
+
+How swarm manage the secrets :-- when a user adds a new secret to a swarm cluster, this secret is sent to a manager using a TLS connection.
+
+TLS is a cryptographic protocol that provides communications security over a network by providing communication encryption, privacy and data integrity.
+
+when we have multiple managers, RAFT manage the secrets on all the managers.
+
+Containers work on mounted decrypted secrets, which store at /run/secrets/secretname in containers.
+
+user can update a service to grant it access to additional secrets or revoke its access to a givne secret at any time.
+
+when container task stop running, the decrypted secrets shared to it are unmounted from the in-memory filesystem for that container and flushed from the node's memory.
+
+To check secret all sub commands
+#docker  secret --help
+
+To create docker swarm secret by file name (mentioned your password in file.txt)
+#docker secret create dbuser file.txt
+
+To create secret by parsing echo output
+#echo "password"|docker secret create dbpass -
+
+To check exsting secret
+#docker secret ls
+
+To inspect secret
+#docker secret inspect dbsecret1
+
+To pass secret value during service creation time
+#docker service create --name postgress --secret dbuser --secret dbpass -e POSTGRES_PASSWORD_FILE=/run/secrets/dbpass -e POSTGRES_USER_FILE=/run/secrets/dbuser postgresimage
+
+Service update/upgrade
+Swarm help us to limit the downtime in service update/upgrade.
+it's become possible with rolling upgrade approach.
+
+Rolling upgrade - In this many servers are serving one service/task, so we will take one server down and upgrade it and then plugin to serve service/task
+
+service upgrade provides rolling upgrade of replicas/containers with zero-downtime.
+
+service upgrade replace containers in practical.
+
+to update existing service with latest image (it will stopped eariler version and create new container with upgraded image)
+#docker service update --image nginx:latest myservicenmae
+
+To update service port from 
+#docker service update --publish-rm 8080 --publish-add 9090:80 myservice name
+
+#docker service ps service name
+
+now check your service running port (you will see service running on port 9090)
+#docker service ls
+
+To stop/remove service 
+#docker service rm servicename
+
+Container placement :
+Docker Swarm automatically try and place your containers to provide maximum resiliency within the service and it will spin your container across the node.
+
+Place the container on specific node, for monitoring for application functionality reason.
+one way to manage container placement is service constraints.
+service constraints are used to control the nodes a service can be assigned to.
+
+service constraints can be added to creation time, or add/remove at update time.
+By creation of hard coded requirement, container placement fails if not matched.
+
+Multiple constraints can be assigned to single service.
+
+To create service constraints on manager node only.
+#docker service create --name servicename --constraints node.role==manager image_name
+
+To remove constraints and add new constrains on running service
+#docker service update --constraint-rm constraintname --constraint-add newconstraintname servicename
+
+defining constriants by yml file.
+#cat docker-compose.yml
+version: "3.1"
+service:
+   #server name defined as web
+   mysqldb:
+     #pull the image
+     image: mysql:latest
+     environment:
+        MYSQL_ROOT_PASSWORD: "mypassword"
+        MYSQL_DATABASE: "dbname"
+     deploy:
+        replicas: 1
+        placement:
+           constriants:
+            - node.labels.region == east-1-d
+
+To run created compose yml file to create stack.
+#docker stack deploy -c docker-compose.yml stackname
+
+To check stack
+#docker stack ls
+
+To check running services under stack
+#docker service ls
+
+To remove stack
+#docker stack rm stackname
+
