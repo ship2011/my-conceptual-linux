@@ -387,10 +387,8 @@ rsync -axrvP /datatransfer/export_S/* /datatra/import_s/
 
 
 
-And then I need to add "umask" on "ssh" step of flowchart:
-User login -> ssh -> pam.d/ssh -> /etc/profile (~/.bash_profile)
-
-I go to /etc/ssh/sshd_config
+For assigning umask value for sftp server
+ go to /etc/ssh/sshd_config
 # override default of no subsystems#Subsystem      sftp    /usr/libexec/openssh/sftp-serverSubsystem       sftp internal-sftpGatewayPorts no
 
 add "-u 0022" umask as below
@@ -399,7 +397,6 @@ add "-u 0022" umask as below
 Subsystem       sftp internal-sftp -u 0022
 GatewayPorts no
 
-After that, I re-login & create a file and I see that umask' file is 0022.
-That's cool!
+now try to re-login
 
 
