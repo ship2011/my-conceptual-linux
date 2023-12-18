@@ -363,4 +363,43 @@ by using below command you can adjust oom score
 If you hvae many symbolic links in file system then it can also chew up inode on file system, symbolic links chewed up inode but not data
 df -ihT
 =============================================================================================
+CIFS mount example
+# mount -t cifs -o username=<share user>,password=<sharepassword>,dir_mode=0755,file_mode=0755 //WIN_PC_IP/<share name> /mnt
+
+
+//WIN_PC_IP/<share name>    /<mntpoint>   cifs  _netdev,credentials=/root/.credfile,dir_mode=0755,file_mode=0755,uid=500,gid=500 0 0
+
+
+For clearing excel sheet formatting
+keyboard shortcut Alt + E + A + F 
+
+
+To extract joebloggs from this string in bash using parameter expansion without any extra processes...
+
+MYVAR="/var/cpanel/users/joebloggs:DNS9=domain.com" 
+
+NAME=${MYVAR%:*}  # retain the part before the colon
+NAME=${NAME##*/}  # retain the part after the last slash
+echo $NAME
+Doesn't depend on joebloggs being at a particular depth in the path.
+
+rsync -axrvP /datatransfer/export_S/* /datatra/import_s/
+
+
+
+And then I need to add "umask" on "ssh" step of flowchart:
+User login -> ssh -> pam.d/ssh -> /etc/profile (~/.bash_profile)
+
+I go to /etc/ssh/sshd_config
+# override default of no subsystems#Subsystem      sftp    /usr/libexec/openssh/sftp-serverSubsystem       sftp internal-sftpGatewayPorts no
+
+add "-u 0022" umask as below
+# override default of no subsystems
+#Subsystem      sftp    /usr/libexec/openssh/sftp-server
+Subsystem       sftp internal-sftp -u 0022
+GatewayPorts no
+
+After that, I re-login & create a file and I see that umask' file is 0022.
+That's cool!
+
 
