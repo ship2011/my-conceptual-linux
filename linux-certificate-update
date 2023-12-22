@@ -1,0 +1,34 @@
+copy the root certificate at below location.
+ ZF-ROOT-CA1.pem  ZF-SUB-CA1.pem
+
+#cp ZF-ROOT-CA1.pem  ZF-SUB-CA1.pem /usr/share/pki/ca-trust-source/anchors/
+
+Not putting server in this path /etc/pki/ca-trust/source/anchors/
+
+now update certificate on redhat server by below command.
+#update-ca-trust
+
+now you can validate certificate
+#cat /etc/pki/tls/certs/ca-bundle.crt
+or grep your key
+
+or 
+you can validate certificate status by using below command
+ trust list|grep -i zf
+
+
+how to install root certificate on SUSE server
+
+copy cert on below path
+cp ZF-* /usr/share/pki/trust/anchors/
+
+now updated certificate on SUSE VM 
+update-ca-certificates
+
+now you can validate certificate
+#cat /etc/ssl/ca-bundle.pem
+or grep your key
+
+
+you can validate certificate status by using below command
+ trust list|grep -i zf
