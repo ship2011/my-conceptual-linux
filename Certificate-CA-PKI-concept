@@ -1,0 +1,63 @@
+SSL/TLS ecosysystem involves three key players -:
+Client
+Server
+Certificate Authority (CA)
+
+Key Communication :-
+Client :
+ Entity initiating the TLS handshake
+ Web Browser
+  Phone, Apps, Smart Toaster, IOT
+ Optionally authenticated
+
+Server :
+ Entity receiving the TLS handshake
+ Web Server
+  Apache, IIS, Nginx, etc.
+  Load balancer or SSL Accelerator
+Always authenticated
+
+Certificate Autority :-
+ Governing entity that issues certificates
+ Trusted by client and server
+ Provides trust anchor
+ If we trust the CA we trust what the CA trusts.
+
+Mostly 5 org provides/secure 98 of the Internet
+IdenTrust, DigiCert, Sectigo, GoDaddy, GlobalSign.
+
+
+1.Certificate Authority is the cornerstone of the TLS/SSL process
+  - CA has a public Key and a private key
+  - CA has a self-signed certificate
+
+2. Server wants to acquire a certificate. 
+3. Server generates a Public Key and a private key.
+4. Server generates a Certificate Signing Request (CSR)
+   - CSR contains server's Public Key
+   - CSR is signed by server's private Key
+   Note : In some cases the CSR process is abstracted away within the CA's web app
+5. Server gives signed CSR to Certificate Authority (CA)
+6. CA inspects and validates information in CSR
+7. CA creates certificate using information from CSR
+8. CA signs certificate using CA's private key.
+9. CA gives certificate to server
+10. Server can then provide certificate to prove its identity.
+11. Client wants to connect to the server securely
+    - Web browsers already have CA certificate installed
+12. Client requests server's certificate
+    - Client validates Certificate is legitimate
+    - Client validates that server truly owns certificate
+13. Client validates server's Certificate in the SSL/TLS handshake
+14. SSL/TLS handshake produces session keys:
+    - Symmetric encryption
+    - Message Authentication code (MAC)
+ so these keys uses in creating secure tunnel
+15. Session keys from a Secure tunnel to protect communication
+
+
+Note :- In coperate world most coperation setup their PKI (Internal CA) and uses it to sign their internal resources in their internal network. so the resources in internal network inherit trust from coperation internal PKI
+
+
+
+
