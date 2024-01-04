@@ -54,7 +54,7 @@ Now let's Crash then kernel
 The SysRq-Facility is a special key combination that, when enabled allows the user to force a system kernel to respond to a specifc command. this feature is mostly for 
 troubleshooting kernel-related problems or to force a response from a system while it is in a non-responsive state(hang).
 
-#echo 1> /proc/sys/kernel/sysrq
+#echo 1 > /proc/sys/kernel/sysrq
 #echo c> /proc/sysrq-trigger
 
 Now VM will be rebooted and go to /var/crash path to check if you kdump has been created here you will find directory name with timestamp and inside this directory you will see 2 files vmcore-dmesg.txt for booting log and vmcore to analzie this file some additional packages are required.
@@ -69,8 +69,10 @@ those 2 packages should be installed to anaylize kdump vmcore
 
 #crash /lib/debug/lib/modules/$(uname -r)/vmlinux  /var/crash/timestampdirectory/vmcore
 here in below shell now check which cause kernel panic
-crash>dis -l memroyaddress
+crash>dis -l memoryaddress
 
+to check stack trace for pid
+crash> bt pidnumbrer
 to check prosess details
 crash>ps
 for checking mount point details
