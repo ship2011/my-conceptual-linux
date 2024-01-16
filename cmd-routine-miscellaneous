@@ -399,4 +399,13 @@ GatewayPorts no
 
 now try to re-login
 
+If ports are not listening on destination server and we want to check reachablity on specfic port from source to destination then we can use below command
+but remember that tracepath works on ICMP packets, so ping should be enable to destination IP address in order to validate port.
+tracepath -p 443 10.10.10.10
 
+
+how to put stress on CPU's 2 cores for 100 seconds
+#stress --cpu 2 --timeout 100
+
+if increases any existing data disk size on public cloud then at Linux OS level we will need to execute below command to make it visiable on linux os
+#echo 1>/sys/class/block/sdb/device/rescan
