@@ -1,0 +1,389 @@
+To install ansible in python virtual env
+yum install  python3-pip
+yum install python3-minimal python3-virtualenv python3-dev build-essentia
+
+Create below diretory and virtual env
+mkdir ansible
+cd ansible
+virtualenv ansible-start
+
+activate virtaul env
+source ansible-start/bin/activate
+
+Install ansible by using pip in virtual env
+pip3 install ansible
+
+ansible --version
+
+To exit from virtual env
+deactivate
+
+During ansible installation in virtual env default ansible config path is none.
+To define config path use below way, which are in preference sequence.
+ANSIBLE_CONFIG=/mydir/ansible.cfg
+or create file in current dir
+/home/user/ansible.cfg
+or create file at this path
+/etc/ansible/ansible.cfg
+
+
+In ansible inventory you can give hostname with user name like below.
+user@hostname
+user1@hostname
+
+-k connection password (user which will be used to established connection)
+-K sudo password (it will ask for sudo or escalation password) 
+-b to become sudo user (in laest version we can also use -b to execute command as sudo user)
+
+To run Ad-hoc command by using password..
+Login from your user to ansible node..
+#ansible all -i inventlryname -m shell -a "uname -r" -k -K 
+
+To find all loaded modules doc info by using below command
+#ansible-doc -l
+
+To copy file from ansible node to client
+#ansible http -i nodelistfile -m copy -a "src=filepath dest=/filepathonclientmachien" -k -K 
+
+To add content in a file
+#ansible http -i nodelistfile -m copy -a "content='Port=443'  dest=/etc/httpd/httpd.conf" -k -K 
+
+File Module
+To create/delete file/directory.
+
+To create file/directory
+#ansible http -i nodelistfile -m copy -a "dest=/var/log/httpd state=directory" -k -K 
+#ansible http -i nodelistfile -m copy -a "dest=/var/log/httpd/httpd.log state=touch" -k -K 
+
+
+To delete the file.
+#ansible http -i nodelistfile -m copy -a "dest=/var/log/httpd.log state=absent" -k -K 
+
+
+Setup modules - you can get all facts about your remote machine by using this module
+facts = facts is information about remote client, which can be used as variable in playbook or to get info.. 
+2 type of facts
+Default Facts --- which are system defined facts
+Custom Facts -- user defined facts on client machine
+To create custom facts on client machine, create directory /etc/ansible/facts.d/ In this directory create file with .fact extension this file should have executable permission. we can define our custom facts in json format or like below format.
+[localfacts]
+gitversion = 4.4.2
+
+To get all facts for your machine
+#ansible servername -i nodelistfile -m setup -k -K 
+
+To filter only single fact by using filter
+#ansible servername -i nodelistfile -m setup "filter=ansible_os" -k -K
+
+
+To check local facts (some time ,we can use to check custom facts)
+#ansible all -m setup -a "filter=ansilbe_local"
+
+
+there are 2 types of inventory (static and Dynamic)
+Static : inventory we create and update server information 
+Dynamic : Inventory you get servers information by using script(python, shell etc) and plugins from your cloud enviornment.
+
+to list invenotry plugin 
+#ansible-doc -t inventory -l
+
+To enable plubin in ansible cfg file, update below in your ansible.cfg
+[inventory]
+enable_plugins = host_list,script,auto,yaml,ini,toml
+
+To connect to AWS enviornment by using your VM, you shuld install boto3 & botocore on VM (pip install boto3, pip install botocore)
+
+To generate dynamic invetory from AWS cloud on ansible node, create cred at AWS and then export those cred in env variable on ansible node.
+export AWS_ACCESS_KEY_ID='AK123'
+export AWS_SECRET_ACCESS_KEY='abc123'
+
+now create one file invaws.yml and update below in it.
+plugin: amazon.aws.aws_ec2
+filters:
+   instance-state-name: running
+
+to execute created inventory
+#ansible-inventory -i invaws.yml --list
+OR
+#ansible-inventory -i invaws.yml --graph
+
+To execute command or playbook on dynamic inventory's host
+#ansible all -i invaws.yml -m ping -k -K
+
+To create GCP cloud dynamic inventory, firstly create service account which will have access on compute engine.
+create and copy your key for service account and paste them on ansible in a json file.
+
+#vi inv.gcp.yml
+plugin: gcp_compute
+projects:
+ - projectsid
+auth_kind: serviceaccount
+service_account_file: /yourpath/serviceaccount.json
+
+
+to execute created inventory
+#ansible-inventory -i inv.gcp.yml --list
+OR
+#ansible-inventory -i inv.gcp.yml --graph
+
+#ansible all -i inv.gcp.yml -m ping -k -K
+
+if you are logged in by using user test but you want to run ansible command by using other user testing 
+#ansible  all -i inve -m shell -a "uptime" -u testing
+playbooks are used for configuration, deployment, orchestration etc.
+
+play - play is combinations of tasks & targets.
+Task - Operation  user wants to perform.
+
+playbooks : combination of multiple play.
+
+plyabook example code
+#vi testplaybook.yml
+- name: description of playbook
+  hosts: all  # host group information 
+  remote_user: test # remote user name which will be used to make SSH connection
+  become: yes #elvating to sudo user
+  
+  tasks:
+    -name: task info
+     copy:
+        src=test.file
+        dest=test.file
+
+To varify playbook syntax
+#ansible-playbook all testplaybook.yml all -i inv --syntax-check
+
+To run playbook in Dry Run mode
+#ansible-playbook all testplaybook.yml all -i inv --check
+
+as well as to see verbose mode, you can execute playbook with -v keyword.
+
+ansible data collection can store muliple value in variable.
+
+variable type 
+stri = val1
+list = [1,2,3,4] 
+or 
+    -1
+    -2
+    -3
+    -4
+
+map = {"OS":"linux", "Region": "West US"}
+
+registers module : To store return value of registers module.
+
+set_fact : To store the variable
+
+
+Register variable example 
+tasks:
+  - name: Get python version
+    shell: python --version|awk '{print $NF}'
+    register: py_ver
+  
+  - set_fact:
+      pythonver: {{ py_ver.stdout }}
+
+  - debug:
+    pythonver
+
+To use vars_prompt module, you can use below code example, it will ask for variable value during playbook execution time.
+
+vars_prompt:
+   - name: x
+     prompt: Please enter value of a 
+
+To convert enter value in int : {{ a|int *  a|int }}
+
+Filters : Inbuilt operation definition in ansible (jinja format), we use | for inbuilt filter {{a+a|int}} {{"string"|upper}}
+
+Methods : custom filter & python method, we use . for mothod on variables. {{a.split()}}
+
+
+coniditional statement ::
+
+when: conditional statement in similar way as "if" condition in other languages.
+
+Handlers : handler notify will execute when task changed status will be true.
+   example : 
+   tasks :
+     yum:
+       name : '*'
+       state : latest
+     notify:
+       - Reboot servers
+       - sshd status
+   handler:
+     - name: Reboot servers
+       command : /sbing/reboot
+
+     - name: sshd status
+       service:
+          name: sshd
+          state: status
+
+
+In Ansible loops start with_items
+
+example for looping :-
+vars: 
+  users: ["one", "two", "three", "four"]
+  groups: ['grp1', 'grp2', 'grp3', 'grp4']
+tasks:
+  - name: add many user by using list items
+    user:
+      name: "{{ item }}"
+      state: present
+      groups: "users"
+    with_items:
+       - test1
+       - test2
+
+  - name: add many user by using list items
+    user:
+      name: "{{ item.name }}"
+      state: present
+      groups: "{{ item.groups }}"
+    with_items:
+      - {name: 'test3', group: 'test3g'}
+      - {name: 'test4', group: 'test4g'}
+  
+  - name: add many user by using list items (need to use 2 lists)
+    user:
+      name: "{{ item.0 }}"
+      state: present
+      groups: "{{ item.1 }}"
+    with_together:
+      - "{{ users }}"
+      - "{{ groups }}"
+
+untill loop example :
+- name: Ensure apache is running
+  service:
+     name: sshd
+     state: started
+  register: result
+  until: result.changed == True
+  retries: 3
+  delay: 5
+
+
+you can alos use loop keyword to iterate through item
+loop example :
+- name: Install packages 
+  yum:
+    name: '{{ item }}'
+    state: present
+  loop:
+    - httpd
+    - wget
+    - netstat
+    - sysstat
+
+with_indexed_items loop example
+vars:
+  pack:  [ "vsftpd", "telnet", "netstat"]
+tasks:
+- name: Install packges
+  yum:
+    name: '{{ item.1 }}
+    state: present
+  with_indexed_items:
+    - "{{ pack }}"
+
+
+tags in playbook :::--
+tags we use to select the task, which want to execute.
+code example ::
+tasks:
+  - name: install git
+    yum:
+       name: git
+       state: latest
+    tags:
+       - git
+       - inst
+
+#ansible-playbook play.yml -k -K --tag git
+
+to skip tag
+#ansible-playbook play.yml -k -K --skip-tags git,inst
+
+to see all tags
+#ansible-playbook play.yml --list-tags
+
+if you are task failed and you want to continue with execution of playbook then write task like below example.
+tasks:
+- name: install git
+    yum:
+       name: git
+       state: latest
+    register: var_out   # this line is optional here..
+    ignore_errors: yes 
+
+
+Block - ansible allow you to logically group a set of tasks together with help of block and you can use single condition for execution/validation of block.
+
+code example::
+tasks: 
+  - block:
+      - name: update os
+        yum:
+          name: "*"
+          state: latest
+      - name: install git package
+        yum:
+           name: git
+           state: latest
+    become: yes
+    ignore_errors: yes
+    when ansilbe.os == "RHEL"
+    
+    rescue:
+       - name: remove git package
+         yum: 
+           name: git
+           state: absent
+    always:
+        - name: create one test file
+          command: touch /tmp/test.txt
+
+rescue : rescue's tasks get executed whenever any failure in your block.
+always: always tasks get executected all time, wheather block failed or successed.
+
+
+Modules:
+inculde : to include other playbook in your current playbook, need to define this entry at tasks line indent
+include_tasks : this will include other playbook's tasks in current playbook and need to define it at tasks's task indent.
+
+import_playbook & import_tasks also work in similar way but there some diffirence :::--
+
+import :: statements are preprocessed at the time playbooks are parsed.
+include :: statements are processed as they are encountered during the execution of the playbook.
+
+Ansible local action ::- local_action is used to process the module, task on local machine (ansible controller machine)
+code example:
+tasks:
+  - name: create file on ansible node
+    local_action: command echo "$IPADDRESS" > /home/user/ipadd.txt  # file will be created on ansible node.
+  
+  - name: put locally created file on ansible controller node on remote machine
+    copy:
+      src: /home/user/ipadd.txt
+      dest: /opt/
+
+delegate_to  : we can use it when we want to execute specifc tasks to specific module. delegate_to is a directive and it is not an individual moudle, it integrates with other moudles and it controls the task execution by deciding which host should run the task at runtime.
+code example:
+vars:
+  file_name = /opt/ipinfo
+
+tasks:
+- name: get ip info
+  shell: hostname > {{ file_name }}
+  failed_when: false
+
+- name: delegation task ### so this task will get executed on ansible master node.
+  shell: echo {{ inventory_hostname }} >> {{ file_name }}
+  delegate_to: ansiblenode # ansiblenode name, if you want to execute on any other host then give that hostname.
+
