@@ -1,0 +1,122 @@
+For setting up vsftpd 
+#yum install vsftpd
+
+make below changes in /etc/vsftpd.conf
+
+# Standalone mode
+listen=YES
+max_clients=200
+max_per_ip=4
+# Access rights
+anonymous_enable=NO
+local_enable=YES
+write_enable=YES
+anon_upload_enable=YES
+anon_mkdir_write_enable=NO
+anon_other_write_enable=NO
+pam_service_name=vsftpd
+# Security
+anon_world_readable_only=NO
+connect_from_port_20=YES
+hide_ids=YES
+pasv_min_port=50000
+pasv_max_port=60000
+# Features
+xferlog_enable=YES
+ls_recurse_enable=YES
+ascii_download_enable=NO
+async_abor_enable=YES
+# Performance
+one_process_model=NO
+idle_session_timeout=120
+data_connection_timeout=300
+accept_timeout=60
+connect_timeout=60
+anon_max_rate=50000
+anon_mkdir_write_enable=NO
+anon_other_write_enable=NO
+
+TO assign permission during upload we can use update below parameters in /etc/vsftpd.conf
+
+anon_umask=022
+local_umask=022
+
+
+Allowe nologin shell in this file /etc/shells.
+/usr/sbin/nologin
+
+comment below line in this file /etc/pam.d/vsftpd
+
+#auth     required       pam_shells.so
+
+
+Add FTP group via using below command
+# groupadd ftp_users
+Add FTP user via using below command
+#useradd -g ftp_users -d /ftp/user/directory -s /sbin/nologin username
+#systemctl restart vsftpd
+
+##############lftp testing command############
+lftp hostname < file1
+
+file1 will have below content
+login usernmae password
+cd /path
+put /downloadpath
+bye
+
+
+#!/bin/bash
+lftp -u username,password hostname << EOF
+cd /pathtodownload
+put /downloadpath
+bye
+EOF1
+==================================================
+
+For Setting up SFTP
+
+Add SFTP group via using below command
+# groupadd sftp_users
+Add SFTP user via using below command
+#useradd -g sftp_users -d /sftpdir/sftp -s /sbin/nologin username
+
+Give below ownership to SFTP directories 
+#chown username:sftp_users /sftpdir/sftp
+Give below permission to SFTP directory or as per your need.
+#chmod 775 /sftpdir/sftp
+Below permission should be set on /sftpdir directory.
+# chmod 755 /sftpdir/
+Set password for sftp user
+#passwd username
+
+Make below changes in /etc/ssh/sshd_config .
+Subsystem sftp internal-sftp
+Match Group sftp_users
+        ChrootDirectory /sftpdir
+        ForceCommand internal-sftp
+        AllowTcpForwarding no
+        X11Forwarding no
+After making changes in sshd_config please use below command to reload sshd service.
+#systemctl reload sshd
+
+We can test sftp connection via using below command.
+sftp username@172.16.50.10
+
+
+Some theory about SFTP:
+Data security and credentials encryption are the thumb rules for a system administrator. FTP (File Transfer Protocol) is great for transferring files, but it is not as secure to use over the network. By using this protocol, your data and credentials are transferred without any encryption method. SFTP, abbreviated as Secure File Transfer Protocol, is used for providing better security. SFTP works over the SSH protocol by providing the encryption required to establish a secure connection. Therefore, you can transfer data to or from your local computer system in a secure way. Hence, the secure file transfer protocol (SFTP) is more secure than the simple file transfer protocol (FTP).
+
+Connection and port Info :
+SFTP works over port 22, so communication should be enabled between client and SFTP on port 22.
+
+If you want to give permission 0022 during sftp upload then update below and test in ForceCommmand section 
+ForceCommand internal-sftp -u 0022
+
+or try with below
+For assigning umask value for sftp server add "-u 0022" umask as below in /etc/ssh/sshd_config
+
+# override default of no subsystems
+#Subsystem      sftp    /usr/libexec/openssh/sftp-server
+Subsystem       sftp internal-sftp -u 0022
+GatewayPorts no
