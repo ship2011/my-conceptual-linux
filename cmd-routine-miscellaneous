@@ -18,7 +18,7 @@ screen -S CPU -dm bash -c "sar -u 5 >> testing"
 nc -vzw2 10.1.0.23 53
 
 
-screen -S ${res_file[i]} -dm bash -c "sar -${parm[i]} 5 >> /home/username/sar/$(hostname)/$date_dir/${res_file[i]}/$(echo ${res_file[i]}|
+screen -S ${res_file[i]} -dm bash -c "sar -${parm[i]} 5 >> /home/c5324258/sar/$(hostname)/$date_dir/${res_file[i]}/$(echo ${res_file[i]}|
 
 awk -F'/' '$2 == "SWAP_Paging" {print $2} $2 != "SWAP_Paging" {print $1}')"
 
@@ -79,7 +79,7 @@ lvcreate --extents 100%FREE --stripes 8 --stripesize 256 --name lv_name vg_name
 How to check existing volume is stripped or not
 lvs --segments
 
-rsync -axrvP /datatransfer/export_path/* /import_path/
+rsync -axrvP /datatransfer/export_SPC1117885045/* /install/import_SPC1117885045/
 
 zypper command to list all availivale version of packages
 zypper search -s openssl
@@ -143,6 +143,8 @@ The last column listed will contain the LUN, the format is [Host:Channel:Target:
 az command
 az vm show -g myResourceGroup -n myVM --query "storageProfile.dataDisks"
 
+sudo yast disk list disks
+
 #iostat -hymx 1 4
 
 To assign a new UID to user called foo, enter:
@@ -151,11 +153,11 @@ To assign a new UID to user called foo, enter:
 To assign a new GID to group called foo, enter:
 # groupmod -g 3000 foo
 
-TO add user (adm) in primary (sys) & Secondry (secondl) group 
-useradd -g sys -G second adm
+TO add user (gd1adm) in primary (sapsys) & Secondry (dbgd1ctl) group 
+useradd -g sapsys -G dbgd1ctl gd1adm
 
-To add user (adm) in primary group (sys)
-useradd -g sys adm
+To add user (sapadm) in primary group (sapsys)
+useradd -g sapsys sapadm
 
 patching commands
 Use the following commands:
@@ -229,7 +231,7 @@ To check port via tracroute command
 traceroute -T -p 445 172.16.3.5
 
 ##############Azure Log query#####
-Perf|where _ResourceId contains "servername" |where CounterName == "% Free Space"
+Perf|where _ResourceId contains "deinfraeuwvm01" |where CounterName == "% Free Space"
 
 
 #####################
@@ -267,6 +269,12 @@ to allow everyone
 
 to allow a group
 #realm permit -g ag-linux-admins
+
+to list realm policy
+#realm list
+login-policy: allow-realm-logins   (this policy will allow all users)
+OR
+login-policy: allow-permitted-logins (if you have this policy then you have to allow user/group by using realm permit command)
 
 In sssd.conf access_provider should be simple
 access_provider = simple
@@ -315,7 +323,7 @@ export HISTTIMEFORMAT="%F %T "
 The output doesn't show the server certificate or SSL session. This scenario often occurs if the command traverses a network virtual appliance (NVA) that does SSL packet inspection. This inspection causes the NVA to inject its own SSL certificate into the encrypted session. Because SUSE uses certificate pinning, another injected SSL certificate can break the pinning operation. If pinning is broken, the SUSE repository denies the connection.
 ========================================================
 To Validate Certificate
-#openssl s_client -connect IP/URL:443
+#openssl s_client -connect 52.149.120.86:443
 
 
 To remove kernel old version on RHEL 8 & 9
@@ -325,82 +333,13 @@ dnf remove $(dnf repoquery --installonly --latest-limit=-2)
 --latest-limit=-1 will remove all except current one.
 =============================================================================
 
-the job that requested the file read make the request to read then it blocks waiting on data to come back before it can operate on it and so it's CPU run queue, so it's get turn on it's time slice.
+To PID process start and running time
+ps -eo pid,comm,cmd,start,etime | grep -i <name of the process>
+If you know the PID:
+ps -o pid,comm,cmd,start,etime -p <PID>
 
 
-when you run top command then you see then see %CPU
-%CPU(s): 50.6 us, 48.7 sy, 0.0 ni, 0.0 id, 0.0 wa, 0.6 hi, 0.0 si, 0.0 st
-
-If you see anything under 'wa' section then it is related to disk read/write.
-
-#logwatch --detail=high --service=all
-
-In below command output "vmstat -5m" beow show info related to disk in and disk out
-bo : block in (disk block in)
-bo : block out(disk block out)
-
-
-ps out put "VIRT" "SHR" & "REZ"
-
-"VIRT" Virtual size how much the application requested the memory.
-
-"REZ" how much it is storing/using in the memory.
-
-"SHR" how much it is using between cross linked in the memory.
-
-OOM killer : started killing processes until it has enough memory to run OS.
-
-oom killer works on oom_score, you can find process oom score in below location
-#cd /proc/432
-#cat omm_score
-
-higher the oom score, most unlikly your process will get killed
-by using below command you can adjust oom score
-#cd /proc/432
-#echo 10 > oom_score_adj
-
-
-If you hvae many symbolic links in file system then it can also chew up inode on file system, symbolic links chewed up inode but not data
-df -ihT
-=============================================================================================
-CIFS mount example
-# mount -t cifs -o username=<share user>,password=<sharepassword>,dir_mode=0755,file_mode=0755 //WIN_PC_IP/<share name> /mnt
-
-
-//WIN_PC_IP/<share name>    /<mntpoint>   cifs  _netdev,credentials=/root/.credfile,dir_mode=0755,file_mode=0755,uid=500,gid=500 0 0
-
-
-For clearing excel sheet formatting
-keyboard shortcut Alt + E + A + F 
-
-
-To extract joebloggs from this string in bash using parameter expansion without any extra processes...
-
-MYVAR="/var/cpanel/users/joebloggs:DNS9=domain.com" 
-
-NAME=${MYVAR%:*}  # retain the part before the colon
-NAME=${NAME##*/}  # retain the part after the last slash
-echo $NAME
-Doesn't depend on joebloggs being at a particular depth in the path.
-
-rsync -axrvP /datatransfer/export_S/* /datatra/import_s/
-
-
-
-For assigning umask value for sftp server
- go to /etc/ssh/sshd_config
-# override default of no subsystems#Subsystem      sftp    /usr/libexec/openssh/sftp-serverSubsystem       sftp internal-sftpGatewayPorts no
-
-add "-u 0022" umask as below
-# override default of no subsystems
-#Subsystem      sftp    /usr/libexec/openssh/sftp-server
-Subsystem       sftp internal-sftp -u 0022
-GatewayPorts no
-
-now try to re-login
-
-If ports are not listening on destination server and we want to check reachablity on specfic port from source to destination then we can use below command
-but remember that tracepath works on ICMP packets, so ping should be enable to destination IP address in order to validate port.
+If ports are not listening on destination server and we want to check reachablity on specfic port from source to destination then we can use below command.
 tracepath -p 443 10.10.10.10
 
 
@@ -409,3 +348,36 @@ how to put stress on CPU's 2 cores for 100 seconds
 
 if increases any existing data disk size on public cloud then at Linux OS level we will need to execute below command to make it visiable on linux os
 #echo 1>/sys/class/block/sdb/device/rescan
+
+To disable /etc/resolve.conf auto update
+sudo systemctl stop systemd-resolved
+sudo systemctl disable systemd-resolved
+
+
+
+Lock /etc/resolv.conf:
+
+To prevent other processes from modifying the /etc/resolv.conf file, you can set it to read-only:
+#chattr +i /etc/resolv.conf
+
+If you need to modify the file in the future, you can remove the immutable attribute:
+#chattr -i /etc/resolv.conf
+
+To compare 2 file line by line
+#pr -m -t /etc/passwd /etc/shadow
+
+To Transfer file via /dev/tcp
+Server1$cat file.zip > /dev/tcp/1.1.1.1/9999  
+To recive file
+Server2$nc -lvnp 9999 > file.zip
+
+
+If RPM command hangs then we can use below command to rebuild rpm db.
+You should be able to:
+#rm /var/lib/rpm/__db*
+then:
+#rpm --rebuilddb
+
+For checking port connectivity from Window...
+#tnc 172.17.16.68 -port 3389
+
