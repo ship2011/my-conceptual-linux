@@ -1,0 +1,853 @@
+to check snapshot list
+#snapper list
+
+Manually create snapshot
+#snapper create -d "create manual snapshot"
+
+To delete the snapshot
+#snapper delete 3
+
+To query library for any binary 
+#ldd /usr/bin/ls
+
+To query and parse /etc/ld.so.conf file and create all necessary links, as well as the id cache, which can be viewed by below command
+#ldconfig -p
+
+
+Asymmetric vs Symmetric
+Assymmetic encryption requires Public and private Keys on obht side and more secure because each party has to keep their own completely secret private key and only they can decrypt the data.
+
+Symmetric encryption requires only a single key to encrypt and decrypt data and therefore the key must be shared between the parties and so is less secure.
+
+Be your Own CA===
+You can become your own CA using openssl and the right steps.
+
+Certificate verifiation requests resolve back to your own internal servers, not commercial ones outside your org for a fee.
+
+To Self Certify, you must generate your own root certificate and private key, then add that root certificate to your devices so they will trust you to verify your devices.
+
+Self CA process
+SELF-GEN CA ----> SEND SELF CSR ----> GEN SERVER CERTIFICATE---->INSTALL SERVER CERT<-----Client request go to server------>SELF GEN CA confirm identiy is valid.
+
+$mkdir -p CA/{certs, crl, newcerts, requests, private}
+Creating your Own Root CA
+$openssl req -new -x509 -keyout demo/private/cakey.pem -out demoCA/cacert.pem -days 3652 -newkey rsa:4092
+
+Generating a Certificate Signing Request
+$openssl req -new -keyout demoCA/private/server_key.pem -out demoCA/requests/server_req.pem -newkey rsa:2048
+
+$touch CA/index.txt ; echo 01> CA/serial
+Responding to/Generating a server certificate
+$openssl ca -policy policy_anything -days 730 -out demoCA/certs/server_crt.pem -infiles demoCA/requests/server_req.pem
+
+
+To generate gpg key
+$gpg --gen-key
+
+To list gpg key
+$gpg --list-keys
+
+To list Public keys
+$gpg --list-public-keys
+
+To list secret keys
+$gpg --list-secret-keys
+
+To see public key for a single email
+$gpg --list-public-key testing@example.com
+
+To export key 
+$gpg --output  test_pub.gpg --export testing@example.com 
+
+To import key
+$gpg --import test_pub.gpg
+
+Note always use email address during export.
+
+Distribute your keys ---:
+You will need to let others know what your public key is, either directly by email or thorugh a key server, essentially a public key repository on the Net you send and receive keys from.
+
+To send key
+$gpg --keyserver  keyserver.net --send-keys 
+
+To receive key
+$gpg --keyserver keyserver.net --recv-keys 
+
+To encrypt file 
+$gpg --output encrypted.gpg --encrypt --recipent testing@example.com myfile.txt
+
+To decrypt file
+$gpg --ouput decrypted.txt --decrypt encrypted.gpg
+
+
+Encrypt/Sign
+ENcrypting -
+Converts plain texxt to cipher text
+uses your private key and their Public key to encrypt, only their private key can decrypt
+
+Signing
+may not change the target 
+Verify data intergrity 
+Verify Authorship
+Verify Chain of custody
+
+To compare 2 file line by line
+#pr -m -t /etc/passwd /etc/shadow
+
+
+Stdin - /dev/stdin - /proc/self/fd/0
+stdout - /dev/stdout - /proc/self/fd/1
+stderr - /dev/stderr - proc/self/fd/2
+
+If you see 2>&1 that means that you are sending both stderr and stdtout to the exact same place such as /dev/null
+
+$SHLVL shows your shell level
+#echo $SHLVL
+#bash
+#echo $SHLVL
+
+Bridging : Connect two or more networks, inspect and forward only frames for other network
+
+Bridge type:
+1 - Simple :: Extend networks, save traffic.
+2 - Multi-port :: Connect multiple nets, act like simple routers.
+ 3- Learning helps reduce traffic, less broadcasts, less resources usage.
+
+ - 
+Veth paris are a key building block of Software defined networking and are extermely common in connecting virutal machines and containers to their hosts.
+A Veth pari can connect two hosts, a host and a bridge, a bridge and a router, and very complex setups including network namespaces are possible.
+
+Setting up veth pair to connect to a bridge requires the bridge to be setup first.
+$ip link add brj1 type bridge
+$ip link set up brj1
+$bridge link
+$ip link add dev bet1a type veth peer vet1b
+$ip link set dev vet1b master brj1; bridge link
+
+VLANs ::- A Virtual Local area network (VLAN) is a software grouping of hosts to appear to be physically on the same switch, by applying tags to network frames.
+VLAN makes virtual separation of hosts/traffic on the same trunk for business, security, or regulatory purpose easy.
+VLAN tagging also allows for traffic prioritization, Quality of Service (Qos) priortization and better service level agreement (SLA) management.
+
+Setting Up a connection ::
+Setting up the VLAN is fairly easy. Two VM's that can ping each other on the NAT of a VM host can be configured to connect over a VLAN in about 3 minutes.
+
+To to check vlan info
+#ip link show type vlan
+
+TO add new vlan attached to the eth0 interface
+#ip link add link eth0 name vlanD type vlan id 762
+
+To make created up 
+#ip link set up vlanD
+#ip link sshow type vlan
+
+Set the IP address on created vlan
+#ip addr add 10.0.240.1/24 dev vlanD; ip addr show vlanD
+
+VLAN characteristics ::
+Frames are tagged with VLAN ID.
+setup manually or script
+sends traffic in its own virtual broadcast domain, virtual switched environment.
+
+Setting Up VLANS
+On each host do:
+#ip link add link eth0 name vlandD type vlan id 762
+#ip link set up vlanD
+#ip addr add 10.0.240.x/24 dev vlanD
+#ip addr show vlanD
+
+Network Namespaces :: A network namespace, is a spearate networking stack instance that contains an isolated copy of the system's network interfaces, routing table and firewall ruiles etc.
+Network Namespaces become evern more useful when running containers, each can have its own network space, or multiple similar containers or functional groups can share a network namespace.
+
+Setting up network Namespaces
+Using network namespaces requires a slightly new way of thinking, where a lot of commands are executed not at the level of the main system, but in the context of the namespace
+
+To create namespace and show created namespace
+#ip netns add netnam1 ; ip netns show
+
+To executed ip link show command inside created network namespace
+#ip netns exec netnam1 ip link show
+
+IPv6 ::
+2001:5150:R2D2:C3P0:Your:MACA:DDRE:SS00
+
+2 : Indicates global usability
+001 : Your Region
+5150 : Your internet Registry or ISP
+R2D3 : your customer identity
+C3P0 : your local subnet
+Your:MACA:DDRE:SS00  - your mac address expressed to IPv6
+
+128 bits in 16 bytes.
+Use Hexadecimal notation.
+
+Setup Test Network Name Space 
+Add 2 network name space
+#ip netns add nn1; ip netns add nn2
+
+Now check created namespace info..
+#ip netns show;ls -l /run/netns
+
+now check both namespace interfaces info info
+#ip netns exec nn1 ip link show; ip netns exec nn2 ip link show
+
+try to make interfaces up in both namespace
+#ip netns exec nn1 ip link show; ip netns exec nn2 ip link show
+
+Now create network bridge in each network namespaces
+#ip netns exec nn1 ip link add nn1-br0 type bridge; ip netns exec nn2 ip link add nn2-br0 type bridge
+
+Now check both created bridge info
+#ip netns exec nn1 ip link show; ip netns exec nn2 ip link show
+
+Now to make bridge up execute below command
+#ip netns exec nn1 ip link set up nn1-br0; ip netns exec nn2 ip link set up nn2-br0
+
+to check bridge status 
+#ip netns exec nn1 ip link show; ip netns exec nn2 ip link show
+
+Now add IP addresses for both bridge
+#ip netns exec nn1 ip addr add 10.0.1.1/24 dev nn1-br0; ip netns exec nn2 ip addr add 10.0.1.2/24 dev nn2-br0
+
+Now check assigned IP address info
+#ip netns exec nn1 ip addr show ; ip netns exec nn2 ip addr show
+
+Setup Virtual ethenet peer by Veth############
+
+To create 2 Veth logically end's peer
+#ip link add dev vpatch-nn1-br0 type veth peer name vpatch-nn2-br0
+
+To check status of created veth peer
+#ip link show veth
+
+To attach veth with namespace
+#ip link set dev vaptch-nn1-br0 netns nn1
+
+Now if you will check once again veth status then you will see attached veth won't show here because it has been assigned to network namespace1
+#ip link show type veth
+
+Now attach another one to another namespace
+#ip link set dev vpatch-nn2-br0 netns nn2
+
+#ip link show type veth
+
+Now check status inside Network namespace
+#ip netns exec nn1 ip link show|grep DOWN; ip netns exec nn2 ip link show|grep DOWN
+
+now attach logically created cable to bridge
+#ip netns exec nn1 ip link set dev vpatch-nn1-br0 master nn1-br0; ip netns exec nn2 ip link set dev vpatch-nn2-br0 master nn2-br0
+
+now make logically cable up
+#ip netns exec nn1 ip link set up vpatch-nn1-br0; ip netns exec nn2 ip link set up vpatch-nn2-br0
+
+now check status
+#ip netns exec nn1 ip link show|grep 'UP\|vpatch'; ip netns exec nn2 ip link show|grep 'UP\|vpatch'
+
+
+iSCSI########
+The small computer systems interface (SCSI) was created primarily to connect and transfer data between peripheral devices, computers, scanners, and printers, but mostly disks.
+
+Internet SCSI(iSCSI) is the use of SCSI commands and protocols/system calls over TCP/IP networks, basically using the network as very long SCSI cable.
+
+Whereas SCSI is primarily used for disk storage locally, iSCSI is used often for Storage Area Network (SAN) purpose.
+
+Initiator ::-  Client or server that has a real or virtual SCSI host bus Adapter (HBA). Also, where the requests to connect and transfer data originates.
+
+Target ::- A host that has an access layer that accepts requests and performs data trnasfer via the iSCSI protocol to and from storage devices.
+
+Logical Unit (Number) ::-
+LU's are effectively a SCSI disk, there can be multiple LU's per target each with a number example : LUN Number
+
+IQN (iSCSI Qualified Name) ::- An iSCSI Node's unique number that identifies it globally.
+                          exampel ::- iqn.2021-01.guru.acloud:some-num 
+
+
+A SAN, or Storage Area Network device make block device available (iSCSI, Fibre)
+
+A NAS, or network attached Storage device, makes filesystems available (NFS, Samba)
+
+iSCSI :: SCSI connection and transfers done over TCP/IP.
+
+
+iSCSI targets --: Targets receive/send SCSI commands from/to iSCSI initiators via TCP/IP for data connections/requests etc.
+
+The targetcli.service is where the targetcli command is run which loads the /etc/target/saveconfig.json configuration file contents.
+
+targetcli command :- An interactive or regual commadn line tool to query, configure,, manage sessions and authentication for the LIO target service.
+
+saveconfig.json :- where the configuration for the LIO or target services is kept. It is loaded by the targetcli command, or it can be maintained and worked with manually.
+
+iSCSI Initiators ::- An iSCSI initiator is our realm, is a Linux host that runs the iSCSI Initiator service and provides access to logical units representing block devices.
+Initiators and targets can use CHAP authentication for the discovery process but not for data transfer. Discovery authentication is recommended in production environments.
+
+iscsiadm command :- Many tasks can be done right on the command line with the iscsiadm tool, such as discovery, loggin in and out of tragets and listing sessions.
+
+the YaST module is more limited than the iscsiadm tool. Us both as needed.
+
+there are several modes to use. Know the major ones : disvovery, node, fw, host, iface, session.
+
+
+MPIO (Miltipath I/O) ::--
+A path, is the route from a server/host to its host bus adapter (HBA), to the storage controller. One use of multipath is to provide redundancy of the path, not the storage.
+
+Device mapper, is a block subsystem layer that abstracts multiple path, and simplifies access for storage.
+
+Paths are mapped into priority groups, one of the which is marked active. the path selector chooses the path from the path group to be used for I/O. If failures occur, the selector picks a different path.
+
+Device mapper multipath kerenel module :- A kernel module designed to handle multipathing logic, equally for regular behavior, or in a failure sitution.
+
+multipath : user command for configuring querying and deleting multipathing devices.
+multipathd daemon : Daemon that monitors the configured paths, and manages switching to new paths and path groups, as necessary. Mange with systemctl.
+
+kpartx (older partx) :- Command usually inovked via hotplug, on device map create and delete and can be used to manually manage device maps.
+
+
+Disk Querying commands ::-
+To get Serial and disk info
+#lsblk -S
+
+#lsscsi -w
+
+Centeralized Authentication ::-
+PAM :- Pluggable Authentication Modules is an authtication broker, an API, and an abstraction layer that handles application/service authentication requests, freeing the requester from the gory details.
+
+The application makes a request to PAM, where each specific application will have their own confiugration file.
+
+if the /etc/pam.d directory exists it overrides the /etc/pam.conf configuraiton file and if no specific confiugraiton exists for an application, the other file applies.
+
+PAM Management Groups :
+what is pam : Abstraction layer between apps and authentication methods. 
+account -: User password services, right password yes or not password expiration, access to the configured service, etc.
+
+Authentication -: Authenticates users and proivdes user credentials using challenge/response. Provides for non-password authentication methods, biometric, etc.
+
+password -: Exists primarily for the update of authentication methods, such as processing password changes or update.
+
+session -: Manges setup and teardown of a user's session, or access to a service including auditing and mounting of configured filesystems.
+
+/etc/pam.conf this file affects PAM configuration overall but is superseded by the /etc/pam.d directory presence and contents. 
+/etc/pam.d this directory typically contains a configuration file for each application/service plus a catch-all file for any un-named called (other)
+/usr/lib/pam.d this directory contains the vendor supplied per applicaiton configuration files which are supperseded by the files in the /etc/pam.d directory.
+
+to list modules
+#pam-config --list-modules
+
+to debug on a application
+#pam-config --debug -a --force --unix
+
+SSSD ::- System Security Services Daemon is an extension to the PAM framework and helps provide access to authentication possibilites.
+
+the use of SSSD can help a server have access to muliple backend identity mechanisms and even off-line authentication services for mobile users.
+
+SSSD Features -:
+online/offline Authentication access :: locally caching credentials when authenticating allows for offline authentication until re-connected.
+
+single source for multiple identity stores :: SSSD increases the possible authentication options while decreasing performance issues by establishing a single connection multiple queries.
+
+smoother SSO and kerberos :: single sign-on via kerberos is made easier by caching the ticket locally, and then using it for the next login while refreshign/updating tickets.
+
+
+RPM ########
+RPM packages are a specialized type of archive based on CPIO, and contain a header full of info, pre/post install scripts and any necessary signatures, dependency information, in additiona to the package's file payload.
+The RPM command's partner in software management is the RPM database, where the software packages are recorded as installed, and this is treated as the master package information store..
+
+rpm -qi pkg -- query the package info page
+rpm -ql pkg -- list the files in package
+rpm -qd pkg -- list only documentation files
+rpm -qc pkg -- list only configuration files.
+rpm -qf pkg -- list the package the installed of given file, need to give full path.
+rpm -q --scripts pkg -- to check post install scriptlet
+rpm -ivh pkg -- show verbosity of 50 # marks as a pgoress indicator of installation.
+rpm -ivh pkg --force -- force to install the package causing the overwrite of files/packages
+rpm -ivh pkg --nodeps -- Do not check for dependencies.
+rpm -ivh pkg1 pkg2 -- install a pacakge pkg1 and its dependency pkg2
+
+rpm -e pkg  -- uninstalling the package
+rpm -e pkg --allmatches -- remove all matches of the keyword
+
+rpm -e pkg --just db -- just update the database and leave all files along on disks
+rpm -e pkg --noscripts -- Don't run any scripts on removal.
+
+Updating packages via rpm ::
+Update - U.
+Freshen -  F
+rpm -U pkg -- upgrade all installed packages and install any yet not installed pacakges.
+rpm -F pkg -- upgrade only pacakges that are already installed, no net-new installas.
+
+To verify packages via rpm- To verfiy the integrity of any pacckage and display that information to you upon demand.
+#rpm -Va pkg
+
+S - the size differs
+M - The Mode (permissions/file type) differs.
+5 - The digest differs (used to be md5sum)
+D - there is a mismatch in the devices
+L - there is a link mismatch
+U - The User ownership differs
+G - The group ownership differs
+T - The Modify (mtime) differs.
+P - The capabilites thing packages depend on differ.
+
+rpm --checksig pkg.rpm  -- to check package signature
+
+rpm -qp pkg.rpm -- to query rpm before installing.
+
+RPM Building Concpets ...
+RPM packages are cpio archives that typically contain all files, directorories, install and uninstall scripts, and accompanying information needed to install that software.
+
+RPM packages are built from source code, though you can build for a single architecute or many different target architecture.
+
+RPM packages are very flexiable and can be used to deliver source files to a location on the target, resources files to a given location, or can simply deliver a script that will run separate tasks.
+
+Building RPM packages requires ::-
+Build Directory --: Create your own directory with the proper subdirectories for the build process. Probably best not to use /usr/src/packages as root
+
+Source code Tarball --: The uncompiled source code archive for the package, need to be in the ./SOURCES directory in your build directory.
+
+.spec file --: Literally the specification or instruction file that guides the entire build process. Needs to be in the ./SPECS directory.
+
+rpmbuild command --: The command that executes a build, contains the build functions previously inside the rpm command.
+
+RPM build directory structure
+/usr/src/linux - in this directory create below sub-directory
+     BUILD --: where builds/compiling happens
+     RPMS  --: Delivered .rpm files
+     SOURCES --: tarballs of source code
+     SPECS --: Where .spec files live
+     SRPMS --: Delivered source code .rpms
+if we are building RPM packages that do not have a specific architecute, they go into the subdirectory: ./RPMS/noarch.
+
+.spec ::::
+   introduction --- made up of 3 subsections: %define, information and %description, this make up the rpim -qi page
+   package building --- For main sections: %prep, %build, %install and %clear
+   installation scripts -- that can be used/run: %pre, %post, %preun and %postun.
+   %files - A list of all files in RPM package, including any eimpty directories and documentation.
+   %changelog - Alwasys at the end of the spec file and contains log entries of major changes to the package over time.
+
+you will need to review the build types and choose the type you want to create
+-ba  -- Builds all including src and binary rpm.
+-bb  -- Only build the binary RPM.
+-bc  -- Do not build, just compile.
+-bp  -- build up and including the prep section.
+-bi  -- Build and stop ater install section
+-bs  -- only build the source no binary rpm.
+
+
+#rpmbuild -ba pack.rpm
+
+Keys and Signing RPM packages ::--the rpm database contains GPG kyes in the same way as packages. you can import them, query them and use them for verification and signing.
+
+--sign  :: Causes rpm to act like rpmsign and sign the package during build.
+rpmsign :: Adds or replaces signatures for pacakges.
+--addsign :: generate and insert signature for a pkg
+--resign :: Effectively the same for same compatibility.
+--delsign :: Deletes a signature from a package.
+
+Repositories ::- rpm packages can be downloaded singly in groups or accessed from a special location called a repository.
+
+A repository is the combination of RPM packges and metadata that defines, describes, and catalogs the packages in the repository.
+
+Repositories can be a local directory, a local network share, or all the way across the world an can be accessed via various protocols.
+
+
+Repo management via zypper :::
+zypper lr - list the configured repo
+zypeer ref - refresh all active repos
+zypper clean - Removes all cached downloaded packages and all repos.
+zypper download pkgname - it will download pakcages from repos.
+zypper ar https/URL  - Followed by URL and Alias, defines a new repository.
+zypper rr https/URL  - Followed by URL and Alias, removes a repository.
+zypper mr https/URL  - Followed by #, Alias, URL modifies existing repository.
+
+
+RMT #######
+If using one or more systems, the SUSE customer center (SCC) is where they connect to receive subscription entitlements and all updates.
+
+For enterprise or multi-system environments, using the Repository Mirroiring Tool (RMT) decreases overall bandwidth used, keeps security tight, and allows for custom or specialized updates.
+
+RMT effectively replicates the SCC locally, allowing you to use it as a complete proxy for all registration with SCC for client systems, as well as a local bandwidth target for all updates, patches and fixes.
+
+Steps to configure and use RMT server :::-
+Generate mirror credentials -> Must be done via the SUSE customer Center and be configured in the YaST RMT module (yast rmt) or /etc/rmt.conf file.
+
+Install RMT-Server -> Install the rmt-server package, which includes installing MariaDB and Nginx on Port 80. cannon co-install with an install server.
+
+Complete RMT Configuration -> Use YaST-RMT Configuration, includes DB password, keys, and firewall. Additionally, se update schedule.
+
+Manage your Mirrored repos -> Use "rmt-cli repo list --all" to show all repose then enable the desired repos with "rmt-cli-repo enable ID"
+
+rmt-cli subcommands
+ mirror - starts the mirroring process.
+sync - syncs the database with the SCC.
+products - list the products available.
+repos - List and allow repos to be modified.
+
+RMT Client Setup ::
+YaST Setup - Use the YaST module to register with the RMT server. (yast2 for the GUI version)
+#yast registration.
+
+Boot/AutoYaST - Available via URL when booting a client system or when installing via AutoYaST use : regurl=https://myrmt.myco.net
+
+rmt-client-setup - If the client system is already running and a command line is desired for scripting use.
+/usr/share/rmt/public/tools/rmt-client-setup
+
+Building RPM steps..
+$mkdir ~/rpmbuild
+$sudo cp -r codetar.gz ~/rpmbuild/
+$sudo chown -R youruser:group ~/rpmbuild/
+$sudo zypper install rpm-build
+
+download source code tar.gz 
+wget https://example.com/code.tar.gz
+$sudo cp -v code.tar.gz ~/rpmbuild/SOURCES/
+
+$cd ~/rpmbuild/SPECS
+$vim code.spec
+Name:  code
+Version: 1.1
+Release: 0
+Summary: Lab Script
+License: GPLv2
+Group:  Development/Tools/Other
+Url: example.com
+Source: code.tar.gz
+BuildRoot: %{_tempath}/%{name}-%{version}-build
+
+%description
+this is the code package for installaing code
+%prep
+%setup -q
+
+%install
+rm -rf $RPM_BUILD_ROOT
+install -d $RPM_BUILD_ROOT/opt/code
+install -m 0755 code.sh $RPM_BUILD_ROOT/opt/code/code.sh
+
+%files
+$dir /opt/code
+/opt/code/code.sh
+
+%changelog
+* Sat Jun 21 2023 Test Name
+- Install the RPM build of package
+
+===========EOF===
+$rpmbuild -ba code.spec
+
+Now check your build RPM info
+$ls ~/rpmbuild/RPMS/x86_64/
+$ls -l ~/rpmbuild/SRPMS/
+
+To check information page of build RPM
+$rpm -qip ~/rpmbuild/RPMS/x86_64/code.1.1.0.x86_64.rpm
+
+You can also info check Changelog
+$rpm -qip ~/rpmbuild/RPMS/x86_64/code.1.1.0.x86_64.rpm --changelog
+
+To check only changelog
+$rpm -qp ~/rpmbuild/RPMS/x86_64/code.1.1.0.x86_64.rpm --changelog
+
+To check where rpm is going to install doc/binary
+$rpm -qlp ~/rpmbuild/RPMS/x86_64/code.1.1.0.x86_64.rpm
+
+To check if rpm is installed on server
+$rpm -q code
+
+Install rpm 
+$sudo rpm -ivh ~/rpmbuild/RPMS/x86_64/code.1.1.0.x86_64.rpm
+
+To check installed rpm page info
+$rpm -qli code
+
+To Sign RPm with GPG Key#################
+$gpg --gen-key
+
+To check created gpg key info
+$gpg --list-keys
+
+Now export gpg key
+$gpg --export -a 'Test Name' > rpm-gpg-key-test
+$cat rpm-gpg-key-test
+
+now import gpg by rpm
+$sudo rpm --import rpm-gpg-key-test
+
+To check imported gpg key info
+$rpm -q gpg-pubkey --qf '%{summary}\n'
+
+Now create below file
+$vi ./rpmmacros
+%_signature gpg
+%_gpg_path /home/youruser/.gnupg
+%_gpg_name Test Name
+%__gpg /usr/bin/gpg
+
+now execute below command to sign rpm
+$rpm --addsign ~/rpmbuild/RPMS/x86_64/code.1.1.0.x86_64.rpm
+
+to check RPM has been signed
+$rpm --checksig ~/rpmbuild/RPMS/x86_64/code.1.1.0.x86_64.rpm
+
+
+###############SALT Configuration managment tool###########
+Slat is a mthod and software that allows for remote configuration managment via what is known as remote execution.
+
+Salt can manage desktops, servers, and devices and it can be run on anything that has a python interface.
+
+Salt uses the concept of "states" which are defined as a set of installed pacakges and specific running services. This could be seen as a server or system "role" as well.
+
+Salt Server : it will be pushing configuration to salt minions and can manage many more things.
+
+Salt minions: runs salt-minion on client and able to be independent and only need python.
+
+Salt SSSH systems - they need no minion as agent and utilities/command run over SSH
+
+What's YAML ::-- YAML is a data representation and encapsulation standard that is often used in configuraiton files and for stroing data that other languages can access through parsing.
+
+YAML file example ###
+---
+#Key Value pair
+key: value
+
+#List
+ - test1
+ - test2
+
+#Dictionary
+info:
+   name: testing
+   age: 00
+   city: xxx
+#Abbreviated Dictionary
+info: {name: testing, age: 00, city: xxx}
+
+YAML starts with --- and ends with ...
+
+keys and values are case sensitive in YAML.
+
+SALT ports :: salt publishes jobs on TCP port 4505 and communicates with salt minions via TCP port 4506
+
+when Salt server "publishes" its instructions to the minion "subscribers" who then execute the task and report job return data to the salt server.
+
+Standard configuration file for salt server--
+the main salt server configuration is almost standardized:
+/etc/salt/master
+This can be changed very easily, for example in code to the left.
+
+Salt follows the usual link include directory structure we are used to : /etc/salt/master.d
+
+All entries in the main configuration file are commented out, and are the defaults, so all customization can be done in the master.d directory .conf files!
+
+Salt server can manage 5000 client with just 5 woker_threads
+
+Salt minion configuration file on client.
+/etc/salt/minion and minion will also have /etc/salt/minion.d/ directory named with .conf suffix.
+
+minion IDs are created when the minion service is initially started and are in : /etc/salt/minion_id
+
+you may have to clear the minion's ID cache with the minion-related command
+$salt '*' saltutil.clear_cache
+
+salt installation on server
+#zypper in salt-master
+Server config file/directory
+/etc/salt/master
+/etc/salt/master.d/
+
+Client config file/directory
+/etc/salt/minion
+/etc/salt/minion.d
+
+directive ::
+mater: salt.master.com
+verify_env: yes # to validate env security
+
+Understanding of Salt execution modules ::-
+Salt is based on the concept of remote execution, or causing commands and configurations to be executed on remote managed systems on demand.
+Salt comes with many execution module each of which contains a certain set of functions that provide a wealth of abilities on your minion clients.
+
+Modules are the functional component in salt "calls" or commands and are invoked as:
+$salt '*' modulename.function args
+
+Salt execution Options ::
+
+salt - the most common commands run on the salt server. jobs are published on TCP port 4505 and executed on the minions.
+
+salt-call - Runs on the minion only to execute a function without the salt server. often used to re-run a command on a single minion manually, or to view configuration details.
+
+salt-run - executes salt commands on the salt server, usually related to viewing or manipulating jobs.
+
+where to execute :
+$salt 'target' function arguments
+
+Run below command to check minion keys request on salt server
+$salt-key; salt-key -L
+
+To check connection with minion run below from salt server..
+$salt minion001 test.ping
+
+To run command
+$salt minion001 pkg.refresh_db
+
+$salt minion001 cmd.run "zypper ref"
+
+Managing Jobs on salt server ::--
+Jobs in salt are tasks or instructions that have been sent to the minion. they can be instant or take some time to accomplish, and often you will want to check on the progress and status of jobs.
+
+Managing Jobs usually involves the job ID:
+$salt minion001 cmd.run ls -v
+
+To check active jobs status..
+$salt -run jobs.active
+
+Go ASYNC for long jobs -- As many commands can take a long time, it's critical to set jobs to run in the "backgroupd"
+
+$salt --async minion001 cmd.run "rpm -Va"
+
+MODULES are critical for salt ::-
+Modules are where functionality is stored. knowing where the modules are how to list them, and how to properly invoke their functions is key.
+
+Modules are typically in python. code and live in the /etc/salt/_modules directory. you can sync the modules with minions using:
+$saltutil.sync_all
+$saltutil.sync_modules
+
+$salt '*' cmd.run 'ls -l|grep bin'  # please run full command to minion
+
+$salt '*' cmd.script 'test.sh'  #download a script to minion and run it . Makes it easy to maintain scripts and update them.
+
+
+Salt States:::---
+Salt can cause something to happen either by remote execution vai modules and functions, or by the application of states.
+
+Salt states are a collection of tasks that are script-like in nature and have the logic to ensure a given "state" -- i.e. a set of packages and services and properly installed and at a given status.
+
+States can use dependencies to ensure packages are installed and available before then run, or that a given user/group is present before they are called by a later state or call in the current state.
+
+Salt State Files :::
+/srv/salt/dir/state.sls - state files are recommended to be kept in the /srv/salt directory, and subdirectories are supported and necessary for state trees, etc.
+
+manageusers.statename - when you refer to a state, you use the subdirectory off /srv/salt as the prefix, then the state file name without the .sls as suffice separated by a period . so, to manageusers.roger.
+
+sys.list_state_modules - Queries state modules that are available and displays the entire list. YOu can also specify a module to see if it exists and can be used.
+
+
+LAY the groudwork - it's considered good practice to put your states in a named directory, such as /srv/salt/addusers for state files that will add users to target systems
+$mkdir /srv/salt/manageusers
+
+create a state file
+$vi /srv/salt/manageusers/user.sls
+user.present:
+   - fullname: xxx xxx
+   - shell: /bin/bash
+   - home: /home/test
+   - uid: 1006
+   - gid: 1006
+   - groups:
+     - users
+   - password: xxxxx
+
+
+To execute created state file in dry run 
+$salt minion001 state.show_sls manageusers.users
+
+To apply state file
+$salt minion001 state.apply manageusers.users
+
+To check if user got added 
+$salt minion001 user.list_users|grep  test
+
+
+State Tree Specifics -
+state tree are configured in the main /etc/salt/master configuration file or one of the /etc/salt/master.d files.
+
+Using init.sls FILES -
+One way to use the init.sls is to have it become a state name itself. the directory contents are then applied when referred to by that name.
+Example: /srv/salt/web/init.sls becomes web.sls
+
+Using a top.sls file - 
+A top.sls file sits in the /srv/salt directory and references the directories to be parsed. All states in those directories will be applied to specified targeted minions.
+
+so basically A STATE is a collection of tasks or actions and you can defined logic in it..
+
+Setting up Salt server ----------
+#zypper in salt-master
+#vi /etc/salt/master    # In this file give your server IP under Interface
+interface: 10.10.10.10
+
+Now start salt master service
+#systemctl start salt-master.service
+
+#systemctl enable salt-master.service
+
+Setting up salt client
+#zypper install -y salt-minion
+
+#vi /etc/salt/minion
+master: 10.10.10.10    # here give your salt server IP address.
+
+check your pki key
+#ls -l /etc/salt/pki/minion/
+
+#systemctl start salt-minion.service # start minion service
+
+
+Now to to Salt server and accept salt minion keys
+#salt-key -a client1
+
+#salt-key
+
+Now go to client and run below command
+#ls -l /etc/salt/pki/minion/
+
+Now from salt master server you can check connectivity
+#salt client1 test.ping
+
+Check os Info
+#salt client1 grains.item oscodename
+
+to check remote system packages info
+#salt client1 pkg.list_pkgs
+
+to grep single package
+#salt client1 pkg.list_pkgs|grep httpd
+
+to install package
+#salt client1 pkg.install httpd
+
+to start service
+#salt client1 service.start httpd
+
+to remove package
+#salt client1 pkg.remove httpd
+
+===========Salt sate to apply config on client=====
+#ls -l /srv/salt
+#mkdir /srv/salt/user/
+#vi /srv/salt/user/init.sls
+
+createUser:
+   user.present:
+     - name: test
+     - fullname: test fine
+     - password: 'xxxx'
+
+To apply sate
+#salt client1 state.apply user.init
+
+To delete user
+#salt client1 user.delete test
+
+Now create another state
+#mkdir /srv/salt/http
+#vi /srv/salt/http/init.sls
+install_nginx:
+    pkg.installed:
+      - name: nginx
+
+now crate top.sls file
+#vi /srv/salt/top.sls
+base:
+ `client*`:
+   - http
+   - user
+
+#salt client1 state.highstate
