@@ -261,13 +261,13 @@ How to activite /etc/security/access.conf in Suse linux
 
 
 how to allow AD user by relam command if user is unable to login
-#realm permit bmcdiscovery.linux
+#realm permit username
 
 to allow everyone
 #realm permit --all
 
 to allow a group
-#realm permit -g ag-linux-admins
+#realm permit -g groupname
 
 to list realm policy
 #realm list
@@ -278,8 +278,10 @@ login-policy: allow-permitted-logins (if you have this policy then you have to a
 In sssd.conf access_provider should be simple
 access_provider = simple
 
+If ports are not listening on destination server and we want to check reachablity on specfic port from source to destination then we can use below command
+but remember that tracepath works on ICMP packets, so ping should be enable to destination IP address in order to validate port.
 To check port connectivity via traceroute
-#traceroute -T -p 21 172.21.85.31
+#traceroute -T -p 21 10.10.10.10
 
 how to unlock AD account
 #faillock --user ina1absa --reset
@@ -431,3 +433,5 @@ then:
 For checking port connectivity from Window...
 #tnc 172.17.16.68 -port 3389
 
+if increases any existing data disk size on public cloud then at Linux OS level we will need to execute below command to make it visiable on linux os
+#echo 1>/sys/class/block/sdb/device/rescan
