@@ -1,0 +1,340 @@
+To check All kernel Parameters
+#sysctl -a
+
+TO check single paramenter value
+#sysctl net.ipv4.ip_forward
+
+To Make changes permanent and take effect immedaitly but this method is not recommended
+#sysctl -w net.ipv6.conf.defualt.forwarding >> /etc/sysctl.conf
+
+Make your changes by creating a file in /etc/sysctl.d directory.
+
+We can make kernel releated changes in /etc/sysctl.d/10-network.conf file and then make them effective immedaitly via using below command
+#sysctl -p /etc/sysctl.d/10-network.conf
+
+
+Kernel modules
+lsmod - View loaded kernel modules
+modinfo - View module details
+modprobe - Add and remove modules from the kernel
+
+To load module temprorily 
+modprobe bluetooth
+
+To unload module 
+modprobe -r bluetooth
+
+To load module permanently 
+echo bluetooth > /etc/modules-load.d/bluetooth.conf
+
+shutdown -r now
+
+How to block a module 
+vi /etc/modprobe.d/blacklist.conf   (enter below line in file to block module)
+#blacklists bluetooth
+blacklist bluetooth
+install bluetooth /bin/false
+ 
+to check excluded(blacklisted) modules
+modprobe --showconfig |grep blacklist
+
+Applicaion and Performance considerations
+
+What are the application's resource requirements?
+Does the application generate a large amount of disk I/O?
+Does the application generate a large amount of network I/O?
+Does the application have any technological requirements?
+Does the server and network meet the application's requirements or address the impacts?
+Does the application scale and if so, how does the application scale?
+
+TO check each 5 seconds status of ps 
+#watch -n 5 "ps -eo user,pid,%cpu,%mem,cmd"
+
+TO check specfic PID
+top -p 1606 -b -n 5
+
+glances to check utilization over web url of server.
+Install it via pip
+pip install glances
+glances -w -p 8000
+
+mpstat : A command line utility used to displays processor information and statistics to standard output.
+
+iostat : A command line utility used to monitor system input/output statistics for devices and partitions.
+
+vmstat : A command line utility used to report information about processes, memory, paging, block I/O, traps, disks, and CPU activity.
+To check all CPU stats
+mpstat -P ALL
+
+To check each 3 seconds CPU stats for 5 iteration
+mpstat 3 5
+
+pidstat : A utility used to report on various statistics used by a process. This includes CPU usage, disk usage, assoicated thread statistics as well as child processes.
+pidstat -p ALL
+
+to check specfic process by name
+pidstat -C "sshd"
+
+
+TO make grap of sar (sadf) output we can redirect sar command output in .svg file 
+sar -u 2 >> graph.svg    (now we can access this file from web browser and this command will generate state in each 2 seconds)
+
+sadf /var/log/sa/sa27 -g -s 10:00 -e 17:00 -- -B > example.svg
+
+What is Valgrind?
+Valgrind is a framework of several tools used to profile applications. These tools can detect memory errors and memory - management issues.
+
+Valgrind Utilities
+memcheck - Detects memory managment problems by intrecepting system calls and by checking all read and write operations.
+
+cachegrind - Identifies the sources of cache misses by simulating the level 1 instruction and data caches as well as unified level 2 cache.
+
+sudo yum group install "Development Tools"
+valgrind --version
+
+valgrind --tool=cachegrind --log-file=cachetest.out ./cachetest
+
+What is SystemTap?
+A tracing tool used to monitor a system without the need to recompile, install, and reboot. It offers customization via script for tracing filtering, and analyzing as well as providing a look at the kernel and running applications.
+
+what is niceness?
+In simple terms, niceness is a numeric scale used to describe the relative priority of a process.
+
+what is a niceness scale?
+A 40 value range, with -20 being the highest priority value and 19 being the lowest priority value.
+
+Checking nice value of process
+#ps -eo pid,comm,nice,cls --sort=-nice|less
+
+
+To set nice value for spefic process (here when new instance will occur of bash then it will occur with 15 value)
+#nice -n bash
+
+To change nice value of running process (637373) 
+#renice -n 5 637373
+
+Key tuned profile locations:
+/usr/lib/tuned/ - Distribution specfic profiles are stored in a separate directories in this location
+
+/etc/tuned/ - Location to store customized profiles.
+
+Tuning categories used by Tuned:
+Static - Primarily focused on predefined sysctl and sysfs setting and single activation of configuration tools.
+
+Dynamic - Monitors system usage and adjust setting dynamically based on the information collected.
+
+Tuned Modes (Can run):
+systemd service - By default, tuned operates as a service, continually monitroing the system in the background.
+
+no-daemon mode - in this mode, tuned will apply settings and exit. Not recommended as many features are not available in this mode.
+
+To check active profile
+tuned-adm active
+
+To list all available profiles
+tuned-adm list
+
+To check recommended profile
+tuned-adm recommend
+
+To change active profile to another profile
+tuned-adm profile balanced
+
+Now check active profile
+tuned-adm active
+
+To trun of tuned 
+tuned-adm off
+
+you can stop tuned permanently via using systemctl command.
+
+Two type of tuned plug-ins
+Monitoring plug-ins:  Used to collect information from a running system and can be used for dynamic tuning
+Examples include disk, net, and load
+
+Tuning plug-ins: Automatically instantiated when metric related to it are needed.
+Examples include cpu, net, sysctl, audio and more.
+
+To check info about tuned profiles
+tuned-adm profile_info virtual-guest
+
+To check defualt configuration of tuned profile
+cat /usr/lib/tuned/virtual-guest/tuned.conf
+
+
+TO create custom profile
+mkdir /etc/tuned/testprofile
+vi /etc/tuned/testprofile/tuned.conf
+#including other tuned profile
+[main]
+summary=customized tuned profile
+include=virtual-guest
+
+#include sysct parameters
+[sysctl]
+#Enable IPv6 forwarding
+net.ipv6.conf.all.forwarding=1
+
+#include any script
+[script]
+#Run a custom script that writes out to a log file when executed
+script=/home/cloud_user/scripts/tuned.sh
+
+Now load our custom profile on running system, once you will load this profile then all changes will be apply.
+tuned-adm profile testprofile
+
+Now check our loaded profile is active on system
+tuned-adm active
+
+Cgroup (control group):
+Use Cgroups to manage resource allocation for processes based on the PID value of the process.
+
+What is Cgroup?
+Cgroups used to set limits, prioritize or isolate the hardware resources of processes, allowing for granular control of resource usage.
+
+Control Group versions
+cgroups-v1 was designed as a per-resource hierarchy. Developed over a long time and doesn't have a uniform structure.
+
+cgroups-v2 follows a single control group hierarchy, meaning all resource controllers are mounted againest one group.
+
+What are the advantages and disadvantages of using a PID with cgroups?
+
+The PID value offers quick and convenient method to apply changes to a running processes, providing the ability to throttle a problematic process.
+
+The primary draback is the PID will change any time a service is sycled or the system is restated, making it ineffective in the long run and potentially impacting to other services.
+
+Managing System Resources Using PIDs and Cgroups.
+
+To cgroups is enabled
+#mount -l|grep cgroup
+
+#mkdir /sys/fs/cgroup/cpu/mytest
+#echo "1000000" > /sys/fs/cgroup/cpu/mytest/cpu.cfs_period_us
+#echo "200000" > /sys/fs/cgroup/cpu/mytest/cpu.cfs_quota_us
+
+#dd if=/dev/zero of=/dev/null &
+dd command output will consume most of the amount of CPU to restrict it to at 20% echo this process PID as per below.
+#echo "230232" > /sys/fs/cgroup/cpu/mytest/cgroup.procs
+
+To check cgroup of any running process
+#cat /proc/230232/cgroup
+
+For version2
+#mkdir /cgroups-v2/mytest
+#echo "1" > /cgroups-v2/mytest/cpuset.cpus
+#echo "200000 1000000" > /cgroups-v2/mytest/cpu.max
+#echo "7050" > /cgroups-v2/mytest/cgroup.procs
+
+Managing System Resources, Using Systemd and Cgroups
+
+Using systemd with cgroups to manage resource utilization at a service level rather than the process level as well as making chnages persistent rather than transient.
+
+Chnages to cgroups and resource management in the Red Hat 8.
+
+Starting with RHEL 8, Red Hat has moved resource management away from the process level and onto the service level by combining the cgroup hierarchy with the systemd unit structure.
+
+System resources can now be managed trhough the use of the systemctl command or by updating systemd unit files.
+
+Systemd can use the unit types service, scope, and slice to control resources on a system.
+
+Additional information:
+
+Per Red Hat documentation, RHEL 8 uses the cgroups v2 interface but uses cgroups v1 by default. To leverage cgroups v2, cgroups v1 will need to be disabled first.
+
+Resource distribution models :
+
+Weights: Add weights and divide the sum by the number of groups (e.g, CPUWeight=).
+
+Limits: A cgroup can consume up to the amount. Sub-grous could exceed the limit of the parent group (e.g, MemoryMax=).
+
+Allocations: An absolute amount of a resource is allocated. Overcommits are not allowed.
+
+## Managing system resources Using Systemd and Cgroups
+
+To check systemd cgroup heiarchy 
+
+#systemd-cgls
+
+To check all cgroup services stats with resources, execute below command
+#systemd-cgtop
+
+To set memory for specfic process.
+#systemctl set-property httpd.service MemoryLimit=1000M
+
+To set CPU limit to specifc percentage
+#systemctl set-property httpd.service CPUQuota=20%
+
+Now check service status
+#systemctl status httpd.service
+
+To rolling back limit, we will delete created file via property command after stopping service
+#systemctl stop httpd
+
+#rm /etc/systemd/system.control/httpd.service.d/50-CPUQuota.conf
+
+#systemctl daemon-reload
+
+#systemctl start httpd
+
+PowerTOP utility use to view power usage at the system level as well as the user level to investigate and identify potential areas for improvement.
+
+PowerTOP can estimate individual power usage for each process, device, kernel worker, timer, and interrupt handle.
+
+PowerTOP collects statistics from the system and groups the output in tabs. The different tabs are Overview, Idle stats, Frequency stats, Device stats, and Tuneables.
+
+
+
+Comparing powertop.service to powertop2tuned
+
+powertop2tuned is integrated with Tuned.
+
+powertop2tuned allows more control with enabled tuning.
+
+powertop2tuned doesn't automatically enable tunings, allowing for protection against potential negative impacts cause by tuning.
+
+powertop2tuned allows for rollback without rebooting.
+
+To check each process power usage
+#powertop
+
+To check process with 10 seconds polling cycle
+#powertop --time=10
+
+To generate html based view of powertop command
+#powertop --html=powertop.html
+
+Profiling Hardware System :
+To check Chassis Information -:
+#dmidecode -t 3
+
+To check kernel buffer message with the help of dmesg along with timestamp
+#dmesg -Tx
+
+To check error level and warnning messages
+#dmesg --level=err,warn
+
+Tuning CPUs Using Tuna
+
+CPU Management Options:
+
+Isolate CPUs: Move all running task to next available CPU.
+
+Include CPUs: Allow tasks to run on specific CPU.
+
+Restore CPUs :  Restore CPU to previous configuration.
+
+TUNA to check running process and their thread priorty.
+
+#tuna -P
+
+For installing tuna
+#yum install tuna
+
+To check process affinity  (dd is process name)
+#tuna -t dd -P
+
+To Move process to spicifc CPU
+#tuna -c 0 -t dd\* --move
+
+Now check again affinity
+#tuna -t dd -P
