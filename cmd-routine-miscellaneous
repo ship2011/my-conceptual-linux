@@ -435,3 +435,6 @@ For checking port connectivity from Window...
 
 if increases any existing data disk size on public cloud then at Linux OS level we will need to execute below command to make it visiable on linux os
 #echo 1>/sys/class/block/sdb/device/rescan
+
+If we want to split very huge file into chunks then we can use splunk command, below command will split messages file in /directory with 5G file size.
+#split --bytes=5G messages /directory/
