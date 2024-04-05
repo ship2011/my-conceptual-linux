@@ -1,0 +1,1685 @@
+shutdown -H  - Halt is bring down to BIOS prompt
+shutdown -h / -P - Poweroff, and actual full shutdown
+shutdown -r - reboot system
+shutdown -c - Cancel shutdown
+
+if we want to shutdown in 20 minutes 
+#shutdown +20 "Wall message shutting down in 20 minutes"
+
+If you want to shutdown at specific time
+#shutdown 14:00 "System is going down at 2 PM"
+
+shutting down right now
+#shutdown now
+
+If we create /etc/nologin file then all login will be disabled except root login
+
+reboot/poweroff command don't give facility to schedule shutdown and display wall message, this facility given by shutdown command.
+
+resetting linux password by rd.break, which will boot us into initramdisk by stopping boot process when get into ramdisk process.
+press ESC on booting screen then press e
+Edit Linux entry and remove rhgb and quiet and add rd.break enforcing=0 here at this line
+now mount
+#mount -o remount,rw /sysroot; 
+
+#chroot /sysroot   # this command will bring you to main system.
+change password
+#passwd
+#exit
+#mount -o remount,ro /sysroot; exit
+after all of this we can resotore context by using below command
+once system comes up then run below command if selinux is enabled.
+#restorecon -v /etc/shadow
+now you can eanble your selinux
+#setenforce 1
+
+ morden linux distributions use systemd as the system and service manager.
+
+systemctl as control manager
+ -stop/start enable/disable --now mask/unmask cat edit
+
+if we want to start and enable service right now
+#systemctl enable crond --now
+
+systemd is unification of Linux...
+To check full listing of process id of 1
+#ps -fp 1
+
+Reduced load using sockets..
+RHEL8 comes with the cockpit web management interface. Using  a systemd socket unit file rather than a service unit. systemd holds TCP port 9090 open rather than needing to start the cockpit service. the service only starts when a connection is made to the port.
+
+To list loaded systemd units
+#systemctl list-units
+
+All unit files no matter if they have been loaded
+#systemctl list-unit-files
+
+To list only loaded socket
+#systemctl list-units --type socket
+
+To list all socket files
+#systemctl list-unit-files --type socket
+
+
+/usr/lib/systemd/system : - the standard location of unmodified unit file.
+
+/etc/systemd/system : - Modifired files overwrite the defaults when added to this path, Linux admin usually make changes here
+
+To open any unit file
+#systemctl cat sshd.service
+
+to Edit any unit file
+#systemctl edit sshd.service
+
+
+Masking a unit file prevents it starting automatically or manually while it is masked. this is achieved by creating a symlink inside the /etc/systemd/system structure pointing to /dev/null
+
+
+Target 
+In systemd targets replace runlevels that were previously used in SysV init from RHEL 6 and earlier. the default link is used to point to the correct target, A target is group services that should start automatically.
+To boot to a non-default target, use the GRUB boot editor as seen eariler.
+
+To check list all target 
+#systemctl list-units --type=target
+
+To check your default target/runlevel information
+#systemctl get-default
+
+To change the default target
+#systemctl set-default graphical.target
+
+to toggle between targets
+#systemctl isolate graphical.target
+
+
+During boot if we want to boot into any target then we will press esacpe key e and go to "linux vmlinuz" line here we will set systemd.unit=rescue.target and then boot 
+
+now I will go to rescue target where no networking and not much services will be running, after doing my stuff I want to switch to multi-user.target then we will use below command
+#systemctl isolate multi-user.target
+
+uptime :- command gives a great summary. As well as the current system uptime, we can see the number of logged in users and the CPU load average for the last 1, 5 and 15 minutes.
+
+To Understand Load Average for example if you have 2 CPU and 2 core per socket equal to 4cpu (4) then your load average will be represented like below.
+1.00 represent 25% load
+2.00 represent 50% load
+3.00 represent 75% load
+4.00 represent 100% load
+
+CPU priority :
+when processes execute, they are assigned a nice value and an assoicated priority to access the CPU.
+NICE values run from -20 to +19, where -20 nice value is the highest priority +19 is lowest priority and 0 is default priority.
+
+if we want to run any command/process with specifc nice value 
+#nice -n10 sleep 5000&
+
+if we want to change nice value of already running processes
+#renice -15 pid
+
+To perform normal cacluation.
+#echo "1000/60"|bc
+
+To perform proper decimal calculation
+#echo "1000/60" |bc -l
+
+To check tunded profile status
+#tuned-adm active
+
+To check recommended profile 
+#tuned-adm recommend
+
+To check availiable tuned profile
+#tuned-adm list
+
+To change the profile
+#tuned-adm profile network-latency
+
+rsyslogd :- the traditional system logging daemon in Linux is rsyslogd. the so named "Rocket Fast System Logging Daemon". Messages are logged to files based on the facility (service) and priority level. Configuration is in the /etc/rsyslog.conf file, additional .conf files can be added to the /etc/rsyslog.d/ directory.
+
+
+Creating Custom entries :- Facilities, (services) and priorities, (log levels) can be viewed in the syslog programmers man page for syslog.
+
+Logrotate is used to maintain the size of the /var/log structure. it is scheduled to run via cron daemon. It also can be run manually which is useful in testing. the configuration file is /etc/logrotate.conf or the extension directory /etc/logrotate.d/
+
+In this direcotry you can create rule for rotating messages file
+vi test.log
+/var/log/test.log
+{
+weekly   # rotating weekly
+rotate 4  # keeping 4 copies
+dateext  #  rotated file will have date extension
+compress # compress our rotated files
+size 1024M  # if get lot of logs earlier than week then we can define size, which will rotate on the basis of size.
+copytruncate  # copy the data to new rotated log file and then truncate(empty) existing log file
+}
+
+
+manually rotating by using logrotate command
+#logrotate /etc/logrotate.conf
+
+#man logrotate.conf
+
+
+Checking log by using journalctl
+
+To check 5 lines
+#journalctl -n5
+
+To check log since yesterday
+#journalctl --since yesterday
+
+To check last 5 hours logs
+#journalctl --since -6h --unit sshd
+
+Persisting the Journal Log :- the journal logs are stored in memory and may not persist as disk files. The default setting will persist the log if the directory /var/log/journal exists. To ensure journals are persisted we can change this to "persistent". To ensure they are not persisted the setting is "volatile"
+
+once we will change Storage parameters in /etc/systemd/journald.conf to Storage=persistent then our journald logs will presist on server at direcotry /var/log/journal/
+after making those changes you will need to restart journald service, after restarting it /var/log/journal directory will be created.
+#systemctl restart systemd-journald
+
+
+
+where persistent storage for journal logs is not enabled then logs are store in a volatile location "/run/log/journal/" this directory resides in the RAM file system (tmpfs), meaning that logs are only kept in memory and will not persist across reboots, once server get rebooted then logs get lost at this location.
+
+To check my current boot log
+#journalctl -b -0
+
+If I have previous stored log then we will check previous boot log
+#journalctl -b -1
+
+###########################Networking#########################
+To add ip address by ip command on Linux
+#ip addr add 10.10.1.12/24 dev eth1
+
+ARP Cache :
+The ARP or address resolution cache can be also viewed and managed with ip. this maps IP addresses to physical address for devices on the same network.
+
+To check ARP cache, we can run below command, which also shows MAC address of remote host. ARP cache get genrated for same network, not for outside or internet network's IP addresses.
+#ip neighbor show
+#ip ne show
+STALE means - recently not have been communicated
+RECHABLE means -  recently have been communicated
+
+To remove ARP cache
+#ip ne d 172.16.16.236 dev eth0 lladdr 12:34:56:78:9a:bc 
+
+ARP Cache timeout:
+Entries become STALE in the ARP cache after 60 seconds by default in Linux. The gc_stale_time value controls this. the gc_ stand for grabaage collection.
+
+To check gc_statale_time value on server
+#cat /proc/sys/net/ipv4/neigh/eth0/gc_stale_time
+
+below command will show  kernel stale value for default and each interface.
+#sysctl -a|grep gc_stale_time
+
+Network Namespaces :
+Network namespaces allow for independent IP stacks on your system, isolating networks where you allow connectivity via network routes. Often used by virtulization hosts such as OpenStack.
+
+To check network namespace status
+#ip netns
+
+To add new network namespace
+#ip netns add net1
+
+A Namespace needs NICS
+we can add two nics, veth0 and veth1. with veth1 being added to the isolated namespace. To see veth1 we need to exec commands from within the namcespace.
+#ip link add veth0 type veth peer name veth1 netns net1
+
+that command will add 2 veth0 in default namespace and veth1 virtual interface in net1 namespace and then create link between them.
+
+Adding Addresses ::-
+TO add addresses to veth1 we must run this in the context of the namespace, whereas veth0 is accessible from the default namespaces. As the virtual NICs are peers they are linked together as if connected to the same switch, adding addresses on the same network allows network communication.
+
+To add IP addresses to veth1 in net1  namespace
+#ip netns exec net1 ip addr add 10.10.2.3/24 dev veth1
+
+After assigning IP address to bring veth1 up
+#ip netns exec net1 ip link set dev veth1 up
+
+To check net1 namespace link status
+#ip netns exec net1 ip link
+
+To check IP address in net1 namespace
+#ip netns exec net1 ip add show
+
+If you want to run ping command from your net1 namespace
+#ip netns exec net1 ping -c1 10.10.2.3
+
+if you try to ping from your default namespace then it won't work
+#ping -c1 10.10.2.3
+
+now  we add IP address to veth0 in our default namespace
+#ip addr add 10.10.2.4/24 dev veth0
+
+now bring interface up
+#ip link set dev veth0 up
+
+Now check your route table
+#ip route show
+
+now we can ping network name space veth0 IP address from our default network
+#ping -c1 10.10.2.3
+
+Adding Staic Route ::- We can add another IP address to the veth1 in the namespace. this is not accessible as we have no route to this network from the default namespace. Adding the route via our local 10.10.2.3 address will allow the network to be accessed.
+
+Add another IP address
+#ip netns exec net1 ip addr add 192.168.100.1/24 dev veth1
+
+so if you want to go from your default network to newly added ip address in network namespace on veth1 then you can add route on your default network.
+
+#ip route add 192.168.100.0/24 via 10.10.2.4
+
+To apply Persist Network configuration ::-
+Tranditional configuration 
+In Red Hat we have become used to persisted network configuration in the directory /etc/sysconfig/network-scripts/. still this directory exist.
+
+Persisted network configuration ::-
+Add IP address use the IP command changes the runtime configuration but not the permanent configuration. this comes from configuration files in the /etc/sysconfig/network-scripts directory.
+
+when you will see in your ifcfg-eth0 file below paramter then your configuraiton will be controlled by Network Manger
+NM_CONTROLLED=yes
+
+your NetworkManager service should be running.
+#systemctl status NetworkManager
+
+Using the nmcli : With the advent of the NetworkManger service we have a couple of utilites to manage networking, like network devices and network connection.
+
+Creating new connection to add IP address for eth1 interface
+#nmcli connection add type ethernet ifname eth1 ipv4.method manual ipv4.addresses 192.168.1.99/24 connection.id cafe
+
+Make connection up
+#nmcli connection up cafe
+
+check connection status
+#nmcli connection
+
+now if you will go in /etc/sysconfig/network-scripts/ direcotry then you will see file ifcfg-cafe which will have our config.
+
+network Manager main advantage ::- you can link many config with your single NIC and use nmcli connection up command and use that connection which you want to use.
+
+
+Adding DNS servers :- it is possible that different connection will require differnt DNS or Gateway settings if not using DHCP. these too can be part of configuration.
+#nmcli connection modify cafe ipv4.dns 8.8.4.4
+
+now bring connection up
+#nmcli connection up cafe
+
+After this check your /etc/resolv.conf file to validate your applied changes.
+
+DNS server priority : Having added the DSN server it is combines with another DNS server from eth0.  To control tis wee can set a priority. the default priority will be 100 for standard connection and 50 for VPN connections. the lower value wins so we need to set a lower value than 100 to be effective.
+
+To change DNS priroity
+#nmcli connection modify cafe ipv4.dns-priority 1
+
+now we can bring connection up
+#nmcli connection up cafe
+
+Now if we will check /etc/resolve.conf then your DNS server will be on top.
+
+DNS server priority Overwrite : if we want a connections DNS server to overwrite others, we use negative value.
+
+#nmcli connection modify cafe ipv4.dns-priority -1
+
+now check your /etc/resolve.conf and you will only see your dns server IP which you have defined for cafe connection.
+
+
+RHEL Firewall ::- the default firewall in RHEL8 is managed via FirewallD. In rhel7 the backend was IPTables, In rhel8,9 the backend is NFTables.
+
+To manage the backend fir3ewalld firewall we use the command firewall-cmd as the root user.
+TO check firewall state
+#firewall-cmd --state
+
+To check rules information 
+#firewall-cmd --list-all
+
+Permanent and Runtime ::- the default operations target runtime configuration, we have persistent storage files to persist settings that we need to continue. the default settings come from /usr/lib/firewalld directory, we make our changes and we stores rules in /etc/firewalld directory.
+
+To check permanent firewall configuration
+#firewall-cmd --list-all --permanent
+
+To check default zone informaiton 
+#firewall-cmd --get-default-zone
+
+To check info of any zone
+#firewall-cmd --info-zone=public
+
+To check info of any service
+#firewall-cmd --info-service=cockpit
+
+
+Adding service :
+Many common services will have an XML file representing their needs, we add these files to the configuration using --add-service. when tested, we can persist the settings with --runtime-to-permanent
+
+To add a service to allow traiffc
+#firewall-cmd --add-service=http
+
+To apply our runtime rules to permanent state
+#firewall-cmd --runtime-to-permanent
+
+Source and Zones ::- Sources represent inbound connections. we can add a source to a zone to trust or block connections.
+
+To add any service in a zone
+#firewall --add-service=http --zone=internal
+
+To check info of a zone
+#firewall-cmd --list-all --zone=internal
+
+To allow specfic source IP/Subnet in a zone
+#firewall-cmd --add-source=192.168.33.12/24 --zone=internal
+
+Services and Ports ::- we can use ports in place of services. It may also be more convenient to add ports to an existing service. timeouts can also be used with firewall rules, the untis, default to seconds.
+
+To add a port
+#firewall-cmd --add-port=443/tcp --timeout=5
+
+To add a port for specfic time (timing in seconds 10 and in minutes 2m)
+#firewall-cmd --add-port=443/tcp --timeout=15
+
+if you want to modify specfic services XML file then you can follow below steps.
+#cp /usr/lib/firewalld/services/http.xml /etc/firewalld/services/
+
+and then you can modify it
+#vi /etc/firewalld/services/httpd.xml
+
+After this we can reload firewalld service and then can get information about http service.
+#firewall-cmd --reload
+#firewall-cmd --info-service=http
+
+
+Fail2Ban is a Python based service designed to look for malicious login attempts and block the IP address from host access.
+
+
+Nftables ::- released with the linux kernel 3.13 in january 2014 nftables can be used as a replacement for netfilter modules used previously. the command nft is used to natively manage the rules and combines management ip IPv4, IPv6, ARP and Bridge filters.
+
+nftables is wihtout default tables ::-
+Unilike netfilter modules and the associated iptables command nftables does not have any predefined tables. these all need to be defined. by default in rhel8 linux8 this is ahndled by firewalld.
+
+To disable firewalld
+#systemctl disable firewalld --now
+
+To check nftables rules list
+#nft list ruleset
+
+To flust nftables rule
+#nft flush ruleset
+
+Nftables managed by Firewalld ::- On startup of the firewalld service, tables are created in each of the protocol familes. we can manage both IPv4 and IPv6 rules with the inet protocol family.
+
+Listing tables within specfic protocol Family ::- We can focus on a specific family to see the defined tables more clearly.
+
+#nft list tables
+table ip filter
+table ip security 
+table ip raw
+table ip mangle 
+table ip nat
+table ip firewalld
+
+#nft list tables ip
+
+once you will flust ruleset then you will not be able to see anything.
+#nft flush ruleset
+#nft list tables
+
+#nft list ruleset
+
+now start firewalld service and check tables list once again by using nft command.
+
+To check inside of table
+
+#nft list table ip filter
+
+
+Creating a table and Chain ::
+tables and chains are the basis of firewall rules. Diabling firewalld and rebooting the system will allow us to build everything from scratch. Using inet as the family we can work with both IPv4 and IPv6.
+
+#systemctl disable --now firewalld 
+
+#nft flush ruleset
+
+To add table
+#nft add table inet filter
+
+To Add a chain in inet filter
+#nft add chain inet filter INPUT {type filter hook input priority 0 \; policy accept \;}
+
+Basic chain types ::- filter, nat and route.
+
+Basic Hook types ::- prerouting, input, forward, output, postrouting, ingress.
+
+Building a Basic Nftables Firewall ::- If we need inbound SSH connection to the system a basic firewall is not that different to the one that we would build with iptables but working with both IPv4 and IPv6.
+
+To allow all traffice which is coming from lo (local) interface
+#nft add rule inet filter INPUT iif lo accept.
+
+Allowing traffice, which stabe is established or related
+#nft add rule inet filter INPUT ct state established,related accept
+
+Allowing traffic for SSH
+#nft add rule inet filter tcp dport 22 accept
+
+If other than 22 port, we will drop all traffic
+#nft add rule inet filter INPUT counter drop
+
+
+
+Persisting Nftables Rules ::- We can list the complete ruleset and redirect to a file, we cna then flush the table, clearing all assoicated chains and delete the table, Reestablishing rules by reading the file back with the option -f
+
+we can make copy of our rule set by redirecting
+# nft list ruleset > /root/myrules
+
+we can flush our ruleset
+#nft flush ruleset
+
+we can restore our ruleset
+#nft -f /root/myrules
+
+Nftables service ::- the systemd service unit for nftables used the /etc/sysconfig/nftables.conf as it source for rules
+
+#nft list ruleset > /etc/sysconfig/nftables.conf
+#nft flush table inet filter
+#nft delete table inet filter
+#systemctl enable nftables --now
+
+Firewalld is used as the primary management interface in RHEL8 but we can use nft natively.
+
+RedHat Security ::--
+POSIX ACLs ::- Access control lists allow for more than one user or group to have the same or similar permissions to a file resource. we can also set default permissions allowing new files or directories to inherit from the parent.
+
+To check if ACL package is installed or not.
+#yum list acl
+
+To check if acl supported by kernel
+#grep -i acl /boot/config-$(uname -r)
+
+Default ACLs ::- default acls can be applied only to directories. Userful to ensure services can maintain the correct access to files whilst restricting others. setting the default ACL on the applache DocumentRoot will not affect existing content. Create your own new index page and the permissions will be correct.
+
+To assign/set  default read permssion to appache user  on directory and newly files will be also have this permission and  none to other
+#setfacl -m d:u:apache:r,d:o:- /var/www/html
+
+To assign only permission for file
+#setfacl -m u:apache:r,d:o:- /var/www/html
+
+To assign permssion to group
+#setfacl -m d:u:groupname:r /var/www/html
+
+
+Looking at how we set ACL in more detail
+-m modifies the ACL -- d: in the rule specifics the default ACL
+A user rule must include the username
+A rule for others does not contain the username. here we set no permissions for others.
+
+To get permission 
+#getfacl /path/to/directoryorfile
+
++ sign will be shown end of the permissions for those files and directories, where we have set ACL permissions.
+
+To view just the default ACL user -d
+#getfacl -d /directory
+
+getfacl command to read the ACL
+#getfacl /directory
+
+
+To remove permission we can use
+#setfacl -x u:user /test
+
+To remove/delete complete ACL
+#setfacl -b /test
+
+To ceate backup of ACL 
+#getfacl /test > acl.backup.txt
+
+To restore our ACL from a file
+#setfacl --restore=acl.backup.txt
+
+File Mode : Very restricitive with a single user, group and otherws
+ACL : A list of entries we can manage including setting defaults.
+Tools for ACL setfacl and getfacl
+
+=========================
+SELinux ::- SELinux is a MAC, Mandatory Access Control, security system originally developed by the National Security Agency.
+Much of the kernel module module development has been run by both the NSA and Red Hat and it has been part of RHEL since RHEL 4 version.
+
+Many services run with root access, SELinux controls the access even the root user has to your system.
+
+Understanding Security :
+- File system security need to be adjusted to allow correct access to directories.
+- Firewall need to be adjusted to control correct access to the network.
+- SELinux is a super car that used correctly will protect your system and yes it needs to be ajusted.
+
+SELinux Modes ::
+ 1. Enforcing : Rules are enforced and violations logged.
+ 2. Permissive: No rule enforcement, violations logged.
+ 3. Disabled: SELinux not operational and no logging.
+
+ To check status 
+#getenforce
+#sestatus
+
+To make changes for SELinux in runtime
+#setenforce
+
+TO make changes permanently 
+#vi /etc/selinux/config
+
+Preventing Runtime Changes to Mode ::-
+An Administrator may quickly change the SELinux mode to allow something to happen that is not permitted. 
+Setting the Boolean will require a reboot of the system to change the SELinux mode.
+Use the option -P to persist the change.
+
+To get the list of boolean
+#getsebool -a
+#semanage boolean --list
+
+To on any boolean
+#setsebool secure_mode_policyload on
+
+To check status of boolean
+#semanage boolean --list|grep secure_mode
+
+autorelabel=1 :: Causes all files to receive the SELinux labels that should be assigned to them, again can be good to resolve SELinux boot and authentication issues.
+
+Understanding the SELinux label and type
+
+In the Main, SELInux works with something called type enforcement. The SELinux tyep of a source domain or process must be compatiable with the target SELinux type. if we need to customize content or if we make erroneous chnages operations may not work.
+
+List Contexts ::--
+In the main the targeted SELinux policy works with the context of processes, ports and files. The option -Z displays the context with most tools. Processes need to be authorized to access resources such as ports and files.
+
+if you change selinux context type to wrong for any file and process then you can restore it.
+setting wrong context type
+#chcon -t user_home_t /etc/shadow
+
+we can restore it by below command.
+#restorecon -v /etc/shadow
+
+File Contexts ::- the contexts used by resorecon are par of the current SELinux policy, we can navigatge to where they are stored. If we need to relocate user home directories, for example, we can create the top-level directory and store the definition by cloning the configuration of the existing home. this ensures the correct operation of restorecon and new home directories.
+
+Create new directory
+#mkdir /staff
+
+Copy file context from /home directory to /staff
+#semanage fcontext -a -e /home /staff
+
+when you will use "restorecon -v /staff" then it will restore correct file context.
+
+
+To make other port label according to existing service port, in order to change port number
+#semanage port -l |grep http
+
+now chnage http port in /etc/httpd/conf/httpd.conf to 1000
+
+to check sealert related message
+#grep sealert /var/log/messages
+
+to get info about alert id
+#sealert -l alert-id
+
+to apply context for port
+#semanage port -a -t http_port_t -p tcp 1000
+
+If we are chaing file context for web service directory path then we will use below to sort this
+#semanage fcontext -a -t httpd_sys_content_t "/web/(/.*)?"
+#restorecon -R -v /web
+
+################# Deploying Configuring and Maintaining Systems #####################
+A support agreement for RHEL gives you access to the standard online software repositories.
+there 2 default main repository on RHEL
+
+Base OS :- Provision of the core set of packages required for OS functionality. Packages are all in the form of RPM files.
+
+AppStream :- This allows for additional user-space applications and services. Content is available in one of two formats. RPMs or the extension format called modules.
+
+RPM Format - The Red Hat Package Manager of RPM format allows for applications in single standalone package files. the separation of the application or service from the required dependency pacakges allow for a single verison of the application or service to be offered and supported.
+
+Module Format - The AppStream repository allows for modules. An extension to the RPM format grouping applications and services by version with their required dependencies. This extends the offering allowing for multiple versions of an application of service to be offered via the repository. Streams additionally have profiles allowing modular selection of what should be installed.
+
+Check the status of your subscription
+#subscription-manager status
+
+To check your repo status
+#yum repolist
+
+To check yum/dnf version
+#yum --version or dnf-3 --version
+
+yum update - update all packages, this will install new kernel pacakges if available. if this upsets the system we can reverse the update by using history command
+#yum history list
+In this command 10 will be revision ID.
+#yum history undo 10
+
+
+
+Working with Repos --
+Repository files are located in the /etc/yum/repos.d/ directory and use the extension .repo. The standard "redhat.repo" is updated via subscription manager. A single repo file may contian more tha one repository source.
+
+
+Simple Repo Creation - Even without copying the contents to the fixed disk we can create repositories from the DVD. the config-manager can be used or creatign files directly.we can also use the command to disable repositories allowing us to prove that we can install from the DVD.
+
+#yum install dnf-plugins-core
+
+Below commands are going to create repo file in /etc/yum.repos.d/mnt_BaseOS.rep etc.
+#yum config-manager --add-repo=/mnt/BaseOS
+#yum config-manager --add-repo=/mnt/AppStream
+#yum makecache     # to update meta data
+To disable existing repo
+#yum config-manager --disable rhel-9-for-x86_64-baseos-rpms
+
+HTTP repo creation ::-- Publishing the repo via HTTP could make the resource available to multiple systems so we do not need traverse the internet to install the same software on multiple systems.
+
+#mount /dev/cdrom or ISO /var/www/thml
+
+now config repo
+#yum config-manager --add-repo=http://youripaddress/BaseOS
+#yum config-manager --add-repo=http://youripaddress/AppStream
+#yum makecache     # to update meta data
+#systemctl restart httpd
+
+Updates and Security : Before updating we can list updates, we can also list just security updates and only install those updates or slected updates. Packages are not tagged in the same way with CentOS so Red Hat must be used for this to work.
+
+Update Metadata - Using RHEL8 we can use the metadata contained within the updates to help in selecting which updates to apply. It is an important feature of RHEL 8..9
+
+To check update info
+#yum updateinfo
+
+To check security related info
+#yum updateinfo --security
+
+To check update info with severity level
+#yum updateinfo --sec-severity Important
+
+To check more info about it
+#yum updateinfo info --sec-severity Important
+
+To update only security patch/packages with Important severity 
+#yum update --sec-severity Important
+
+To update CVE number
+#yum update --cve=CVE-xxxx
+Module Streams - Module streams allow for more flexiblity in installing software and services. Giving you access to more than a single version and pattern to install.
+
+Streams - Streams manage the version of a package, one or more version may be available, there will be a default versions, but we can install another version, there are three versions of the ruby stream. the default is 2.5 but we may need version 2.7 which can be explicitly installed.
+
+Profiles - profiles are part of a stream and control what will be installed, For example we may only want the database client adn not client and server, Selection the correct profiles allows us control over what will be installed.
+
+Working with Modules - Using modules we can select the version and profile we need
+
+To list module 
+#yum module list
+
+To list specfic stream in module
+#yum module list ruby
+
+TO install specfic version from module
+#yum module install ruby:2.7
+
+To install specfic profile 
+#yum module install mariadb/client
+
+For many years ntpd deamon was used on RHEL 
+the default time server and client is now chronyd on RHEL7..x systems
+chronyd uses ntp protocol to synchronize time but chronyd works better where systems are not always on and where sleep mode may be activated.
+
+Chrony Time server and Client -- The installation of RHEL 8 will often include the package chrony whihc is both the server and client. The RHEL repositories no longer provide access to the older ntpd package. the chronyd service will be active on the server.
+
+#yum install chrony 
+
+#systemctl status chronyd
+
+To check timezone related info
+#timedatectl
+
+To set timezone
+#timedatectl set-timezone Europe/Rome
+
+you can also link your zone file to /etc/localtime to change your timezone
+#ln -sf /usr/share/zoneinfo/Europe/Rome /etc/localtime
+
+Now check your timezone info
+#timedatectl
+
+Manage Systemd services - The default service manager on most modern Linux distributions is systemd and we use systemctl to manage the services. there is provision for many more operations and ease of use compared with SysV Init.
+
+to check view chrondy service content
+#systemctl cat chronyd
+
+To edit chronyd service content
+#systemctl edit chronyd
+
+To make copy of service to /etc/sysemd/system/chronyd.service after making changes use below command
+#systemctl edit chronyd --full
+
+it is useful to set a local timeserver source provided by your own network infrastructure or choosing an external pool based on geography in /etc/chrony.conf file under pool section.
+
+To execute sed script for a file, we can also use E arugment in sed for enhance regular expression. 
+#sed -f expr.sed /etc/chrony.conf
+
+To make changes permanent in a file
+#sed -i -f expr.sed /etc/chrony.conf
+
+After making your changes your can restart your chronyd service.
+
+expr.sed file example
+/^#/d
+/^pool/i pool rhel.pool.ntp.org iburst
+
+ibrust- With this option, the interval between the firest 4 request sent to server will be 2 seconds, or less instead of the interval specified by the minpoll option, which allows chronyd to make the first update of the clock shortly after start.
+
+To check chrony client tracking info
+#chronyc tracking
+
+Stratum Number - 1-16, where 16 is unreachable and 1 is hardware clock. 
+
+To check the chrony sources information from where time is syncing 
+#chronyc sources
+
+Systemd Targets -- In systemd, which was introuduced with HREL 7, targets represent groups of services that should be loaded and replace runlevels which were used previously. Unlike runlevels targets have descriptive name such as graphical and multi-user
+
+RHEL 8 and Runlevels - Within the SysV init/Upstart systems used prior to systemd services were grouped into runlevels. Only one runlevel could be active at any given time. the same groupings exist in systemd but are known as targets and more than one target can be active at any given time. we can still use the runlevel command but mapping is less easy to the previous runlevels.
+
+To check current runlevel
+#runlevel
+
+To check current active Targets
+#systemctl list-units --type target --state active
+
+Changing the target and getting current target info
+
+To check default target info
+#systemctl get-default
+
+To view multi-user.target info
+#systectl cat multi-user.target
+
+To change default target to another target
+#systemctl set-default graphical.target
+
+To change/isolate target without rebooting
+#systemctl isolate graphical.target
+
+Specific Target - RHEL 7..x can book to a specified target rather than using the default. this can be specified during boot by editing GRUB at the console or by adding entries to the GRUB boot loader. Should we want to boot to graphical.target irrespective of the the defualt target we can use the grubby CLI tool.
+
+To check all of the grub entry
+#grubby --info=ALL
+
+Should we want to boot to graphical.target irrespective of the the defualt target we can use the grubby CLI tool.
+TO update the argument we will use below command
+#grubby --update-kernel=ALL --args="systemd-unit=graphical"
+
+To remove argument, which we don't want to use
+#grubby --update-kernel=ALL --remove-args="systemd-unit=graphical"
+
+Systemd - systemd based systems use targets to group services together. Multiple targets can be active at any time. the default target can be specified in systemd, targets can also be specified within GRUB.
+
+Scheduling regular tasks -:
+At - when tasks needs to be scheduled on a non-recurring basis.
+Using cron - when tasks needs to be scheduled on recurring basis.
+Using systemd timers units -  New to systemd, we have timer units for scheduling recurring tasks.
+
+
+at - Using the command at we schedule tasks to run via the atd. the interactive scheduler is existed using CTRL+D
+
+#at noon   # this will schedule task same day at noon 
+
+#at 14:00 tomorrow # this will schedule task tomorrow at 02 PM
+
+#at 13:00 01 Jan # this will schedule task on 1st Jan at 01 PM
+
+To check our scheduled "at" jobs id 
+#atq
+
+To remove scheduled "at" jobs id
+#atrm 2
+ 
+atd deamon should be running on server
+#systemctl enable atd --now
+
+we can define entry for those user who cannot schedule jobs by using at
+#cat /etc/at.deny
+
+To view "at" job commands/content
+#at -c jobid
+
+
+Scheduling Using Cron - the crond is the traditional task scheduler in Linux, we have the system cron files in /etc/ and user crons which are edited using the crontab command. Using the EDITOR environment variable we can adjust the default text editor.
+
+to check cronjob which were scheduled by using crontab -e commmand
+#cat /etc/crontab
+
+To schedule cronjob in a file
+#echo "10 10 * * 1-6 root who > /tmp/userlogin" > /etc/crond.d/userinfo
+
+to execute crontab -e command with your prefered variable
+#EDITOR=nano crontab -e
+
+if you have /etc/cron.allow and /etc/cron.deny file then you have to define your user entry in /etc/cron.allow file in order to make him capable to schedule cron job but if you want to give your server all users rights to schedule cornjob then you can remove /etc/allow file and your server all users will have rights to schedule cronjob but if any user you want to deny then you can define his name in /etc/cron.deny file. But if you want to deny all user to restict from scheduling cronjob then you can create /etc/cron.allow file and whoever will be in this file that user will have cron scheduling rights and remain all users will be denied from scheduling cron job.
+
+#crontab -r # to remove crontab entries
+
+Timer Units : Systemd can also schedule tasks using timer untis. we investigate how the yum metadata is updated via systemd.
+
+To read more about timer unit visit page
+#man 5 systemd.timer
+
+To list timer units files, which have scheduled job
+#systemctl list-unit-files --type=timer
+
+To check content of scheduled timer unit files.
+#systemctl cat dnf-makecache.timer
+
+To list our timers Units info
+#systemctl list-timers
+
+
+Linux Block Storage -- physical disks, USB disk, SCSI Disk and remote stroage with iSCSI.
+
+Device driver - the kernel module used to access the physical device. the scsi disk module is sd_mod. you can more info about his module by using command "modinfo sd_mod"
+
+Device File -- /dev/sda having a file to represent the disk, standard I/O can be used to read and write to disk.
+
+If you want to see loaded modules/drivers info
+#lsmod
+
+To check with which disk volume belongs 
+#lsblk -s /dev/sda2
+
+Loop Devices :- Loop devices have files as the backend storage in place of physical storage. once way of using them is to access ISO files.
+If the ISO file in the example becomes unavailable search for another small ISO file you can download. the contents of the ISO is not important.
+
+To map/attach loop devices with iso image
+#losetup -f isoimagename.iso
+
+to check mapped iso images information 
+#losetup
+
+To mount temporarily loop devices
+#mount /dev/loop0 /mnt
+
+To delete/deattach loop devices
+#losetup -d pathofmappediso
+
+Overall loop devices use files as the back-end storage and are managed with losetup.
+
+Creating and Partitioning Block devices --:
+Using the Linux SCSI driver, partitions are limited to a maximum 15 per disk, Each disk has pre-assigned address sda=8:0, sdb=8:16,sdc=8:32, you can check this info by using lsblk command under MAJ:MIN column.
+
+
+Creating Raw Disk Files --:
+we may also make use of raw disk files, these can be created with eiter dd or fallocate with the latter being quicker. the command time can preface any command to display execution time.
+
+
+To crate raw disk file by using dd command
+#dd if=/dev/zero of=dd.disk bs=100M count=50
+
+We can also use fallocate command to create disk raw disk file, which is very quicker than dd
+#fallocate -l 5G fallocate.disk
+
+Try to use fallocate whenever needed for quick action.
+
+If you want to attach raw disk as a loop device then use below command
+#losetup -f fallocate.disk # Attach raw disk file as next available loop device
+
+#losetup /dev/loop1 fallocate.disk # attach loop1 with disk file
+
+#losetup  # To list loop device
+
+#losetup -d /dev/loop1 # To delete/detach loop device.
+
+#losetup -D # To detach all loop devices.
+
+losetup can be used to create the device file linking to the backend storage file.
+
+Partition Tables --
+MBR or MSDOS Table - Maximum 2TB size, Maximum 4 primary or 3 primary, 1 extended plus logical.
+
+GPT / GUID Partition Table - Part of the UEFI framework Maximum 8ZB size. Maximum 255 partition per disk in Linux depending on the driver used.
+
+
+Partitioning Disks - Loop devices appear exactly the same as any other block device so partitioning is the same.
+the traditional utility is fidsk (mbr) and gdisk (gpt) disks and it interactive.
+
+Parted can be used interactively but also directly at the CLI.
+
+#fallocate -l 10G fall.disk
+#losetup /dev/loop1 fall.disk
+#fdisk /dev/loop1
+
+you can also use directly parted utility
+Below command will take 25% of disk.
+#parted /dev/loop1 mklabel msdos mkpart primary 0% 25%
+#parted /dev/loop2 mkpart primary 25% 50% set 2 lvm on 
+#parted /dev/loop2 mkpart primary 50% 75% set 3 lvm on 
+
+To print disk partition info
+#parted /dev/loop1 print
+
+Filesystems - To use the partition we need to create file system.
+
+Devices Names are Transitory - This disk sda may be sda today but if it is not the first disk detected on the next boot it will not be sda, it could sdb. so file systems can be optionally assigned with a label to identify them.
+All filesystems have UUID that uniquely identified that filesystem.
+LABEL - Label has 12 character length and can be added with option -L
+
+To check UUID you can use "blkid" command
+
+Persisting Loop Devices - if you ever need to reboot the system, loop devices will be lost and have to be restored.
+#reboot
+#lsblk /dev/loop1 # device not found
+#losetup /dev/loop1 fall.disk
+#lsblk /dev/loop1 # but no partition found
+To find created partiton, run below command
+#partprobe /dev/loop1
+
+Now you can find created partitons info in loop device by below command.
+#lsblk /dev/loop1
+
+We can also create Service Unit persisting loop device.
+To create unit file if it doesn't exit then we can use below command to create new unit file.
+#systemctl edit --full --force losetup.service
+
+[Unit]
+Description=Setup loop device
+DefaultDependencies=no
+Before=local-fs.target
+After=systemd-udevd.service
+Required=systemd-udevd.service
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/losetup /dev/loop1 fall.disk
+ExecStart=/sbin/partprobe /dev/loop1
+TimeoutSec=60
+RemainAfterExit=no
+
+[Install]
+WantedBy=local-fs.target
+
+
+LVM - by default LVM setups are used in many distributions including RHEL. LVM volumes use the device-mapper driver, dm_mod
+
+To list the device-mapper devices.
+#dmsetup ls --tree
+
+Volume group Physical Extent Size -- The default PE extent size is 4M and affects all physical volumes in a volume group. the setting was more important in LVM1 when there was a limitation of 65k extents within a volume group, this is not the case with LVM2. setting a larger PE size now has more of an affect when striping data with RAID in LVM.
+
+To set the physical extent size for volume group
+#vgcreate vgname -v -s 8m /dev/sdc
+
+when creating logical volume we can specify the size with -L or the numbrer of extents with -l and we can also define % size with -l
+
+Dynamically expand volumes online - one main advantage of logical volumes is that their available space can be expanded easily whilst the filesystem is still in use and mounted.
+
+New physical storage can be added to volume groups. As these groups aggregate storage, volumes can be expanded from the newly assigned space.
+Use vgextend to increase volume group size
+Use lvextend to increase LV size with -r to resize ext4 or xfs
+
+If you want to extend your lv from 10GB size
+#lvextend -r -L +10G lv-name
+
+Virutal Memory - Virtual memory in Linux is know as swap space, logical volumes can be used as swap space and are used by default in RHEL, swap space is not formatted as such, but headers added using them command mkswap.
+
+creare swap partion by using lvcreate
+
+now add swap header
+#mkswap /lvmname
+
+Now do swap on to bring online swap space
+#swapon -a
+
+To bring swap space offline 
+#swapoff -a
+
+To pring swap space
+#swapon -s
+
+To check file system label info
+#xfs_admin -l /dev/sda4
+
+To check file system UUID info
+#xfs_admin -u /dev/sda4
+
+To check xfs file system ino
+#xfs_info /dev/sda4
+
+here isize represent indoe entry size info, which is by default 512 bytes.
+
+To create new label for filesystem
+#xfs_admin -L 'label0name' /dev/sda4
+
+Avoid unwanted checks ::--
+Check Interval - The interval between filesystem checks. the filesystem interval will always expire when you need the system the quickest.
+
+Maximum Mount Count - when the FS reaches the max coutn value the filesystem is automatically checked on boot.
+
+Mount Point Permissions - then mount point directory is stored in the root filesystem and makes up part of the filesystem. when you mount a filesystem the mount point directory inherits the permissions from the root of the target filesystem.
+
+/etc/fstab example (1st 0 for dumpfs disable 2nd 0 for filesystem checks disable during boot)
+UUID=8979789asdfasdfa7987fda8sa /boot xfs defaults 0 0
+
+12 Bit Permissions --- The linux file mode has 12 bits that re used for permissions, 4 blocks of three bits starting with special, user, group and others.
+
+to see bit number of permssion on file/directlry run below commmand.
+#stat -c %a zypper.py 
+#stat -c %a /etc
+
+SUID[4] -- Used on programs to run as the user owner during execution.
+
+SGID[2] -- On directories, new files are assigned the group owner from the directory.
+
+Sticky bit [1] -- With this set users can only delete files they own from shared directories.
+
+#chmod 1777 /testdir    # to set sticky bit permission
+#chmod 2777 /testdir    # to set SGID bit permission
+#chmod 3777 /testdir    # to set sticky bit and SGID bit permissions.
+
+To find directory where SGID or Sticky bit permissions are set
+#find / -type d -perm /g=s,o=t
+
+To find directory where both SGID and stciky bit permissions are set
+#find / -type d -perm -g=s,o=t
+
+To find directory where sticky bit set or world writable directory
+#find / -type d -perm /o=tw
+
+To add your standard user account in a group
+#gpasswd -a username groupname 
+
+NFS ---:::
+RHEL 8 uses NFSv4.2 as NFS file server, New to RHEL8 is the nfsconf management tool that writes to the new /etc/nfs.conf file.
+NFS server and client are installed using the nfs-utils package as it was in previous RHEL releases. A default install if NFS will disable NFSv2 and enable NFSv3 and above. Disabling NFSv3 makes the system more firewall friendly only needing TCP port 2049 to be opened.
+If we only use NFSv4 then only firewall port 2049 TCP should be open at firewall end.
+
+
+To configure NFSv4 in RHEL8 - We can either edit the new /etc/nfs.conf or make use of the equally new nfsconf command line utility.
+#nfsconf --set nfsd vers4 y  # to set NFS server version 4
+#nfsconf --set nfsd tcp y # to enable tcp 
+#nfsconf --set nfsd udp n # to disable udp
+#nfsconf --set nfsd vers3 n # to disable nfs version3
+
+To install client and server
+#yum install -y nfs-utils
+
+To start nfs service user below command
+#systemctl start nfs-server
+
+if you will be using NFSv3 then you need 2049 & 111 if you are using only NFSv4 then you need only 2049.
+
+To TCP checking lisening port
+#ss -ntl
+
+To check on your NFS server that which nfs version we support
+#cat /proc/fs/nfsd/versions
+
+To share our directories from NFS server we can use /etc/exports or we can create seprate file in directory /etc/exports.d/share.exports, you can use exportfs command.
+example
+/data 10.10.19,*(no_root_squash,rw,sync)
+
+to Read all of our exports
+#exportfs -r
+
+On client machine you also need to install nfs-utils package.
+
+Autofs (Automatic client mounting)---::
+If you have an NFS client, you may only need to access the shares periodically. the autofs service can mount these exports automatically for you when needed.
+
+To install autofs
+#yum -y install autofs
+
+Now edit /etc/auto.master file or create seperate file in automaster.d/file.master
+upddate /etc/auto.master file with below content..
+
+/data  /etc/auto.data
+
+Now create auto.data file
+#vi /etc/auto.data # update below content.
+data -rw,soft nfsip:/data
+
+
+
+so main feature of autofs that its mount the directory when its needed.
+
+SELinux is a MAC system in RHEL and documentation can be installed with sepolicy.
+
+VDO is the the Virtual Data Optimizer that first saw light with RHEL 7.5 and allows for compression and deduplication of data by kernel modules.
+
+VDO is not a file system. VDO is a logical abstraction layer.
+
+you will probably find that these items are installed by default on most RHEL8 deployments. you will need a disk larger than 4GB to use as VDO device, make sure that your disk is greater than this size.
+TO install vod packages
+#yum install vdo kmod-kvdo
+
+#systemctl status vdo
+
+To load vdo module
+#modprobe kvdo
+
+Creating VDO devices - we create a logical size for the volume as it is this size that is used by the file system without knowledge of the gains from optimization.
+
+#vod create --name=vod1 --device=/dev/sdc --vdoLogicalSize=20G
+
+To check status 
+#vdo status --name=vod1|grep -E '(Dedup|Compression)'
+
+now we can create file system 
+#mkfs.xfs /dev/ma -K pper/vdo1  #upper case K will make it quickly when using larger filesystem.
+
+To monitor physical vdo status
+#vdostats --human-readable
+
+to updae vdo entry in /etc/fstab
+/dev/mapper/vdo1  /data/vdo xfs x-systemd.requires=vdo.service 0 0
+
+Vdo logical size increment --
+the vdoLogicalSize is the size of the thinly provisioned device presented to the system. Red hat recommend a 10:1 ratio for filesystems hosting virutal machines and 3:1 ratio for object stores such as ceph. we can increase but not reduce the logical size.
+
+#vdo growLogical --name=vdo1 --vdoLogicalSize=40G
+
+Now check size of vdo1
+#vdo status --nvame=vdo1 |grep 'Logical size'
+
+Controlling Features-- compression and deduplication can be independently enabled and disabled. both are enabled by default.
+
+#vdo disableDeduplication --name=vdo1
+#vdo enableDeduplication --nam=vdo1
+
+Stratis pools -- stratis is volume managment tool, managing volumes with stratis allows you to create thinly provisioned volumes and file systems with a single command whilst utilizing existing dev-mapper and XFS technology.
+
+
+Block dev--Pool---Filesystem
+
+Installing Stratis --- We install both stratis metadata service and the command line management tool.
+
+#yum install stratisd stratis-cli
+
+#systemctl enable stratisd --now
+
+Managing Stratis pools - stratis pools aggregate storage spance and represent volume groups and thin pools in DM management. the sub-command add-data is used to extend the size of an existing pool.
+
+#stratis pool create pool1 /dev/sdd
+
+#stratis pool add-data pool1 /dev/sdx
+
+#stratis pool list
+
+Managing Stratis file systems -- Stratis volumes are thinly provisioned and as such we do not set the size. they are assigned more space than is available. ensure that the mount option in the /etc/fstab file is used to ensure the service is running before the mount is attempted.
+
+
+To create file system from pool1 
+#stratis filesystem create pool1 fs1
+
+#mount /stratis/pool1/fs1 /data
+
+To update stratis file system in /etc/fstab
+/stratis/pool1/fs1  /data/stratis xfs x-systemd.requires=stratisd.service 0 0
+
+To stratis file system info
+#stratis filesystem list
+
+snapshots - snapshots are point in time copies of a file system and can be used as a method a rolling back chnages or a simple online backup agent.
+
+To create snapshot of pool1's fs1
+#statis filesystem snapshot pool1 fs1 snap1
+
+to mount created snapshot
+#mount /stratis/pool1/snap1 /backup
+
+To delete/destory pool's snapshot
+#stratis filesystem destroy pool1 snap1
+
+Linux High Availability Cluster Management ::--
+Cluster Terminology -->
+
+Node     --  Independent VM
+Cluster  --  Group of node peers
+Server Failure  -- Unresponse node(s)
+Failover    -- Task reassignment 
+Failback  -- node recovery
+Replication -- distributed data
+Redundancy -- reserved environments 
+Split Brain  -- Failed communcation error state between node
+Fencing  -- shutting down unresponsive nodes
+Quorum  -- numberic requirement for fecning by using qurum voting 
+
+Cluster type --
+Active/Active cluster   -- Load balancer can be used to route traiffce on active/active
+Active/Passive cluster
+
+Availability Formula --:
+A   = Availability
+MTBF = Mean Time Before Failure
+MTTR = Mean Time to Repair
+
+A = MTBF (MTBF+MTTR)
+
+Session Handling --
+Failover and Stateful sessions --- Memcached Instance.
+
+
+Working with Load Balanced Clusters ---::
+LVS - the Linux Virtual server
+LVS with keepalived 
+LVS with ldirectord 
+HAProxy
+
+LVS forwarding --
+LVS via NAT - LVS-NAT
+LVS via Direct routing - LVS-DR
+LVS via tunneling - LVS-Tun
+
+LVS and Keepalived --
+Keepalived Features -- Health checks, host standby protocol, Virtual IPs, Virtual Router Redundancy Protocol.
+
+The Packemaker Stack - when combined with corosync, pacemaker also supports popular open source cluster filesystems, Due to standardization within the cluster filesystem community, they make use of common distributed lock manager which makes use of corosync for its messaging capabilites and pacemaker for its memebership and fencing services.
+
+Each node in Pacemaker cluster has CRMd daemon running. it will send frequently all info to DC (designated coordinator).
+
+Pacemaker can communicate with node through corosync
+
+To check all nodes status according to their current state.
+#pcs status nodes
+
+To list existing constraints
+#pcs constraint
+
+To create resource 
+#pcs resource create
+
+To check existing resources
+#pcs resource show
+
+Virtual IP address is an address suppplied by pacemaker to represent the cluster node that's currently active.
+#pcs resource create virtual_ip ocf:heartbeat:IPaddr2 ip=10.0.3.135 cidr_netmask=32 op monitor interval=30s
+
+To restart any resource
+#pcs resource restart virtual_ip
+
+To delete any resource
+#pcs resource delete virtual_ip
+
+to opt in no rsource can run anywhere
+#pcs property set mycluster=false --force
+
+TO run resource from same location from which they will be launched update line like below in cib.xml.
+<constraints>
+<rsc_colocation id="colocate" rsc="A" with-rsc="B" score="INFINITY"/>
+</constraints>
+
+To run resource anywhere but not on same node.
+<constraints>
+<rsc_colocation id="anit-colocate" rsc="A" with-rsc="B" score="-INFINITY"/>
+</constraints>
+
+DC - Designated coordinator
+CIB - Cluster Information Base
+/var/lib/pacemaker/cib/cib.xml
+Resource agent are script that perfrom cluster management tasks
+pcs vs crm
+passwd hacluster #pacemaker cluster deployment work through hacluster user on each node
+
+To authenticate cluster node
+#pcs cluster auth myNode1 myNode2
+
+To setup cluster
+#pcs cluster setup --name mycluster myNode1 myNode2
+
+To start cluster
+#pcs cluster start --all
+
+
+Working with High Availability Cluster Storage --:
+
+DRBD - the linux distributed replicated block device project. DRBD stores your data mounted on multiple node.
+
+If you need your cluster to share each other resources with DRBD then you will need to run DRBD with CLVM
+
+To install drbd 
+#yum install drbd-utils
+
+DRBD Replication Modes ---
+Protocol A - Asynchronous Replication - write to primary node and confirmed it complete before secondory node to confirm complete.
+Protocol B - Memory Synchronous Replication - local write consider complete only once replication packet make it to secondory node.
+Protocol C - Synchronous replication - All disk write to be confirmed complete before operation closed.
+
+Restart drbd service 
+#systemctl start drbd.service
+
+Clustered FileSystem ::-
+Shared clustered file systems --
+OCFS2 - Oracle CLuster file system ::
+
+OCFS config file
+/etc/ocfs2/cluster.conf
+
+To start service 
+#systemctl start ocfs2
+
+To create ocfs2 file system
+#mkfs.ocfs2 -L "label-name" /dev/sda2'
+
+To change the OCFS2 volume size
+#tunefs.ocfs2 --volume-size
+
+To change node limit 
+#tunefs.ocfs2 --node-slots numberofnodeslots /dev/sda2
+
+to Fix disk errors.
+#fsck.ocfs2 -f /dev/sda2
+
+GFS2 - the global file system ---
+Create LVM volume and format it with gfs2
+#mkfs.gfs2 -p lock_dlm -t mycluster:myvolume -j 2 /dev/gfs-vg/volumefgs
+
+To expand a gfs2 file system
+#gfs2_grow /filesystem/path
+
+TO add journals
+#gfs2_iadd -j2 /filesystem/path
+
+To dispaly the current journal count
+#gfs2_tool journals /filesystem/path
+
+LVM Cluster Extensions : lvm2-cluster
+Cluster Manager : cman
+Remote Cluster Manager: modcluster
+Cluster HA : rgmanager
+
+
+Hypervisors ---:
+ Xen
+ KVM
+ VMware ESXI
+ Hyper-V
+
+Conainers ---:
+ LXC 
+ Docker
+ Virtualbox
+
+Cluster Management
+  Pacemaker
+
+Load Balancing
+  LVM 
+  HAProxy
+
+Distributed File Systems
+  OCFS2
+  GFS2
+
+Sudo -- Using sudo, we can delegate administrative tasks without the need to divulge the root password or give access to all commands.
+/etc/sudoers
+tux 192.168.10.10=(root) NOPASSWD: ALL   # From defined IP tux will have only elevated access to root user. not to other user.
+%wheel ALL=(root) NOPASSWD:ALL
+
+To give access to change the password but not change the password for root account for a group.
+%helpdesk ALL=(root) /usr/bin/passwd, !/usr/bin/passwd root   
+
+To open other file thant suoders by using visudo
+#visudo -f /etc/sudoers.d/users
+
+Adding users to groups ::--
+Within the useradd or usermod command we have -g for the user's primary group. this can be a single value only; however, the -G for secondary groups allow for many groups. we can specify a new list or use -a the append the existing groups.
+
+#group add mrk
+#usermod -aG wheel,mrk username
+
+Group Password - A group with a password becomes a self-service group. User can become a member of the gorup if they know the group password.
+
+gpasswd - the gpasswd command does more than set the group password. it can be used to set group administrators with the option -A. the administrator is stored in the /etc/gshadow file.
+
+#groupadd sales
+To add user in sales group
+#gpasswd -a user sales
+
+To make user administrator of sales group
+#gpasswd -A user sales
+
+once user will become administrator of group then he can join any user in that group with any password.
+user$ gpasswd -a test sales
+
+To set the password for sales group
+#gpasswd sales
+
+so Now if any user know password of sales group then he can become member of that group by executing below command, this will command will ask for sales group password.
+user$ sg sales
+
+we can also check group info /etc/gshadow
+
+
+Podman containers ::--
+Isolation means you can run java 8 in one container and java 9 in another. each container is isolated from the other.
+
+Container processes are isolated from the rest of the host within their own namespace. Each container has it own process tree and PID 1.
+
+Linux Kernel Namespaces -- Even without any container management you can demonstrate isolation. using the command "unshare" as root, you can create namespaces and show their isolation.
+
+To get the seprate independent root shell, it is pretty much like seprate container.
+#unshare --fork --pid --mount-proc bash
+
+To isolate our network
+#unshare --fork --pid --net --mount-proc bash
+
+Installing Podman---Podman is available in the standard Red Hat repositories. If we want to install podman-compose for orchestration we can either add the EPEL repository as we do here, or install-compose using the python pip installer.
+
+To list locally downloaded images.
+#podman image ls
+#podman images
+
+To list running containers
+#podman container ls
+#podman ps
+
+To list all running containers
+#podman container ls -a
+
+Registries and shortnames --- container registries act as storage locations for images, can access images but the fully qualified name or as an alias or shortname. 
+registery config file
+#cat /etc/containers/registries.conf
+
+to search for images in image registry
+#podman image search fedora
+#podman image search ubuntu
+
+you can also download images from docker registry to your local system.
+#podman image pull docker.io/ubuntu
+
+Image Metadata ::-- Using "podman image inspect" you can view image metadata. To extract certain data, use -- format
+
+#podman image inspect ubuntu
+#podman image inspect ubuntu --format "{{json .Config}}"
+
+Versioning -- Using the default "latest" image may be ok, but if we want a specific version we may have to dig deeper. you can look inside the image and fire up a container. the default command is the bash shell. exsting  the shell will shut the container down. the container is running 22.04, you may well want 20.04.
+
+skopeo -- Using Skopeo, you are able to query the image before it is downloaded. checking the RepoTags we can see there are different versions of the image. Manipulating the data we can view the versions.
+
+To install skopeo
+#yum install -y skopeo
+
+To inspect image before downloading by using skopeo command
+#skopeo inspect docker://docker.io/library/ubuntu:latest
+
+To run container as interactive
+#podman container run -it ubuntu
+
+Container Names ::- If a container name is not assigned, a random 2 word name is generated. this can be difficult to work with so assign your own names.
+
+To list all container
+#podman container ls -a
+
+To run container but with assigned name
+#podman container run -it --name ubuntu ubuntu:focal
+
+Auto delete container on Stop - Especially during a test phase, it can be convenient to have the container deleted once stopped.
+
+#podman container run --rm -it --name ubuntu ubuntu:focal
+
+Setting the hostname ::- if you are to be working at the containers command line, the hostname may be useful too.
+
+#podman container run --rm -it --name ubuntu --hostname ubuntu ubuntu:focal
+
+To delete all non running container 
+#podman container prune -f
+
+Running containers in Background/deteached mode ::-- Running a container with the option -d, runs it in the background or detached mode. Often this is how you run services or "micro-services" in containers. It still can be used for your bash shell. Do not use exist to leave the shell unless you wan the container to stop. user "ctrl+p" and then "crtl+q" to leave the container running and return to your shell.
+
+#podman container run -dit --name ubuntu --hostname ubuntu ubuntu:focal
+
+To attach to a running container in background
+#podman container attach ubuntu
+
+To stop running container
+#podman container stop
+
+Monitoring container ::-- 
+
+Containers are lightweight -- Not only are the conainers small in the filesystme they only run what is required. Despite the appearance of a full OS. the container only runs bash, which we can see with the container top sub-command. We can also use inspect at the container level.
+
+To see container resource utilization 
+#podman container top ubuntu
+
+
+Container Logs -- We cn read the container log files no matter if the container is running or not. the container must be present on the system though. here you can see how to install software. exist the shell and shut the container down but still access the logs.
+
+To check container logs
+#podman container log ubuntu
+
+
+Starting the container --
+when starting the container, you will need to map a port on the host to an exposed port in the container. setting the correct timezone will ensure the correct time values are used for your timezone.
+
+#podman container run -d --name www -e TZ='Europe/London' -p 8080:80 docker.io/ubuntu/apache2:latest
+
+To connect to image in interactive mode if bash command is installed in image
+#podman container exec -it www /bin/bash
+
+To delete a running container
+#podman container rm -f www
+
+Volume Mapping -- you can use the option -v to map the local content to the correct path in the container...
+
+To have /home/data directory of local host to a container
+#podman container run -d --name www -p 8080:80 -v /home/data:/var/www/html docker.io/ubuntu/apache2:latest
+
+Starting container with Systemd ::--
+To start container on boot you can use systemd service unti files. these are easily generated by podman when running as root.
+
+To generate systemd unti file of running container
+#podman generate systemd www
+
+To redirect generated output to /etc/systemd/system/www.service file
+#podman generate systemd www > /etc/systemd/system/www.service
+
+now reload systemd daemon
+#systemctl daemon-reload
+
+now you can stop your contaner 
+#podman container stop www
+
+you can start container by using generated container services.
+#systemctl enable www --now
+
+Often containers will need just one service, but if you use containers to test Ansible or other tools you will need to run services in the container.
+
+SELinux Boolean in container --- Adding the packge podman to the system will have added extra SELinux Booleans. To run systemd in a container, it must be able to manage control groups.
+
+#setsebool -P container_manage_cgroup true
+
+Building Custom Images
+You are building a testing lab for Ansible Automation and you need to test on Fedora 38 and Ubuntu 20.04 systems. you need to ensure that services can be installed and started into the containers. To customize images we use a DockerFile or Containerfile. We start with Fedora, we will eventually SSH to this container so we generate a key pair for authentication.
+
+#mkdir -p ~/project/ubuntu ~/project/fedora
+#cd  ~/project/fedora
+#ssh-keygen -f ~/.ssh/id_rsa -N ""
+#cp ~/.ssh/id_rsa.pub .
+#echo "tux ALL=(root) NOPASSWD: ALL" > tux
+
+The Dockerfile - the Dockerfile is the manifest of how to build the image. we start with the fedora image, install extra packages. Enable the sshd service. Create a new user and allow that use to manage the system and set up authentication. we open port 22 in the container firewall and set the initial program to run. 
+
+let's create Dockerfile for this scenrio
+#vi Dockerfile
+FROM docker.io/library/fedora:38
+RUN dnf install -y systemd openssh-clients openssh-server python3 ansible && dnf clean all
+RUN systemclt enable sshd
+RUN useradd -m tux -G wheel && echo 'tux:[Password1'|chpasswd
+COPY --chmod=600 tux /etc/sudoers.d/tux
+COPY --chmod=700 --chown=tux:tux id_rsa.pub /home/tux/.ssh/authorized_keys
+EXPOSE 22
+CMD ["/usr/sbin/init"]    # this will make our container running even we exist from container by using exit command from container.
+
+Now build the image from created Dockerfile
+#podman image build -t fedora .
+
+After building image you can use bloe command to check image
+#podman image ls
+
+Now run container from created image
+#podman contianer run -d --name controller --hostname controller -p 2222:22 localhost/fedora
+
+run below command to notchecking Keys and login into  running container ..
+#ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2222 tux@localhost
+
+Now inside container check your ansible version
+#ansible --version
+#exit
+
+Networking Podman ::--
+Using Pods in podman, containers are all on the same localhost but to truly communicate they need to be on their own network.
+
+Podman Networks --: Using the default network you cannot communicate between containers or resolve names. creating your own network and adding containers to the network will allow communication between containers.
+
+To check network info
+#podman network ls
+
+To create network
+#podman network create my-net --subnet 172.16.1.0/24 --gateway 172.16.1.1
+
+Create containers on network ::-
+you can delete the existing containers and recreate them on the new network. Additionally, the controller can connect to the original host network using port mapping for ease of access. From the controller you can access the ubuntu container using the container name.
+
+To create container on newly created network.
+#podman container run -d --name controller --hostname controller -p 2222:22 --network my-net localhost/fedora 
+
+we can also create other container on created network without port mapping
+#podman container run -d --name ubuntu --hostname ubuntu --network my-net localhost/ubuntu
+
+Orchestrating Configuration Using Podman-Compose :::---
+system prune - Using podman system prune, all stopped containers are removed, all networks not attached to cntainers, dangling images and cache images from build process. Adding the -a option then all images are removed also. As podman-compose can build everything for us, we can start from scratch.
+#podman system prune -a -f
+
+now you can see all unused images and network will be deleted.
+#podman images ls
+
+#podman network ls  # only default network will be present.
+
+Git repo ::
+git clone https://github.com/theurbanpenguin/podman
+
+podman compose -- using podman-compose, your existing docker-compose files can be used to automate lab configuration.
+podman-compose is part of the EPEL repository and a separate project to podman. Using YAML files you can describe containers and networks that are required in your lab, starting and stopping them in one command. Images can also be built from the YAML files.
+
+you can create a simple YAML file named compose.yaml in your home directory. Using that as your working directory, you can create and start the container. The down command will stop and destroy the container.
+
+Example of compose.yaml ::--
+version: '3'
+services:
+  apache:
+    image: docker.io/ubuntu/apache2
+    ports:
+      - 8000:80
+
+now we can use below command in same directory to start it.
+#podman-compose up -d
+
+now we can use our created container
+#curl http://localhost:8000
+
+to destory created conatiner/service
+#podman-compose down
+
+you can create seprate directory for project and in it you may create compose.yaml file for that project.
+
+Build Images : Image can be built automatically if they do not exist before a container is executed. we can also pre-build the images using the build sub-command. wen using podman-compse ensure you are working in the same directory as the compose.yaml file.
+#podman image ls
+#cd ~/podman/project
+#podman-compose build
+#podman image ls
+
