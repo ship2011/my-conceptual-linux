@@ -1,0 +1,195 @@
+firstly create a resource group for deploying Azure kubernetes cluster.
+#az group create --name myaks-rg --location eastus
+
+Now create one service principal
+#az ad sp create-for-rbac --skip-assignment
+
+To crete Azure container registry
+#az acr create --resource-group myaks-rg aksdeepdive --sku Basic --admin-enabled true
+
+To assign service principal ID read role for crated acr (azure container registry)
+#az role assignment create --assignee "sp app id" --role acrpull --scope "azure container id"
+
+to build an image and push it to created acr.
+To build image from Dockerfile and push it to acr.
+#az acr build --image sample/hello-world:v1 --registry acrname --file Dockerfile .
+
+Now run container from crated image created in registry registry
+#az acr run --registry aksdeepdive --cmd '$Registry/sameple/hello-world:v1' /dev/null
+
+To deploy aks cluster
+#az aks create --resource-group myrgname --name clustername --node-count 2 --enable-addons monitoring --generate-ssh-keys --service-principla "spid" --client-secret "secret"
+
+Context is the way you can switch between multiple clusters using kubectl as the tool to interface with the API server.
+To set the context for kubectl 
+#az aks get-credentials --resource-group myrgname --name aksdeepdive
+
+To switch to other context (aks cluster)
+#kubectl config use-context akscluster2
+
+To get current context info
+#kubectl config current-context
+
+To create deployment
+#kubectl run nodeapp --image=aksdeepdive.azurecr.io/node:v1 --replicas=2 --port 80
+
+
+thre are 2 kinds of connections to the API server..
+1. Users
+2. Applications
+
+User are meant to be managed by an external system (e.g. SSO client). Application use a service account.
+
+A service account is an object that's created for authenticating (via token) to the API server.
+
+if we have many aks clusters then we can use below command to check our current cluster
+#kubectl config get-clusters
+
+To check our aks clusters on azure
+#az aks list
+
+To get the k8s service account info
+#kubectl get sa
+
+RBAC (Role-based access control) -- Authentication method which buit into kubernetes. its determine whether user may perform the action or not. the user may be assigned to multiple roles. which allows that user to perfrom certain verbs on that resource (get pods, create service, update secrets, etc).
+
+A cluster role binding grants the permsssions defined in a role to a user or set or users.
+#kubectl get clusterrolebinding
+
+A cluster role binding grants the permissions defined in a role to a user or set of users.
+
+To describe clusterroldebinding
+#kubectl describe clusterrolebinding cluster-admin
+
+To describe cluster role
+#kubectl describe clusterrole cluster-admin
+
+To get api resources role binding
+#kubectl api-resources --namespaced=true
+
+To check roles for a namespace
+#kubectl get roles -n kube-system
+
+TO check further info of rolebinding in namespae
+#kubectl describe rolebindings rolebindingname -n kube-system
+
+
+k8s doesn't provide an identity management solution to tie Azure users to k8s usrs. With Azure active directory (Azure AD) you can create roles or clusterRoles that allow access to k8s resources. then bind those roles to users in Azure AD.
+
+To create a roles in k8s to allow listing the services in the web namespace.
+#kubectl create role finance-app-full-access-role --verb=* -n finance-app
+
+To bind the role to the user in Azzure AD for the finance-app namespace
+#kubectl creat4e rolebinding finance-app-full-access-role-binding --role=finance-app-full-access-role --user=test@example.com -n finance-app
+
+Network Model in AKS ---:::
+Kubenet is a kubernetes network configuration plugin for your AKS cluster. Nodes get an IP address from the AKS subnet. and pods receive an IP address from a seprate address space entriely. the source IP address of the traffic is NAT'd to the node's primary IP address.
+
+Note -- Only the nodes receive a routable IP address. Pods use network address translation to communicate outside the cluster.
+
+kubenet is network plugin which is used by Aks..
+Benefits of using Kubenet -:
+ More IP addresses for pods
+
+No pod-to-pod communication -- User defined Routing (UDR) and IP forwarding is used for communication between pods across nodes.
+When using kubenet plugin..
+Max number of pods per node : 110
+When CIDR /24
+251 nodes
+27610 podes (110 pods per node)
+
+When using Azure CNI network plugin
+ when CIDR /24
+ 8 nodes
+ 240 pods (30 pods per node)
+
+Important Note --: Don't create your AKS cluster in a Vnet with existing Azure resources.
+Always create your AKS cluster in a New Vnet.
+
+
+the service CIDR, POD CIDR, and Docker bridge address can be any address range. then DNS service IP must be any IP address that's within the service CIDR address range.
+
+to create aks cluster
+#az aks create --resource-group myrg --name clustername --node-count 3 --network-plugin kubenet --service-cidr 172.0.0.0/16 --dns-service-ip 172.0.0.11 --pod-cidr 172.244.0.0/16 --docker-bridge-address 172.99.0.1/16 --vnet-subent-id subnetid --service-principla "appid" --client-secret "secretname"
+
+Note -- service CIDR, POD CIDR, and Docker Bridge address must be new and Vnet with no other resources in them. they must not conflict with eachother.
+
+Azure CNI Network plugin --::
+Every pod gets a unique IP address that's accessible directory. this IP addresses must be reserved in advance, which requires planning up front. each node has primary IP address and 30 addtional pod IP addresses are preconfigured per node, by default. AKS cluster may not use 169.254.0.0/16 & 172.30.0.0/16, 172.31.0.0/16 or 192.0.2.0/24 for service address ranges.the service principle used by the AKS cluster must have network contributor RBAC role.
+
+AKS Vnet --10.244.0.0/8 ---Bridge 172.17.0.1/16 (Azure CNI) pod will also take IP address from AKS Vnet
+--> pod1 (10.244.0.8) & pod2 (10.244.0.9) ---Node IP (10.244.0.4)
+
+Each node has primary IP address, The default max pods per node is 30 (the maximum is 250)
+
+For creating aks cluster with CNI plugin
+#az aks create --resource-group rg-name --name clusternmae --network-plugin azure --vnet-subnet-id "subnetid" --dokcer-bridge-address 172.17.0.1/16 --dns-service-ip 10.0.8.10 --service-cidr 10.0.8.0/21 --service-principal "appid" --client-secret "secretvalue"
+
+
+Network Policies ::-- 
+These enable you to contorl traffic going to and from pods in your AKS cluster. Allow or deny traffic based on pod labels, namespaces or ports. As pods are dynamically created and deleted in your AKS cluster, traffic rules can be applied automatically.
+
+Two Options:
+1. Azure network policies
+2. Calico network polices
+
+Both Azure and Calico net3work polices use Linux Iptables to enfore specfic polices.
+
+Azure ::--
+ Supports Azure CNI
+ All policy types supported
+ Loggin from IPTables evrery hour
+ Azure Support
+
+Calico ::--
+ Supports Azure CNI and kubenet
+ All policy types supported
+ Extended policy model
+ Community supported
+ Loggin on the host supported
+
+If you want to work in specfic namespace then switch context to other namepsace
+#kubectl config set-context --current --namespace myapp
+
+Ingress Traffic ::-
+A kubernetes ingress resource automatically creates a cloud ingress controller and an external DNS controller in Azure. An ingress controller is software that provides reverse proxy and configurable traffic routing for kubernetes services.
+ingress controllers work at layer 7, which allows the distribution of application traffic, For example, to route HTTP traffic to different applications based on the inbound URL. 
+Ingress also supports SSL/TLS termination. you can configure a provider (let's encrypt) with your ingress resource to handle the TLS termination instead of the application itself.
+
+
+A Web Application Firewall WAF provides an addtional layer of security by filtering incoming traffic, and watching for attacks like cross site scripting or cookie posoning.
+Appliation Gateway Incress Controller (AGIC) with integrated WAF allows you to run this ingress controller as a k8s resource on a pod within the AKS cluster. Only application gateway Standard_v2 and WAF_v2 SKUs are supported.
+
+Persistent Volume ::-
+This is a storage volume that has been provisioned in k8s by an admin to provide storage space to a pod, and which continues to live (not erased or formatted) beyond the life of a pod. the intention is to provide the same storage volume to one or many pods given the ephemeral nature of pods.
+
+Persistent Volume Claim ::-
+This is a storage volume that has been provisioned in k8s by a user to provide a persistent volume to a pod. If there are no PVs to fulfill the claim the API server can dynamically provision the underlying storage required based on a storage class.
+
+Static vs. Dynamic Volume ::--
+When application in your AKS cluster need persistent storage in an external data volume, use static or dynamic volumes, Static volumes are manually provisioned volumes that the cluster administrator must create to provide that volume to a pod. Dynamic stroage makes use of storage classess and persistent volume claims to automatically provision on-demand storage without needing to manually pre-provision the underlying storage.
+
+Azure Managed Disks ::- Creating a static or dynamic volume using Azure managed disks, only one pod can access your disk at a time.
+
+Azure Files ::- Creating a static or dynamic volume using Azure files, Multiple pods can access the same volume at the same time over SMB protocol.
+
+Node Sizing ::-
+Each node size supports a maximum number of disks, disk size (local storage), CPUs, and network bandwidth throughput. Changing the VM size after cluster creation is not currently supported, but you can create multiple node pools, and they can contain different VM sizes.
+
+Disk performance (i.e. IOPS) is also consideration when choosing node size. 
+To Add new Node Pool
+#az aks nodepool add --cluster-name clustername --name FseriesPool --resource-group myrg --node-vm-size Standard_F8s_v2
+
+when we add a node pool into an existing cluster, it will get placed into the overall pool of nodes. If you want to schedule pods to specific nodes, you can use nodeAffinity or nodeSelector.
+
+To upgrade kubernetes version for nodepool
+#az aks nodepool upgrade --resource-group aksrg --cluster-name clus1 --name nodepoolname --kubernetes-version 1.17.6 --no-wait
+
+Scale out the number of nodes or pods in your cluster ::-
+As your application is running inside of an AKS cluster, you may need to increase the number of application instances that host your application. This may include increasing the number of pods in your deployment or increasing the number of nodes in your cluster, with the use of a Horizonatal pod auto scaler and cluster Autoscaler (often used together) you can have AKS automatically provision new pods or nodes.
+
+Monitoring Container Performance ::- Azure Monitor collects CPU and memory metics from containers and nodes through the metrics API. Logging can also be truned on and written to your Log Analytics workspace.
+
+To create AKS cluster by enabling monitoring, it will also create log anaylatic workspace.
+#az aks create --resource-group aksrg01 --name clusname --node-count 3 --enable-addons monitoring --generate-ssh-keys --service-principal "appid" --client-secret "value"
+
