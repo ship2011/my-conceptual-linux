@@ -1,0 +1,129 @@
+Jenkins Features and Functionality ::--
+Continuous Intergration (CI) / Continuous Delivery (CD)
+
+Continuouse Intergration -- This is a software development practice in which members of a team integrate their work frequently, at least daily, leqading to multiple integrations per day.
+
+Continuous Delivery (CD) -- This is a software development discipline where softeware is built in a manner that allows for deploying to customers at any time.
+
+Continuous Deployment -- This extends continuous develivery by automating the deployment process so that code is automatically deployed to production after it passes automated testing.
+
+Jobs in Jenkins -- A job is any runnable task that is controlled by jenkins, The Junkins offical documentation indicates that the term Job has been replaced by the term Project.
+Remember:: Job = Project
+
+FreeStyle Project ::-- This is the most common type of project. the build step for this type of project normally executes a Shell (Linux) or batch (windows) command.
+
+
+PipleLine Project --:: this type of project used to be called a workflow. these projects are normally writtern in jenkins domain specific language (DSL).
+These type of projects  are for things that do not fit in a freestyle project, becuase they are too complicated or span multiple nodes.
+
+Multi-Configuration Project --:: This is for projects that will be tested on multiple environments, and require different configurations, depending on those environments.
+
+
+Git-Hub Organization Project ::--  This type of project can use the source control platform's organization  and allow Jenkins to act on Jenkinsfiles stored within the organization's repositories.
+
+
+Folder ::- This provides a method to group projects together. This is not technically a project. It acts as a type of directory structure for the projects, and the folder name becomes the part of the path of the projects.
+
+Multi-Branch Pipeline ::-- In this type of project, Jenkins uses a Jenkinsfile to makr repositories. If a branch is created in that repository, Jenkins will make a new project in Jenkins for that branch.
+
+Job/Project Scope ::-- This includes all of the items that are part of that particular Job/Project. In some cases there are Global libraries that are brought into the scope of a project simply by being included, Other items that declared within a Project only exist in that project's scope, and are not available as a shared resources.
+
+
+What is a build ---: A build is the result of a single execution of a project.
+
+Build Steps :: A Single task within a project.
+Check SCM for changes - Clean checkout - build code - perform testing - check pass fail - Provide feedback - if pass produce build 
+
+Artifacts and Repositories ::- this refers to immutable files that are generated during a build or a pipeline run. these are archived on the jenkins master for later retrieval.
+
+A single build can have multiple artifacts associated with it. these can include jar files, war files, configuration files, and other generated assests.
+
+Artifacts are maintained in a repository. This can be on the Jenkins master or in a source control manager (SCM).
+Repositories hold items that need to be retrieved. these items can include source code, compiled code artifacts and configuration files.
+
+Build Tools ::-- 
+these are the softwares that actually performs the build portion of the pipeline.
+Build tools can include Maven, Ant, and shell scripting.
+Configuration varies by build too, but the processes are similar:
+
+1. Start Jenkins and installl required plugins.
+2. Perform global configuration steps.
+3. Create a job/pipleline that utilizes the build tool
+4. Update the tools configuration files: POM, XML, config etc.
+
+
+Source Code Manager (SCM) ::--
+A source code Manager is software that is used to track changes in code.
+Changes in code, revisions, are timestamped and include the identity of the person that made the change. 
+Changes can be tracked or rolled back as needed. versions of the code can be compared, stored, and merged with other versions.
+Some examples are Git, Subversion, Mercurial, and Perforce.
+
+Infrastructure As Code :: -- this is the process of managing and provisioning resources via configuration files. 
+It allows machine configurations to be maintained in source control. those configurations can then be rolled back or versioned.
+
+Testing ::- testing is the process of checking code to ensure that it is working as designed, or that its output is what is expected.
+
+Types of tests --
+Unit test :- In thsi type of test individual components (classes, methods, modules) are tested to ensure that output are as expected. 
+
+Smoke Test :- more generalized than a unit test, this type of test checks the main functionality of the software to ensure that it is stable enough for further testing.
+
+Verification / Functional Test :- Verification testing seeks to answer the question "Did we satisfy the build requirements" Automated verification testing is used to stremline this process.
+Functional testing checks a specific function of the software. This seeks to answer "Does this feature work" or "Can a user do this?"
+
+Accetance Test :- this is the hadoff test of the sofware to the client, it is normally done by the client to ensure that the software meets their expections.
+
+Notifications ::--
+Notifications are critical to an automated process, they give you active feedback to the status of processes within the project.
+If a build fails, or if you need to manually approve a deployment, you can configure a notification to be sent.
+Types of notifications include email, sms and several types of instant messaging that are configurable via plugins.
+
+Distributed Builds :- Distributed builds are build jobs in which the executor of the build is locat4ed on an agent (node) that is separate from the master.
+The master acts as the controller for the build, running specific builds on specific agents, allowing for parallelism and greater ease in multiconfiguration pipelines.
+if you have 3 versions of the sofware to perform 5 unit test against, this can be done in one parallel pass, resulting in 5 tests on each agent rather than 15 tests on the master.
+Master acts as the controller for the build, running specific builds on specific agents allowing for parallelism and greater ease in multiconfiguration pipelines.
+Master / Agent communication is via SSH (preferred) or JNLP (TCP or HTTP)
+
+Agent should be fungible (replaceable) this means that local configuration on the agent should be kept to a minimum and global configuration on the master should be preferred.
+
+
+Plugins ::--
+Plugins are extensions to jenkins that add to its functionality.
+Jenkins defines interfaces / abstract classes that model a part of the build system. these define what needs to be implemented, and jenkins plugins extend that implementation.
+
+Jenkins API :- Jenkins provides a machines consumable REST styple API for programmatically interacting with the Jenkins server.
+
+Security ::-
+Matrix Security :- this can be Global or Project based.
+
+Artifacts ::--
+An artifact is an immutable file that is generated during a build or pipeline run.
+these are used to provide the compiled project to end users, facilitate the testing process, create classes, and prevent rebuilding of known good code.
+
+Artifacts are stored in a repository, fingerprinting is used to determine which build produced that artifact.
+On the Jenkins master the default location of the archive repository is :
+Jenkins root/jobs/buildname/builds/lastSuccessfulBuild/archive
+
+FingerPrints :- A globally unique hash that is used to track Artifacts or other entites across multiple pipelines or projects.
+
+
+Installing Jenkins ::--
+Firstly get jenkins.repo
+#wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat/jenkins.repo
+
+To install jenkins
+#yum -y install java-1.8.0-openjdk java-1.8.0-openjdk-devel jenkins git 
+
+To start jenkins service
+#systemctl start jenkins
+
+Now access Jenkins portal by using URL
+http://ip:8080
+
+On unlock screen get code from server and then paste here
+On the next screen Customize Jenkins, Select install suggested plugins
+now it will start installation of Jenkins plugins and then on next screen it will ask for admin user and password here give admin and password and click on next.
+
+Notifications and Alerts
+
+
