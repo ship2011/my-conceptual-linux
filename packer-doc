@@ -1,0 +1,190 @@
+the packer is inteded to be used on a local workstation.
+
+Packer installation on Linux::--
+Download package from hash corp packer website..
+#curl https://releases.hashcorp.com/packer/1.7.6/packer_1_7_6_linux_amd64.zip -o packer.zip
+
+Now unzip donwloaded packer.zip
+#unzip packer.zip
+
+Now you will see packer binary adn you can move this binary to /usr/bin/
+#mv packer /usr/bin/
+
+Packer Plugins comes in 3 form
+1. Builders 2. Provisioners 3. Post-Processors
+
+If you have any packer plugins then move it in same directory where your packer binary present
+Packer plugins naming convetion 
+ packer-type-comment
+
+Builder ::-- Define the desired platform and platform configurations, including API key information and desired source images.
+
+Lets build image, firstly create directory structure
+#mkdir packer
+#mkdir packer/base-ami
+#cd packer/base-ami
+
+here create json file
+#vi packer.json
+{
+  "variables": {
+     "aws_access_key": "",
+     "aws_secret_key": ""
+   },
+   "builders": [
+     {
+       "type": "amazon-ebs",
+       "access_key": "{{user `aws_access_key`}}"
+       "secret_key": "{{user `aws_secret_key`}},
+       "region": "us-east1",
+       "instance_type: "t2.micro",
+       "ami-name": "packer-base-ami-{{timestamp}}",
+       "source_ami_filter": {
+         "filters": {
+             "virtualization-type": "hvm",
+             "name": "ubuntu/images/*ubuntu-focal-20.04-amd"
+             "root-device-type": "ebs"
+         },
+        "owners": ["099720109477"],
+        "most-recent": true
+     },
+        "ssh_username": "ubuntu"
+    ]
+} 
+
+Packer communicator :: - How packer works on the machine image during creation. By default, this is SSH and does not need to be defined.
+
+To validate json template
+#packer validate packer.json
+
+
+To fix format and syntax 
+#packer fix packer.json
+
+To build image run below command
+#packer build packer.json
+
+
+
+Shell provisioners ::- Provision the machine using the image's default shell.
+
+Provisioners examples :--
+
+"provisioners": [
+      {
+           "type": "shell",
+           "inline": ["sudo apt update -y && sudo apt -y upgrade"]
+      },
+      {
+           "type": "shell",
+           "script": "init.sh"
+      },
+      {
+           "type": "shell",
+           "scripts": ["dir/init1.sh", "dir/init2.sh"]
+      }
+  ]
+
+whatever script we execute through provisioner, we want to save them on remote machine
+"remote_folder" : "/opt/sss/"
+"skip_clean": true
+
+
+File Provisioners ::- Upload files and directories to the machine.
+example ::
+"provisioners":  {
+     "type": "file",
+     "source": "files/",
+     "destination": "/tmp"
+}
+
+
+ansible provisioners ::- Provision using a remote ansible servrer; runs ansilbe=playbook over ssh.
+"provisioners": [
+    {
+      "type": "ansible",
+       "playbook_file": "./playbook.yml"
+   }
+ ],
+
+ansible-local provisioners ::- Install Ansilbe on the remote and use it to configure the localhost.
+"provisioners": [
+    {
+      "type": "ansible-local",
+       "playbook_file": "./playbook.yml"
+   }
+ ],
+
+
+Chef-client provisioners ::- Connect to an existing chef infra server to provision the remote as desired.
+
+"provisioners": [
+     {
+       "type": "chef-client",
+      "server_url": "www.chef.exampleserver.com"
+     }
+],
+
+
+chef-solo provisioner ::- Install Chef on the remote and use it to configure the localhost.
+ "provisioners": [
+    {
+      "type": "chef-solo",
+      "cookbook_path": ["cookbook"]
+   }
+  ],
+
+puppet-server provisioner ::- Connect to an existing puppet servrer to provision the remote as desired.
+
+"provisioners": [
+      {
+        "type": "puppet-server",
+        "puppet_server": "puppet"
+      }
+ ],
+
+puppet-masterless provisioner ::- Run the puppet apply command on the remote to configure the machine.
+ "provisioners": [
+     {
+       "type": "puppet-masterless",
+       "mainfest_file": "site.pp",
+       "type": "puppet-masterless"
+     }
+ ],
+
+salt-masterless provisioner ::- Provision the remote using masterless salt.
+
+"provisioners": [
+   {
+      "type": "salt-masterless",
+      "local_state_true": "salt"
+   },
+ ]
+
+
+Post-Processor ::- Related to the builder; runs after the image is built; generally generates or supplies artifacts.
+
+"post-processors": [ 
+      {
+        "type": "vagrant"
+      },
+      {
+        "type": "compress",
+        "output": "vagrant.tar.gz"
+      }
+]
+
+Parallel Builds ::--
+
+To run packer build in debug mode
+#packer build -debug packer.json
+
+Git hub repo for packer hashicorp...
+git clone https://github.com/linuxacademy/content-hashcorp-packer
+
+Packer Virtual Box builders type ::
+virtualbox-iso :- Start by using an ISO: creates an OVF.
+virtualbox-ovf :- Start with an OVF or OVA image: creates an OVF.
+virtualbox-vm :- Start with an existing VirtualBox virtual machine: creates an OVF.
+
+
