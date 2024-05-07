@@ -1208,3 +1208,40 @@ Grafana - Observability Stack.
 
 Check services
 #kubectl get svc
+
+GitOps - the future of Infrastrucuture Management
+-Great for k8s cluster management
+-Application delivery with Git as a single source of truth
+-GitOps is about using Git to manage your infrastructure and applications
+
+
+Argo - Argo CD is declarative, GitOps continuous delivery tool for k8s
+
+Create arogcd namespace
+#kubeclt create namespace argocd
+
+Install arogcd by yaml which can be found at argo git doc
+#kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+To patch existing argocd config map
+#kubectl -n argocd patch configmap arogcid-cmd-params-cm --type merge -p '{"data":{"server.insecure":"true"}}'
+
+To restart argocd deployment
+#kubectl -n argocd rollout restart deployment/argocd-server
+
+To get secret info
+#kubectl -n arogcd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}"|base64 -d
+
+To arogcd-server ip and port
+#kubectl -n argocd get svc
+
+Now access ip:port on web browser
+
+at this portal we will enter user name admin and password which we fetched from secret
+
+whatever you will deploy from argo and if you will delete it from k8s manually then it will get deployed automatically by argo, so firstly remove argocd namespace, where you have installed argo
+#kubectl delete namespace/argocd
+
+For more info on Argo CD workflows refer below link
+https://argoproj.github.io/workflows/
+
