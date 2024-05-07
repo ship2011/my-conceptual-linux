@@ -1,0 +1,1210 @@
+My Application is Cloud Native ?
+
+- Benefits from Cloud Infrastructure, Cost saving opportunities vs legacy, can be scaled as required.
+- Guranteed Availability, the cloud provider will often guarantee a level of availability in a specific region.
+- Cloud Provider API, beneficial for cloud automation especially with the likes of terraform and ansible.
+
+
+Self Healing - Using Cloud Native Practices ::
+ Deployment - A declarative means of defining a desired state, we can use deployments to specify how an application should run as well as the number of replicas that should be running.
+
+ ReplicaSet - Managd by deployments, RepliaSet provide a declarative resources for managing the desired number of pods.
+
+ Pod - A smallest deployable unti you can create and manage in k8s, provides shared networking and storage for one or more containers. Thinks pod as an isolated host!.
+
+Knative ---: A Kubernetes serverless solution that can provide scale to zero resources.
+
+
+Autoscaling ::--
+Vertical Scaling --- Adding/increasing CPU, Memory and Disks..
+
+Horizontal Scaling --- Scaling Across servers (a, b, c, d, e...)
+
+Kubernetes Autoscaling :: Autoscaling options for kubernetes
+ - Cluster Autoscaler :- A tool that automatically adjusts the size of a kubernetes cluster when there are pods that fail to run, owing to insufficient resources (or) there are nodes that have been underutilized and pods can be placed on other existing nodes.
+
+ - Horizontal and Vertical Pod Autoscaler :: HorizontalPodAutoscaler and VerticalPodAutoscaler are solutions that are available for use within kubernetes for horizontal and vertical scaling of pods.
+   HPA scales the number of replicas of an application
+   VPA scales the resource requests and limits of a pod
+
+ - KEDA :: Event Driven Autoscaling - KEDA is a k8s event driven autoscaling solution that uses the ScaledObject definition to define how an application should scale and what are related triggers. Keda can scal a deployment to zero.
+
+
+Serverless ::-- example of servers less faas (function as a service), serverless is event driven archticture. kubernetes serverless solution is knative.
+
+
+Container Orchestrator ::--
+A Container Orchestrator can help with Provisioning, Deployment, Scaling and more, as well as Standard and Frameworks and integration with components.
+
+Product for Container Orchestrator in Market ::
+OpenShift, Docker Swarm, Nomad and Kubernetes
+
+Core of the Openshift is Kubernetes.
+
+Low Level container Runtime is RUNC
+Spawning and running containers.
+Interacts with Low level linux components - Namespace and Cgroups.
+runc is the reference implementation of a Low level container Runtime.
+runc was donated by docker Inc and is an OCI compatible container runtime.
+
+Low level runtimes are typically installed as a component of High level container runtime (containerd)/container engine.
+
+The Kubelet ::- Often referenced as being the "Node" of a kubernetes cluster.
+Kubelet runs on Nodes and the Control Plane
+Kubelet maintains pods
+kubelet makes use of a Pod Spec, a description of a Pod in YAML or JSON.
+kubelet can receive requests via an API or by monitoring a directory, typically /etc/kubernetes/manifests
+
+Flow of pod creations node side...
+YAML/JSON file--->Kubelet--->containerd---->RUNC--->Static Pods
+
+
+ETCD :: - the source of Truth
+-Strongly consistent, Distributed, Key-Value Store
+-Handles Leader Elections, Network Partitions
+-Handles Machine Failures in a Highly Available Configuration
+-Used as the source of truth, the backing store for kubernetes
+-Production setup - multiple instances as an odd number, ideally 5 nodes, backups are recommended.
+
+KubeAPI Server :: - Centeral point
+-Main gateway for access - User access and component communication
+-Provides a RESTful API interface
+-stores all data in a persistent storage backend, example ETCD.
+-communicates with the kubelet via API, another route for pod creation.
+
+Kube-Scheduler ::-
+-Control plane process
+-started as a static pod (/etc/kubernetes/manifests
+-Determines valid nodes according to constraints and resources.
+
+Kube-Proxy ::-
+-runs as a DaemonSet on every instance in the cluster
+-started as a normal pod (via k8s), it is not a static pod.
+-communicates with the API server and dynamically configures tcp/udp and SCTP forwarding on any system that it runs.
+
+
+DNS with CoreDNS ::-
+-CoreDNS is a kubernetes deployment
+-Deployments are used to describe how an application should run, for example a deployment will have x replicas.
+-deployments such as CoreDNS are dependent on kubernetes controllers.
+
+Controller Managers ::-
+-controllers are contorl loops that monitor the state of your cluster
+-controllers will make or request changes as required
+-controllers include the replication controller, node controller and the deployment controller
+
+Cloud Controller Manager ::-
+-Not available on all kubernetes setups, typically found in public cloud kubernetes offerings.
+-Bridges functionality of the cloud provider to kubernetes.
+-A Loadbalancer service is a good example of the CCM in use, for example, the use of a loadbalancer in kubernetes may result in the creation of a Cloud provided loadbalancer.
+
+
+Kubernetes pods ::-
+- one or more containers
+- containers will share the networking provided by that pod and will communicate using localhost
+- Each pod is assigned a unique IP address within the cluster
+- containers in a pod can communicate with each other using inter-process-communication (IPC).
+- A pod can encapsulate an application, its dependencies, shared storage and networking into a single deployable unit.
+
+
+To forward port of running pod
+#kubectl port-forward pod/httpd 8080:80
+
+now you can access this by using port 8080
+
+To run pod in background for infinity
+#kubectl run --image=ubuntu sleep infinity
+
+To interact with running pod by using bash shell
+#kubectl exec -it ubuntu -- bash
+
+To delete running pod right now
+#kubectl delete pod/nginx pod/ubuntu --now
+
+To generate yaml by using kubectl
+#kubectl run niginx --image=nginx --dry-run=client -o yaml |tee nginx.yaml
+
+to get possible values for specifc parameters
+#kubeclt explain pod.spec.restartPolicy
+
+to generate another yaml
+#kubectl run --image=ubuntu --dry-run=client -o yaml ubuntu sleep infinity| tee ubuntu.yaml
+
+to apply yaml
+#kubectl apply -f ubuntu.yaml
+
+To combine 2 yaml file
+#{cat nginx.yaml;echo "---";cat ubuntu.yaml}|tee combined.yaml
+
+to create pod by apply yaml
+#kubectl apply -f combined.yaml
+
+to delete created pod by appy yaml
+#kubectl delete -f combined.yaml --now
+
+to describe pod to get more info
+#kubectl describe podname
+
+
+Namespaces ::-
+-Isolation 
+-Resource Management - Use of ResourceQuotas
+ResourceQuotas allow us to set budgets on how much of resource such as Memory or CPU can be used by all pods within a namespace.
+-Resource Management - Use of LimitRanges
+LimitRanges allow us to set the amount of resources that each pod or container can use.
+
+-Security and Access Contorl - Integration with RBAC
+In k8s we can tie role base access control (RBAC) to a particular namespace - only allowing specific users/groups and accounts to access the resources within that namespace.
+
+-Organisation and simplification - Integration with RBAC
+Namespaces make it easy to manage and organize resources within a large k8s cluster. this is essential when working with k8s cluster in large organisations.
+
+To get all resources across all namespaces we can use below command
+#kubectl get all -A
+
+service/kubernetes is the exception and is in the default namespace for ease of discovery and access to the kubernetes API.
+
+To get all namespces 
+#kubectl get namespaces
+#kubectl get ns
+
+To get all resoruces commands of kubectl
+#kubectl api-resources| more
+
+if this commands shows NAMESPACED status false then resources is not namspaced level, it cluster level wide resource..
+
+When you create any resources in k8s without defining namespace name then that resource get created in default namespace..
+
+To create resource in specific namespace, you need to define namespace when creating resource...
+
+To create new namespace 
+#kubectl create namespace newnamespace
+
+To run pod in created namespace
+#kubectl -n newnamespace run nginx --image=nginx
+
+To get all pods of specific namespace
+#kubectl -n newnamespace get pods
+
+To check defulat config for k8s resources
+#kubectl config view
+
+If you want to create your resources in other namespace without mentioning namespace then set other namespace in default config
+#kubectl config set-context --current --namespace=newnamespace
+
+Now check default config 
+#kubectl config view
+
+when we delete namespace then it delete all resources of that namespace 
+#kubectl delete namespace/newnamespace --now
+
+
+Kubernetes Deployments ::-
+-Update Application predictably
+-Maintain Availability - Even During an update process
+-Deployments provide key features
+
+Replication : Should a pod crash or get deleted, the deployment makes sure the number pods is as expected.
+
+Updates : updates are phased out gradually to prevent all instances from being updated simultaneously.
+
+Rolbacks : If anything goes wrong during the update or while a new version is running, deployments allow you to revert to an older version.
+
+let's generate yaml for deployment by using below command
+#kubectl create deployment nginx --image=nginx --dry-run=client -o yaml|tee nginx-deploy.yaml
+
+
+command output first sent to terminal and the file via tee
+
+To get status of deployment
+#kubectl get deployment
+
+To get replicaset information 
+#kubectl get replicaset
+
+To check rollout history of a deployment
+#kubectl rollout history deployment/nginx
+
+To annotate deployment/nginx with comment
+#kubectl annotate deployment/nginx kubernetes.io/change-cause="initial deployment"
+
+Now you can chec annotated comment in rollout history for deployment
+#kubectl rollout history deployment/nginx
+
+To check info of your deployment
+#kubectl get deployment -o wide
+
+To scale your running deployment to  9 replicas
+#kubectl scale deployment/nginix --replicas=1o
+
+
+MaxSurge (25%) - this allow kubernetes to increase the number of pods by 25% above the desired amount during an update, maintaining application availability.
+
+MaxUnavailable (25%) - up to 25% of the pods can be unavailable during the update process, ensuring availability whilst limiting resource usage.
+
+To change image of current deployment
+#kubectl set image deployment/nginx nginx=nginx:stable
+
+If you change in a image then it will reflect in new replicaset
+#kubectl get replicaset
+
+Changes in image will also create revision in rollout history , you can annotate revesion history comment
+#kubectl annotate deployment/nginx kubernetes.io/change-cause="change image to nginx:stable"
+#kubectl rollout history deployment/nginx
+
+To describe deployment 
+#kubectl describe deployment/nginx
+
+To rollout deployment to previous state
+#kubectl rollout undo deployment/nginix 
+
+Now check your rollout history and you will see your previous revision which became latest revision
+#kubectl rollout history deployment/nginx
+
+To rollback to a specific revision 
+#kubectl rollout undo deployment/nginx --to-revision=1
+
+#kubectl get replicaset
+
+To delete deployment, which will also delete all linked replicaset with this deployment
+#kubectl delete deployment/nginx --now
+
+
+Kubernetes Services ::--
+there are 4 types of services availiable in k8s
+1- Cluster IP - Exposes the services on a cluster-internal IP, ClusterIP is the perfect service for itnernal components such as API's or Database services, this service is not accessible outside of the cluster.
+Example for ClusterIP --
+Generate yaml config for nginx deployment
+#kubectl create deployment nginx --image=nginx-debug --port=80 --replicas=3 -o yaml --dry-run=client
+
+To create deployment run it like below
+#kubectl create deployment nginx --image=nginx-debug --port=80 --replicas=3
+
+generate yaml to expose created deployment to service
+#kubectl expose deployment/nginx --dry-run client -o yaml
+
+To expose deployment - by default services get expose to ClusterIP service
+#kubectl expose deployment/nginx
+
+To check created services status
+#kubectl get services
+
+To check endpoints status, this shows endpoints (IPs of created pods by deployment)
+#kubectl get endpoints
+
+To describe service
+#kubectl describe service/nginx
+
+When you are accessing from inside the pod then dns name will be
+nginx.default.svc.cluster.loal
+
+To delete created service
+#kubectl delete service/nginx
+
+2- NodePort - Exposes the service on each node's IP, service can be accessed from each node's IP
+
+To expose running deployment to  Nodeport service
+#kubectl expose deployment/nginx --type=NodePort
+
+To check exposed services status
+#kubectl get services  # 80:32610 podport:nodeport
+
+To delete exposed service
+#kubectl delete service/nginx
+
+3- LoadBalancer - Exposes the service externally using external load balancer, mostly used in cloud based enviornment.
+To expose deployment with loadbalancer
+#kubectl expose deployment/nginx --type=LoadBalancer --port 8080 --target-port 80
+
+To check exposed service status
+#kubectl get service
+
+To delete your service and deployment
+#kubectl delete deployment/nginx service/nginx
+
+4- External Name - Maps the service to the contents of the externalName filed. its usually expose services with CNAME record
+
+let's create deployment for port 80
+#kubectl create deployment nginx-red --image=nginx-red --port 80
+
+now create other deployment for port 80
+#kubectl create deployment nginx-blue --image=nginx-red --port 80
+
+Now expose both deployment with default service type ClusterIP
+#kubectl expose deployment/nginx-red
+#kubectl expose deployment/nginx-blue
+
+Now check your service status
+#kubectl get service
+
+Now create services for external
+#kubectl create service externalname my-service --external-name nginx-red.default.svc.cluster.local
+
+in that command "my-service" will be cname for nginx-red.default.svc.cluster.local
+
+To change created service dns record to blue
+#kubectl edit service/my-service
+
+Now delete created deployment and services
+#kubeclt delete deployment/nginx-blue deployment/nginx-red service/nginx-blue service/nginx-red service/my-service
+
+Ingress ist not considered one of the Core service, it is an application service which exposes HTTP and HTTPS routes from outside the cluster to services within the cluster.
+
+Headless services uses only dns name it doesn't uses IP, please refer below steps
+
+to create deployment with 3 replicas and expose it to port 80
+#kubectl create deployment nginx --image=nginx-debug --replicas=3 --port 80
+
+to generate yaml with clusterIP 
+#kubectl expose deployment/nginx --dry-run=client -o yaml --type=CLusterIP|tee headless.yaml
+
+Now edit generated yaml and update clusterip to None and it will make it headless service
+#vi headless.yaml
+#kubectl apply -f headless.yaml
+
+Now if you will check your service status then you will see there is no IP address
+#kubectl get service
+
+Now you can curl only by using service name
+#curl servicename
+
+Kubernetes Jobs ::-- Ensuring Reliable task execution
+-Supervisor for pods - carrying out batch tasks
+-Manages task execution
+-Tracks task progress
+-Retries tasks as required
+
+To create Job
+#kubectl create job clpi --image=perl:5.34.0 -- "perl" "-Mbignum=bpi" "-wle" "print bpi(1000)"
+
+Now check jobs status
+#kubectl get jobs
+
+
+To describe job
+#kubectl describe job/clpi
+
+To get pods info
+#kubectl get pods -o wide
+
+To check logs for pod
+#kubectl logs clpi
+
+To delete job, it will also terminate all associated pod with the job.
+#kubectl delete job/clpi
+
+
+Kubernetes Cronjobs ::-
+-time based Jobs schedulers
+-Uses the traditional Unix CronJob scheduling system
+-Run tasks on a schedule
+-create job objects as per a schedule
+
+To create cronjob, which will schedule pod according to define entery
+#kubectl create cronjob clpi --image=perl:5.34.0 --schedule="* 10 * * *" -- "perl" "-Mbignum=bpi" "-wle" "print bpi(1000)"
+
+To see status
+#kubectl get cronjob
+
+Kubernetes ConfigMaps ::-- 
+-Store Configuration information 
+-Environment variables
+-other information
+-Managing configuration data effectively
+
+
+To create configmap 
+#kubectl create configmap colour-configmap --from-literal=COLOUR=red --from-literal=KEY=value
+
+To check our config map info
+#kubectl describe configmap/colour-configmap
+
+To delete configmap
+#kubectl delete configmap/colour-configmap
+
+Below approch can be also used to create configmap by using file.
+#cat <<EOF > configmap-colour.properties
+COLUR=GREEN
+key=value
+EOF
+
+Now check your file
+#cat configmap-colour.properties
+
+Now we will create config map from file
+#kubectl create configmap colour-configmap --from-env-file=configmap-colour.properties
+
+To check configmap status
+#kubectl describe configmap/colour-configmap
+
+let's generate yaml
+#kubectl run --image=ubuntu --dry-run=client --restart=Never -o yaml ubuntu --command bash -- -c 'env;sleep infinity'|tee env-dump-pod.yaml
+
+Now check your generated yaml and apply it.
+#kubectl apply -f env-dump-pod.yaml
+
+Now check logs of your created pod
+#kubectl logs ubuntu
+
+Now open your generated yaml and update configmap file like below under "containers" section.
+#vi env-dump-pod.yaml
+
+envFrom:
+- configMapRef:
+    name: colour-configmap
+
+save file delete pod and create once again because apply will show error
+#kubectl delete -f env-dump-pod.yaml --now;kubectl apply -f env-dump-pod.yaml
+
+Now check your pod's log
+#kubectl logs ubuntu
+
+To create immutable configmap define parameter in configmap's yaml
+immutable: true
+
+To delete pod and config map
+#kubectl delete pod/ubuntu configmap/colour-configmap --now
+
+
+Kubernetes Secrets ::-- Securing data with kuberntes secrets
+-Object for storing sensitive information
+-Use for passwords, tokens, Keys
+-Anything else we wish to store sensitively
+-You don't need to store confidential information in your application 
+
+To generate yaml for secret from cli
+#kubectl create secret generic colour-secret --from-literal=COLOUR=red --from-literal=KEY=value --dry-run=client =o yaml|
+
+this don't use encryption, its use unicode  (unicode value can be easily reverse by decode)
+command to encode by using manual command
+#echo -n value| base64
+
+To decode encoded value by manual command
+#echo encodevalue| base64 -d
+
+To see secrets information
+#kubectl get secrets
+
+to get created secrets information
+#kubectl get secret/colour-secret -o yaml
+
+create a pod
+#kubectl apply -f env-dump-pod.yaml
+
+Now check logs of your created pod
+#kubectl logs ubuntu
+
+Now open your  yaml and update secret file like below under "containers" section.
+#vi env-dump-pod.yaml
+
+envFrom:
+- secretRef:
+    name: colour-secret
+
+
+now apply it
+#kubectl apply -f env-dump-pod.yaml
+
+Now check env variable 
+#kubectl logs ubuntu
+
+Now delete created resources
+#kubectl delete pod/ubuntu secret/colour-secret --now
+
+
+Kubernetes Labels ::-- the key to effective resource management
+-Fundamental for identifying and organising resources
+-effective mechanism for assigning metadata to a kubernetes object
+-Useful for tagging resources
+-Useful for grouping resources, example app1, team1
+
+-kubernetes uses labels and selectors interanlly
+-Network policies can make use of labels
+-scoping resources, example development, testing or production 
+- A thoughtful labeling stratgey = ease of k8s administration
+
+Generate yaml for pod and then expose it
+#kubectl run nginx --image=nginx --port 80 -o yaml --dry-run=client
+#kubectl run nginx --image=nginx --port 80
+#kubectl expose pod/nginx --dry-run=client -o yaml
+now in this notic you will see "selector" which using to select pod's lebel for expsoing ports.
+ selector:
+   run: nginx
+
+#kubectl expose pod/nginx 
+
+to get expose pod info
+#kubeclt get all --selector run=nginx
+
+to get resources information by using selector, which will select resources bases on labels
+#kubectl get all --selector colour=green
+#kubectl get all -l colour=green
+
+
+Kubernetes API ::- core of k8s
+-primary interface for users and system components
+-Restful API
+-There are many forms of interaction with kubernetes API
+
+Admission Controller :-
+-Enforce policies and modify resources
+-Enforce quotas, set defaults, validate configuration and perform other tasks.
+-useful for namespace management
+-accepts or reject request accordingly.
+
+
+API routing :-
+-Request Arrival
+-Route Matching (Based on URL and method, GET, POST, PUT, DELETE)
+-Authentication such as an API key or token
+-Authorization are these permissions allowed, if the parameters is not set, it will default to alwaysallow.
+-Admission controller 
+-Validation
+-Request handling
+-Response Generation
+-Response sending
+
+CRD - Customer resource definition
+this CRD could be used in k8s to deploy and manage MySQL instances.
+
+
+To check status of kubectl command by using verbosity 
+#kubectl get nodes --v=6
+
+To check all API resources list
+#kubectl api-resources |less
+
+To check api info
+#curl localhost:8001/openapi/v2
+
+Default hidden config file.
+/root/.kube/config
+
+Kubernetes RBAC ::--
+Role based access control
+-Regulates access to resources in the k8s cluster
+-Policy based access for users, groups and service accounts
+-Only autorized users can access or modify resources
+-Enhanced Security
+
+Certificate Authority :-
+-Trusted entity used by our k8s cluster for creating and verifying certificates
+-Core component of kubernetes
+-our kubeconfig file will reference the public key of the certificate authority.
+
+To check default config of k8s
+#kubectl config view --raw
+
+To check cert info
+#openssl x509 -text --noout
+
+Kubernetes does not manage user and group accounts..
+
+Users : these are the individuals or applications that interact with the k8s cluster, they could be administrators managing cluster, developers deployling application, or automated systems interacting with the cluster. Users are not managed by k8s and it is assumed that they are managed exteranlly. In k8s users are represented by strings, which can be simple like "dev" or more complex like (dev@example.com)
+
+Groups : groups are also managed outside of k8s, a group represents multiple users, and it's a way to attach a set of users to a certain set of permissions.
+
+ServiceAccounts : used by applications running inside the cluster itselt, not by humans. Unlike users and groups, serviceaccounts are k8s objects and they are managed by k8s, they are tied to a specific namespace. and their permissions are scoped to that namespace unless additional permissions are given. service accounts are used to give an applications running in a pod the necessary permssions to interact with the k8s API.
+
+To see rolebinding info
+#kubectl get clusterrolebindings -o wide
+
+
+ClusterRole and ClusterRoleBindings :-
+ClusterRole - A clusterrole is a non-namespaced resource, meaning it applies to the entire cluster and it allows us to set permissions on resources across all namespaces. Remember a clusterrole is Non namespaced.
+
+To check specfic role info
+#kubectl describe ClusterRole/cluster-admin
+
+To check all api resources
+#kubectl api-resources --sort-by name -o wide
+
+ClusterRoleBinding - BInds a cluster role to a service account, group and users.
+
+Create a role with all verbs(GET POST DELETE PUT ....) who will habve access to all resources
+#kubectl create clusterrole cluster-superhero --verb='*' --resource='*'
+
+now bind this role with group
+#kubectl create clusterrolebinding cluster-superhero --clusterrole=cluster-superhero --group=cluster-superheroes
+
+Now check cluster role binding 
+#kubectl get clusterrolebindings -o wide|grep super-hero
+
+To check what I can do or other user/group can do
+#kubectl auth can-i '*' '*'
+#kubectl auth can-i '*' '*' --as-group="cluster-superheroes" --as="superman"
+
+Setup users steps --
+Generate rsa private key for batman user
+#openssl genrsa -out batman.key 4096
+
+Create CSR for certificate signing request
+#openssl req -new -key batman.key -out batman.csr -subj "/CN=batman/O=cluster-superheroes" -sha256
+
+Now we will need to sign CSR from k8s certificate authority 
+
+Firstly create unnicode or CSR cert
+#CSR_DATA=$(base64 batman.csr|tr -d '\n')
+#CSR_USER=batman
+
+Now create yaml for certificate signing request 
+#vi batman-csr-request.yaml
+apiVersion: certificates.k8s.io/v1
+kind: CertificateSigningRequest
+metadata:
+  name: ${CSR_USER}
+spec:
+  request: ${CSR_DATA}
+  signerName: kubernetes.io/kube-apiserver-client
+  usages:
+  - client auth
+
+Now we will apply this for signing CSR on k8s for user batman
+#kubectl apply -f batman-csr-request.yaml
+
+To get certficates singningrequest info
+#kubectl get certificatesigningrequest
+
+To apporve certificate singning request
+#kubectl certificate approve batman
+
+now get your certficatesingingrequest (csr) status
+#kubectl get csr batman
+
+To get singned certificate info
+#kubectl get csr batman -o json
+
+in this command under status: certifcate you can get unicode singed certificate
+
+you can get only singed cert by below command
+#kubectl get csr batman -o jsonpath='{.status.certificate}'
+
+To convert singned certificate into keys you can use below command
+#kubectl get csr batman -o jsonpath='{.status.certificate}'|base64 -d >batman.crt
+
+Now check your converted crt certificate info
+#openssl x509 -in batman.crt -text --noout
+
+For using our user now follow below steps
+#cp /root/.kube/config batman-clustersuperheroes.config
+
+Now delete existing user 
+#KUBECONFIG=batman-clustersuperheroes.config kubectl config unset users.default
+
+#KUBECONFIG=batman-clustersuperheroes.config kubectl config delete-context default
+
+Now use our batman user
+#KUBECONFIG=batman-clustersuperheroes.config kubectl set-credentials batman --client-certificate=batman.crt --client-key=batman.key --embed-certs=true
+
+now set the context
+#KUBECONFIG=batman-clustersuperheroes.config kubectl set-context default --cluster=default --user=batman
+
+now use this context
+#KUBECONFIG=batman-clustersuperheroes.config kubectl use-context default
+
+Now check your batman-clustersuperheroes.config content
+#cat batman-clustersuperheroes.config
+
+Now run pod by using batman user
+#KUBECONFIG=batman-clustersuperheroes.config kubectl run nginx --image=nginx
+
+you can get running pods status by using command
+#KUBECONFIG=batman-clustersuperheroes.config kubectl get pod
+
+you can delete running for by batman user by using below command
+#KUBECONFIG=batman-clustersuperheroes.config kubectl delete pod/nginx --now
+
+
+Create a readonly role for kubernetes resources
+#kubectl create clusterrole cluster-watcher --verb=list,get,watch --resource='*'
+
+Now bind created role with cluster-watchers group
+#kubectl create clusterrolebinding cluster-watcher --clusterrole=cluster-watcher --group=cluster-watchers 
+
+Now validate any user of cluster-watchers group for created rolebinding access
+#kubectl auth can-i 'list' '*' --as-group"cluster-watchers" --as="uatu"
+
+Now create a role for only pods
+#kubectl create clusterrole cluster-pod-manager --verb=list,get,create,delete --resource='pods'
+
+now bind created role with a user
+#kubectl create clusterrolebinding cluster-pod-manager --clusterrole=cluster-pod-manager --user=deadpool
+
+Now we can validate created role binding for deadpool user
+#kubectl auth can-i 'list' '*' --as="deadpool"
+#kubectl auth can-i 'list' 'pods' --as="deadpool"
+
+Now check your rolebinding list
+#kubectl get clusterrolebindings -o wide
+
+
+ClusterRole/Binding vs Role/Binding ::::-
+Role -  Scope Namespace - Grants permissions to resources within a specific namespace
+
+RoleBinding - Scope Namespace - Binds specific users/groups/service accounts to a role within a namespace
+
+ClusterRole - Scope Cluster-Wide - Grants permissions to resources across the entire cluster, regardless of the namespace
+
+ClusterRoleBinding - Scope Cluster-Wide - Binds specific users/groups/service accounts to a clusterrole, giving them permissions across the cluster.
+
+Create a namespace
+#kubectl create namespace testing
+
+Now create a role
+#kubectl -n testing create role testing-admin --verb='*' --resource='*'
+
+Now bind role with group
+#kubectl -n testing create rolebinding testing-admin --role=testing-admin --group=testing-admins
+
+Now validate our created role binding for role
+#kubectl auth can-i '*' '*' --as-group="testing-admins" --as="test"
+
+#kubectl -n testing auth can-i '*' '*' --as-group="testing-admins" --as="test"
+
+Now you can delete your created resources
+
+#kubectl delete clusterrolebinding/cluster-superhero clusterrolebinding/cluster-watcher clusterrolebinding/cluster-pod-manager
+
+#kubectl delete clusterrole/cluster-superhero clusterrole/cluster-watcher clusterrole/cluster-pod-manager
+
+#kubectl delete role/testing-admin rolebinding/testing c
+
+Service account you will not use unless you wished for the pod in k8s to ber able to perfrom specific operations against the k8s cluster from within the pod, For example a pod being permitted to create another pod/deployment/services etc.
+
+To create pod service account
+#kubectl create serviceaccount pod-serviceaccount
+
+
+To create cluster role
+#kubectl create clusterrole cluster-pod-manager --verb=list,get,create,delete --resource='pods'
+
+
+Now bind service account with created cluster role
+#kubectl create clusterrolebinding cluster-pod-manager --clusterrole=cluster-pod-manager --serviceaccount=default:pod-serviceaccount
+
+
+Now create a pod by injecting our created service account.
+#kubectl run curl --image=curlimages/curl:8.4.0 --overrides='{ "spec": { "serviceAccount": "pod-serviceaccount" }  }' -- sleep infinity
+
+Now access the shell of pod
+#kubectl exec -it curl -- sh
+
+Now try to check your pod token
+#TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+#echo $TOKEN
+
+Now using this token, attempt to query the /api/v1/pods endpoint as the pod-serviceaccount, this time it will be successful
+#curl --header "Authorization: Bearer $TOKEN" --insecure https://kubernetes.default.svc/api/v1/pods
+
+
+Kubernetes Scheduling & NodeName ::--
+Kube-Scheduler :: - Interaction and processes
+
+- Pod is created - Kube-Scheduler will take this on as a task to complete
+- Checks available resources and identifies the best node to run on
+- Pod placement - assigns the pod to a node
+- kubelet running on a chosen node starts the pod
+
+3 Main sets of operation of sched
+1st - Filtering -- If a pod requires more memory than a certain node has available, that node would be filtered out
+2nd - Scoring -- the scheduler scores the invividual nodes to find the most appropriate node
+3rd - Binding -- A Pod is bound to a node using the binding object.
+
+
+Let's generate yaml for a pod
+#kubectl run nginx --image=nginx -o yaml --dry-run=client | tee nginx_scheduler.yaml
+
+In generated yaml under spec: section update bleow
+spec:
+   nodeName: nod1
+
+Now apply this file
+#kubectl apply -f  nginx_scheduler.yaml
+
+
+now check your pod status
+#kubectl get pods -o wide
+
+To check your nodes output in json format
+#kubectl get nodes -o json
+
+
+Kubernetes Storage ::--
+there are 2 main types of storage in kubernetes 
+1- Ephemeral 2 - Persistent
+
+Ephemeral Storage :- 
+Does not survive restarts
+Used as required
+Discarded after use 
+
+Example :- EmptyDir
+Let's generatte one pod yaml
+#kubectl run --image=ubuntu -o yaml --dry-run=client --command sleep infinity | tee ubuntu_emptydir.yaml
+
+Edit generated yaml and you can update VolumeMounts under container specfication and volumes under spec
+
+volumeMounts:
+- mountPath: /cache
+  name: cache-volume
+
+volumes:
+- name: cache-volume
+  emptyDir:  {
+     medium: Memory,
+  }
+
+Now we can apply creaeed yaml
+#kubectl apply -f ubuntu_emptydir.yaml
+
+#kubectl get pd
+
+Now you can go into the pod and check your /cache directory
+#kubectl exec -it ubuntu -- bash
+#cd /cache
+
+here in above example it was memory based file system which was created.
+
+Now we can delete our pod, when will delete our pod then it will also delete volume
+#kubectl delete pod/ubuntu --now
+
+
+Persistent Storage :-
+- Survives restarts
+- Survives removal of the container
+
+To get storage class info
+#kubectl get storageclass
+
+Persistent Storage levels -
+1 - StorageClass [sc] - Defines the type and characteristics of storage provided by the cluster. it allows administrators to describe the "classes" of storage they offer.
+
+2 - PersistentVolume [pv] - represents a piece of storage in the cluster that has been provisioned by an administrator or dynamically using a StorageClass. It's a resource in the cluster that persists beyond pod lifecycles.
+
+3- PersistentVolumeClaim [pvc] - A request for storage by a user. it specifies the amount and characteristics of storage needed by a pod. once bound to a PV, the PVC can be used by pod to access the storage.
+
+Manually : We create the persistent volume (PV) and the persistent volume claim (PVC).
+Dynamically : we create the persistent volume claim (PVC) against the named StorageClass. this then creates the persistent volume for us.
+
+For creating persistent volume create yaml.
+#vi pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: manual-vol01
+spec:
+  storageClassName: local-path
+  capacity:
+     storage: 10Gi
+  accessMode:
+    - RedWriteOnce
+  hostPath:
+    path: "/var/storage/manual-vol01
+    type: DirectoryOrCreate
+
+now apply it
+#kubectl apply -f pv.yaml
+
+now check your persistent volume
+#kubectl get pv
+
+Now create persistent volume claim
+#vi pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: manual-claim
+spec:
+   accessModes:
+     - ReadWriteOnce
+   volumeMode: Filesystem
+   resources:
+     requests:
+       storage: 10Gi
+   storageClassName: local-path
+   volumeName: manual-vol01
+
+Now apply it
+#kubectl apply -f pvc.yaml
+
+check pvc status
+#kubectl get pvc
+
+
+let's generate yaml for pod
+#kubectl run --image=ubuntu ubuntu -o yaml --dry-run=client --command sleep infinity | tee ubuntu_vol.yaml
+
+now open yaml and update volume mount info under container spec
+#vi ubuntu_vol.yaml
+spec:
+  nodeSelector:
+     kubernetes.i/hostname: worker-1
+volumeMounts:
+- mountPath: /manual
+  name: mount-volume
+
+volumes:
+  - name: manual-volume
+    persistentVolumeClaim:
+      claimName: manual-claim
+
+
+Now apply yaml
+#kubectl apply -f ubuntu_vol.yaml
+
+now check your pod and pv status
+#kubectl get pod
+#kubectl get pv
+
+For Manual RECLAIM POLICY "Retian and for Dynamic "Delete"
+
+StatefulSets ::-- 
+Workload API objects used to manage stateful applications.
+- Each RelicaSet has its own ID
+- The pod names are randomised
+- Deployments are stateless
+
+Maintains a "sticky" identity for each pod that is part of the StatefulSet
+Each pod in a StatefulSet creates its own claim to the StorageClass provider
+
+StatefulSets are useful when required following
+- Stable / Unique Network identifiers 
+- Stable Persistent Storage
+- Ordered Graceful Deployment and Scaling
+- Ordered Automated Rolling updates
+
+
+let's generate deployment yaml
+#kubectl create deployment nginx --image=nginx --replicas=3 --dry-run=client -o yaml|tee statefulset.yaml
+
+Now open genereated yaml change the kind to StaefulSet and update serviceName: nginx
+#vi statefulset.yaml
+
+Now apply this
+#kubectl apply -f statefulset.yaml
+
+to check your statefulset status
+#kubectl get statefulset
+
+now check your pods
+#kubectl get pods -o wide
+
+
+Headless service (a ClusterIP service with no IP address) it will use hostname.servicename.namespace.svc.cluster.local
+
+To create headless service
+#kubectl create service clusterip --clusterip=None nginx
+
+Now check services status
+#kubectl get service
+
+To check endpoints
+#kubectl get endpoints
+
+To check endpoints yaml
+#kubectl get endpoints/nginx -o yaml
+
+In statefulset each pod creates its own persistent volume claim
+
+
+NetworkPolicies ::--
+Controlling pod communication in k8s
+
+Multi-tenancy apps should be isolated from each other
+-Network policies can help!
+-Pods can be classified as isolated
+-We can limit access to other pods, namespaces and/or IP Blocks
+
+Ingress refers to the process of managing incoming traffic to services within a k8s cluster. it's about how traffic gets routed to services inside the cluster.
+example :
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-nginx-access
+  namespace: default
+spec:
+  podSelector:
+    matchLables:
+      run: nginx
+  policyTypes:
+     - Ingress
+   ingress:
+      - from:
+         - podselectors:
+               matchLables:
+                   run: curl
+
+
+Pod Disruption ::--
+Service Reliablity During Voluntary Disruptions.
+
+let's run a deployment with 5 replicas of nginx 
+#kubectl create deployment nginx --image=nginx --replicas=5
+
+#kubectl get pods -o wide
+
+For not scheduling any pod on node, we will cordon the node
+#kubectl cordon cnt-pln-node
+
+To drain any node 
+#kubectl drain wrk-node --delete-emptydir-data=true --ignore-daemonsets=true
+
+Now check deployment and pods status
+#kubectl get deployment
+#kubectl get pods -o wide
+
+To uncordon node we will run below command and after this pod will start to schedule on it.
+#kubectl uncordon cnt-pln-node
+
+To create pod disruption 
+#kubectl create pdb nginx --selector=app=nginx --min-available=3
+
+Now if you will cordon all cluster node
+#kubectl cordon ctl-pln-node worker1
+
+Now if you try to drain the node then you will get evicting error becuase we have pod disruption policy for 2 pods.
+#kubectl drain cntl-pln-node worker1
+
+Kubernetes Security ::--
+ - k8s security contexts - privilege and access control for a pod or container
+ - Admission controller  - 
+ - Essential security tools
+ - practices
+
+let's create one pod yaml
+#kubectl run ubuntu --image=spurin/rootshell:latest -o yaml --dry-run=client -- sleep infinity | tee ubuntu_secure.yaml
+
+Now you can apply this yaml
+#kubectl ubuntu_secure.yaml
+
+Now when you will go to pod then you will access it as root. if you want to change this behaviour then open yaml.
+
+#vi ubuntu_secure.yaml  # in this file update below under spec section. (1000 UID/GID of user)
+spec:
+  securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+
+to add more advance you can also update below in containters: section
+securityContext:
+  allowPrivilgeEscalation: false
+
+Now delete existing pod and re-create it.
+#kubectl replace --force -f ubuntu_secure.yaml
+
+Now if you will try to access container then you will see your will access it by non-root user
+#kubectl exec -it ubuntu -- bash
+
+so security context are good for restirciting pod access.
+Admission Controllers ::-
+Integral to k8s security
+Act as gatekeepers controlling what pods can and coannot do
+Enforce critical security policies
+Reduces attack vectors
+modular approach
+
+Helm and Helm Charts ::--
+-Streamline your k8s experience
+-simplifies the management of k8s application
+-Helm charts (packages of preconfigured k8s resources)
+-Easier deployment, management and updates of k8s applications
+-Helm is the apt/yum of k8s application management
+
+Follow helm doc for installing helm on control-plane node
+
+To check helm version
+#helm version 
+
+To create helm directory structure, please run below below command
+#helm create flappy-app
+#cd flappy-app
+#tree
+
+there is main file will be Charts.yaml
+
+after making all required changes in helm directory structure you can use below command to deploy/install it.
+#helm install flappy-app
+
+we can package the charts by using below command
+#helm package .
+
+To install our package by using helm
+#helm install flappy-app ./flappy-app-0.1.2.tgz
+
+To list avilialbe/deployed charts on k8s
+#helm list
+
+To uninstall charts
+#helm uninstall flappy-app
+
+
+Services Meshs -- Helper for Microservices
+-Communicate efficiently, reliably and securely
+-Useful as the scale and complexisty of your application grows
+-Typical architecture includes data plans and control plane
+
+Dala plane - typeically useds sidecar pattern as sidecarproxy.
+
+Benefits - 
+Mutual TLS
+Access Control Policies
+Improved observality with tracing
+Monitoring tools
+Increased reliablity and circut breaking
+
+
+Telemetry and Observality ---::
+Cloud Native Observability -- Accurately monitor your system's state.
+Telemetery :- Known as the 3 pillars of observality - 1. Logs 2. Metrics 3. Traces
+
+To check kubernetes resources utilization you can use below command
+#kubectl top
+
+
+Prometheus :-
+Multi Dimension data model with time series data, identifiable by metric name and key/value pairs
+PromQL, a flexible query language
+No dependencies on distributed storage, single nodes are autonomous
+Collection via push/pull methods
+Alerting
+
+Grafana:-
+visiulation - Support for graphs, charts and alerts
+data sources integration - support for influxDB, Elasticsearch as well as others
+Observability and monitoring - Essential for real time performance analysis and troubleshooting
+Alerting - Send alerts through channels including email, slack or pagerduty
+Customisability and Extensibility - Peronalise your experience
+
+Personas Site Reliability Engineering :-
+Site Reliability Engineer: Specific Focus
+SLA (Service Level Agreement) - Our service should achieve 99.99% uptime
+
+SLO (Service Level Objectives) - A response from this service should always take less than 200ms
+
+SLI (Service Level Indiciators) - Indicators that provide an insight into the success of SLA's and SLO's for example we are achieving 97% uptime and our response time is 300ms, therefore we are failing meet SLA's and SLO's
+
+To install Prometheus and Grafana on your k8s
+Firstly install git and then helm on your k8s
+
+Now add prometheus repo by using helm
+#helm repo add prometheus-community https://prometheus-community-github.io/helm-charts
+
+To check k8s prometheus package
+#helm search repo permetheus-community/kube-prometheus-stack -l
+
+To install prometheus packages by helm
+#helm install my-observability prometheus-community/kube-prometheus-stack --version 55.5.0
+
+Now check your k8s resources
+#kubectl get all -A
+
+Essential components :--
+kube-prom-operator - k8s operator that simplifies the configuration of a prometheus based monitoring stack with prometheus running on port 9090
+Alert Manager - A StatefulSet which handles Alerts
+Node Exporter - Provides useful information for hardware and OS metrics that will be exposed by the kernel
+Kube-State-Metrics - Gathers metrics about the state of objects via the k8s API
+Prometheus Adapter - Adapts information from k8s to prometneus metrics 
+Grafana - Observability Stack.
+
+Check services
+#kubectl get svc
