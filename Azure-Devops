@@ -1,0 +1,161 @@
+TO check remote orgin repos
+#git remote -v
+
+TO remove remote origin repo
+#git remote remove origin
+
+#git remote -v
+
+To update remote repos origin
+#git remote add origin https://repourl
+
+To push all our code to added remote origin URL
+#git push -u origin --all
+
+TO create new branch from existing repo
+#git checkout -b new-feature
+
+now you can check branch status
+#git branch
+
+now you can make your changes and push your branch changes to remote origin repo
+#git push origin new-feature
+
+Using Git Tags to Organize your repository ::-
+Mark Specific points in repo history, Notate specific versions - v1.1 v1.2 etc. can also add notes on commit details.
+so special name to commit we can call tags.
+
+Adding lightweight tag
+#git tag v1.2
+
+Adding annotated tag
+#git tag -a v1.2 -m "Update some templates"
+
+Process to apply tags after making your changes::-
+#git add .
+#git commit -m "Updated code"
+#git tag -a v1.1 -m "update some code"
+To check our exsiting tags
+#git tag
+Now push changes to repo
+#git push
+
+now push your tag to repo
+#git push origin v1.1
+
+Why is git footpring size important
+Cloning repo copies full history of all file versions.
+Frequently updated large files - serious performance issues.
+
+Git LFS (Large file system) ::
+Large file management built into git.
+
+Install GitLFS for your OS.
+Initiate LFS on your local environment. #git lfs install
+
+Tags files to be added to LFS before commiting them.
+result in a .gitattributes file. # git lfs track "*.psd"
+
+commit as usual. the remote repo will store tagged files seprarately.
+
+removing repository data ::--
+Local commit but not yet pushed : Bad commit on local environment but not yet pushed to remote repo. 
+Solution :- Remove/amend bad local commit
+
+Bad commit pushed to remote repo
+Solution: Delete remote commit
+
+Alternatively: Remove unwanted file history..with caveats.
+
+Removing local commit before push (firstly delete the file)
+#git rm --cached filename
+
+Entirely delete commit
+#git reset HEAD^
+
+To amend previous commit
+#git commit --amend -m "comment"
+
+
+To Reset back to last pushed 'good' commit (to get SHA ID #git log --oneline)
+#git reset --hard #commitSHA
+
+To force push "remove commits" by above command.
+#git push --force
+
+To remove unwanted file from past commits' history
+#c...
+
+Recovering data from repository ::--
+To resting backing to last good commit
+#git reset --hard #commitSHA
+
+To restore deleted branch, you can do it from Azure devops repo-branch but here you should know branch name.
+
+
+Azure Pipelines##############################
+
+what are Azure pipelines?
+primary engine of both continuous integration and continuous delivery (CI/CD)
+
+Continuous integration -:
+Automatically build and test code
+Create deployable artifacts
+
+Continuous Delivery -:
+Automatically deploy to environments/end users
+
+Pipeline Structure -:
+Stages--> Jobs --> Steps
+
+Trigger -: Automatically start pipeline in response to event.
+
+Azure pipelines have 2 type YAML and Classic
+Pipeline created using YAML
+pipeline created using GUI (Classic)
+
+
+Two Types of Agent :
+1. Microsoft-Hosted Agent ::-
+Microsoft provides a managed, on-demand VM for running a pipeline.
+This is the simplest/default option.
+Provides a clean VM on each build
+Your must include dependency installs in the build file.
+There are limits to machine sie, storage, and runtime.
+
+2. Self-Hosted Agent
+You provide (and manage) the computer pipeline used for builds:
+ Azure VM/scale set
+ Your own local machine
+Useful for persistent configuration and greater control over dependencies.
+You control machine specs, storage, and runtime.
+
+Parallel Jobs ::-
+Multiple Agents running jobs at the same time. set max number parallel agents in DevOps Organization.
+
+Why use Self hosted Build Agents ?
+Microsoft hosted agents limited to VM Size and 10 GB storage and NO GPU support.
+With self hosted build agents you have more control over software configuration.
+
+Assign Job to Agent Pool-
+Microsoft-hosted pool assignment 
+pool:
+   vmImage: ubuntu-20-08
+
+Self-hosted pool assignment
+pool:
+    name: 'Poolname'
+
+To register self hosted pool below steps required
+1- Create peronal access token for agent authentication
+2- Install and configure self-hosted agent on your VM (during agent installation we will enter token)
+3- Post install view agents in agent pool 
+
+
+Trigger Types ::-
+1. CI Trigger
+2. Scheduled Trigger
+3. Pipeline Trigger
+4. PR (Pull Request) Trigger
+
+
