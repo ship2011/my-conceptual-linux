@@ -1,0 +1,109 @@
+To Search for package before installing it,
+
+#zypper se httpd
+
+To check all repos
+#zypper repos  or zypper lr
+
+To check repos URI
+#zypper lr -u
+
+To check repository priority
+#zypper lr -P
+
+To refresh repositories
+#zypper refresh or zypper ref
+
+To refresh a single repo
+#zypper refresh test.repo
+
+
+To disable repo
+#zypper mr -d 6
+
+To enable repo
+#zypper mr -e 6
+
+Adding rep
+#zypper ar https://repourl/ update
+
+TO rename repo which present at number 10
+#zypper nr 1 testing
+
+To remove repo
+#zypper rr testing
+
+To install package
+#zypper in sysstat
+
+To remove pacakge
+#zypper remove sysstat
+
+To update all packages
+#zypper update
+
+To update specfic package
+#zypper update sysstat telnet
+
+TO install package
+#zypper install samba
+
+
+To clean cache
+#zypper clean
+
+To clean all repo cache
+#zypper clean -a
+
+To upgrade Suse version 
+#zypper dist-upgrade
+
+zypper to list all aviliable version of a packages.
+#zypper search -s openssl
+
+To generate a list of all installed packages, use the following command:
+#zypper packages -i
+
+To retrieve details about a particular package, run:
+#zypper info PACKAGE_NAME
+
+To check for and report potential conflicts and dependencies when deleting a package, run:
+#zypper rm -D PACKAGE_NAME
+
+For the final removal of one or more packages use the following zypper command with the added “-u” switch, which causes any dependencies that are becoming unused by removing the named packages, to be removed as well:
+#zypper rm -u PACKAGE_NAME
+
+To check locked pacakges
+#zypper locks
+
+To lock a package
+#zypper al packagename
+
+To remove lock from package
+#zypper rl packagename
+
+To disable repos on SUSE
+#zypper modifyrepo --disable repo-name
+#zypper refresh
+
+To enable repo on SUSE
+#zypper modifyrepo --enable repo-name
+#zypper refresh
+
+In suse Repo config path
+#cd /etc/zypp/repos.d/
+
+
+Zypper Commands
+The simplest way to execute Zypper is to type its name, followed by a command. For
+example, to apply all needed patches to the system, use:
+
+tux > sudo zypper patch
+Global Options
+Additionally, you can choose from one or more global options by typing them immediately
+before the command:
+tux > sudo zypper --non-interactive patch
+
+In the above example, the option --non-interactive means that the command is run
+without asking anything (automatically applying the default answers).
+
