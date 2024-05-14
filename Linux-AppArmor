@@ -1,0 +1,132 @@
+
+What does AppArmor do?
+Allow applications to do only what they are supposed to do.
+deny everything else and AppArmor must know what to allow.
+
+Why AppArmor?
+Bug free and secure software would be ideal
+Programmer can't perfrom magic
+so better keep an eye on what they are doing.
+AppArmor monitors applications at the  kernel level.
+
+To create profile run below command
+#aa-genprof /home/test/hello.sh
+Now run your script on other session
+
+now press S on aa-genprof screen
+and then press I
+Now press A to allow it
+
+when done then press S and then finally finish it.
+
+Now to check our profile details, please check this file
+#cat /etc/apparmor.d/home.linux.scripts.hello
+
+What does AppArmor do?
+Monitor and restrict 
+file access
+network access
+capabilities (chown,mknod,setuid,..)
+man 7 capabilites
+rlmit (aka ulimit)
+In general restrict permission.
+
+What doesn't AppArmor do?
+replace traditional file permission
+"chmod -R 777 / is not good idea
+
+replace user permssions
+run as little as possible as root
+
+for webservers:
+restrict Mysql database permssion
+one mysql user per hosting and task
+validate user input
+validate input, escape input, php5-suhosin
+============================================
+
+Is my server secure now
+Security consists of lots of small parts
+AppArmor protects you from lots of exploits but not all
+the server is definitely more secure
+
+the AppAprmor tools
+aa-status 
+overview of loaded profiles and their usage
+
+aa-unconfined
+overview of protected/confied applications
+
+aa-notify 
+provides desktop notification and log summaries
+
+aa-complain
+switch profile to complain mode (allow everything, log what would be denied)
+
+aa-enforce
+switch profile to enforce mode (deny everything not explicitely allowed and log denials)
+
+aa-disable
+disable and unload profile
+
+aa-audit
+set or remove audit flag for a profile (log everything)
+
+aa-logprof
+update existing profiles based on logfile
+
+aa-genprof
+create a new profile
+
+aa-autodep
+create a very basic new profile (better use aa-genprof)
+
+aa-easyprof
+template-based profile generation
+
+aa-mergeprof
+merge two profiles into one
+
+aa-cleanprof
+cleanup profile, remove superfluous rules
+
+aa-decode
+translate log entries for filenames with special chars to human readable
+
+aa-exec
+execute a binary with the specified profile
+
+File permssions
+r-read
+w-write
+a-append
+l-link
+k-local
+m-mmap (for libraries), typically also requires r
+ix, Px, Cx, Ux, ...*execute
+
+inherit (ix)
+run program with the same profile
+for helper application and shells (cat, grep, rm, bash)
+also useful for rbac style confinement
+
+child (Cx)
+used for "foo called by bar"
+doesn't confine standalone calls of foo
+for helplers that need more or less permssions than the main application
+
+profile (Px)
+seprate profile for helpers
+also used if the helper is called standalone
+not a good idea for /bin/bash
+
+unconfined(Ux)
+execute helper applications without AppArmor protection
+example: protect sshd, unrestricted shell after login
+
+Fallback rules if profile doesn't exist
+Pix
+PUx
+Cix
+CUx
+
