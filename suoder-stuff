@@ -1,0 +1,21 @@
+For capturing sudo log update below line in sudoers
+
+Defaults logfile=/var/log/sudolog 
+
+Update below for group/user in sudo so that they could not go into root mode
+%goupname ALL=(ALL) NOPASSWD: ALL
+%groupname ALL=!/usr/bin/su, !/bin/bash
+
+if you want to restrict any file so that any user can not see them from sudo command then update it like below. restcited line should be mentioned on bottom.
+%groupname ALL=!/usr/bin/cat /var/log/*, !/usr/bin/vi* /var/log/*
+
+that line will restrict all files in /var/log from seeing as well as noone can not modified them by using vi and vim command. but rectriciting file in sudoer is not best practice. sudoers is only for rescrticing command.
+
+Now your sudoers file will be look like this.
+
+username  ALL=(ALL) NOPASSWD: ALL
+%groupname ALL=(ALL) NOPASSWD: ALL
+%groupname ALL=!/usr/bin/su, !/bin/bash
+%groupname ALL=!/usr/bin/cat /var/log/*, !/usr/bin/vi* /var/log/*
+
+
