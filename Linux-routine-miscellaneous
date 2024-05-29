@@ -438,3 +438,7 @@ if increases any existing data disk size on public cloud then at Linux OS level 
 
 If we want to split very huge file into chunks then we can use splunk command, below command will split messages file in /directory with 5G file size.
 #split --bytes=5G messages /directory/
+
+Combine/convert Certificate and Private Key into PFX
+#openssl pkcs12 -export -out mycert.pfx -inkey private.key -in signed_certificate.crt
+
