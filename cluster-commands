@@ -1,0 +1,95 @@
+crm status                       : Check the status of the cluster and its services.
+crm_mon -r                      : Live nonitoring of the cluster
+crm configure show         : shows primitive
+crm node show                : list the nodes in the cluster.
+crm node standby <node name> : put a node on standby
+crm node fence <node name>   : fence a particular node. (Restart)
+crm node online <node name>  : bring a node online after standby.
+crm node clearstate <node>   : clear a nodes state. (if in error)
+crm node maintenance <node>  : put the node in maintenance mode. Will not affect the cluster services or resources
+crm node ready <node>        : put the node out of maintenance
+crm cluster health           : Check the health of the cluster.
+crm cluster start            : Start cluster services on the node.
+crm cluster stop             : Stop cluster services on the node.
+crm cluster restart          : Restart cluster services on the node.
+crm cluster status           : Show cluster services on this node.
+crm resource status <name>   : Check status of the resource
+crm resource start <name>    : Start the resource.
+crm resource stop  <name>    : Stop the resource.
+crm resource cleanup <name>  : Cleanup the resource.(if in error)
+crm resource migrate <name> <node> : Migrate the resource from this node to another.
+
+crm configure property maintenance-mode="true"
+
+Putting cluster in maintenance mode
+crm configure property maintenance-mode="true"  
+
+Putting cluster out of maintenance mode
+crm configure property maintenance-mode="false"
+
+python3 -v /usr/sbin/fence_azure_arm --action=list --username='' --password='' --tenantId= --resourceGroup=
+if there is any error related to python sdk then please follow below steps.
+ zypper install -f  python3-azure*
+after cleanup resource
+
+===============================================================================================
+Resource migration with "crm resource migrate" creates location constraints. Location constraints should be deleted. If location constraints are not deleted, the resource cannot fail back or you can experience unwanted takeovers.
+
+Migrate the resource back to hostname and clear the location constraints
+
+crm resource migrate resourcename hostname
+crm resource clear resourcename
+
+crm resource migrate <res_name> <host>: Creates location constraints and can cause issues with takeover
+crm resource clear <res_name>: Clears location constraints
+crm resource cleanup <res_name>: Clears all errors of the resource
+===========================================================
+Situation
+What is the meaning of the warning message from the cluster? 
+warning: Blind faith: not fencing unseen nodes
+Resolution
+The cluster wide policy stonith-enabled=false has been set for the cluster.  
+   Note: Clusters without STONITH enabled are not supported.  
+
+To enable STONITH policy in the cluster, use the following command.
+crm configure property stonith-enabled=true
+===========================================================
+
+----------------------------------------------------------------------------------------------------------------------
+if you get below failed log for fencing/stonith then plese use below command to clear log
+
+Failed Fencing Actions:
+  * reboot of hostname failed: delegate=hostname, client=pacemaker-controld.4615, origin=hostname, last-fter attempt succeeded)
+
+
+ #   stonith_admin --cleanup --history=hostname
+cleaning up fencing-history for node hostname
+ #
+--------------------------------------------------------------------------------------------------------------------
+
+Keep node online
+crm node online nw1-cl-1
+
+Put node  in standby mode
+crm node standby nw1-cl-0
+------------------------------------------------------------------------------------------------------------------
+
+==================Cluster config edit link===================
+https://documentation.suse.com/sle-ha/12-SP4/html/SLE-HA-all/cha-ha-manual-config.html
+
+if you want to apply live resource setting then pleae give below steps try
+#crm configure
+now execute below command (rsc_st_azure is resource group name which you want to edit)
+#edit rsc_st_azure
+
+now commit your applied changes
+#commit
+
+now come out from crm shell
+#quit
+
+now check your cluster status
+#crm status
+
+Service principle creation
+https://learn.microsoft.com/en-us/azure/sap/workloads/high-availability-guide-suse-pacemaker
