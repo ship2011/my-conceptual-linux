@@ -1,0 +1,2287 @@
+Using a Python virtual environment
+Creating and using a virtual environment is a straightforward process. To create a virtual environment, open your terminal and navigate to your project's directory. Then, run the following command:
+
+#python -m venv myenv
+
+This command creates a virtual environment named "myenv" in your project directory. To activate the virtual environment, use the appropriate command for your operating system:
+=======================
+On Windows:
+These lines print the first three lines of the file. The readline() method reads one line from the file and returns it as a string. The read() method reads the entire file and returns it as a string. The close() method closes the file.
+
+Finally, the line that uses the with statement to open the file spider.txt is in read mode. The as keyword assigns the file object to the variable file. The code block inside the with statement will be executed, and then the file will be closed automatically.  
+
+
+c:>myenv\Scripts\activate
+
+On macOS and Linux:
+
+#myenv/bin/activate
+
+Once activated, your terminal prompt will change, indicating that you are now working within the virtual environment. You can now install packages using pip just like you normally would.
+
+
+
+Use requirements files: To document and manage your project's dependencies, create a requirements.txt file. This file lists all the libraries and their versions. You can generate it using pip freeze > requirements.txt and later install them in a new environment using pip install -r requirements.txt.
+
+Open the file in "read" mode.
+Iterate over each line in the file and put each guest's name into a Python list.
+Open the file once again in "write" mode.
+Add each guest's name in the Python list to the file one by one.
+
+
+checked_out=["Andrea", "Manuel", "Khalid"]
+temp_list=[]
+
+with open("guests.txt", "r") as guests:
+    for g in guests:
+        temp_list.append(g.strip())
+
+with open("guests.txt", "w") as guests:
+    for name in temp_list:
+        if name not in checked_out:
+            guests.write(name + "\n")
+
+
+=========================================================================
+Regex examples
+r”\d{3}-\d{3}-\d{4}”  This line of code matches U.S. phone numbers in the format 111-222-3333.
+
+
+r”^-?\d*(\.\d+)?$”  This line of code matches any positive or negative number, with or without decimal places.
+
+
+r”^(.+)\/([^\/]+)\/” This line of code matches any path and filename.
+
+An alteration matches any one of the alternatives separated by the pipe | symbol. Let’s look at an example:
+
+ r"location.*(London|Berlin|Madrid)" 
+
+This line of code will match the text string location is London, location is Berlin, or location is Madrid.
+
+Matching only at the beginning or end
+If you use the circumflex symbol (also known as a caret symbol) ^ as the first character of your regex, it will match only if the pattern occurs at the start of the string. Alternatively, if you use the dollar sign symbol $ at the end of a regex, it will match only if the pattern occurs at the end. Let’s look at an example:
+
+r”^My name is (\w+)” 
+
+This line of code will match My name is Asha but not Hello. My name is Asha.
+
+Character ranges
+Character ranges can be used to match a single character against a set of possibilities. Let’s look at a couple of examples:
+
+r”[A-Z] This will match a single uppercase letter.
+
+r”[0-9$-,.] This will match any of the digits zero through nine, or the dollar sign, hyphen, comma, or period.
+
+The two examples above are often combined with the repetition qualifiers. Let’s look at one more example:
+
+r”([0-9]{3}-[0-9]{3}-[0-9]{4})”
+
+This line of code will match a U.S. phone number such as 888-123-7612.
+
+Backreferences
+A backreference is used when using re.sub() to substitute the value of a capture group into the output. Let’s look at an example:
+
+>>> re.sub(r”([A-Z])\.\s+(\w+)”, r”Ms. \2”, “A. Weber and B. Bellmas have joined the team.”)
+
+This line of code will produce Ms. Weber and Ms. Bellmas have joined the team.
+
+Lookahead
+A lookahead matches a pattern only if it’s followed by another pattern. Let’s look at an example:
+
+If the regex was r”(Test\d)-(?=Passed)” and the string was “Test1-Passed, Test2-Passed, Test3-Failed, Test4-Passed, Test5-Failed” the output would be:
+
+Test1, Test2, Test4
+=================================================================
+
+Comparing subprocess to OS and Pathlib
+Again, Python has multiple ways to achieve most tasks; subprocess is extremely powerful, as it allows you to do anything you would from Python in the shell and get information back into Python. But just because you can use subprocess doesn’t always mean you'll want to. 
+
+Let’s compare subprocess to two of its alternatives: OS, which has been covered in other readings, and Pathlib. For tasks like getting the current working directory or creating a directory, OS and Pathlib are more direct (or “Pythonic,” meaning it uses the language as it was intended). Using subprocess for tasks like these is like using a crowbar to open a nut. It's more heavy-duty and can be overkill for simple operations. 
+
+As a comparison example, the following commands accomplish the exact same tasks of getting the current working directory. 
+
+Subprocess: 
+
+cwd_subprocess = subprocess.check_output(['pwd'], text=True).strip()
+
+OS: 
+
+cwd_os = os.getcwd()
+
+Pathlib: 
+
+cwd_pathlib = Path.cwd()
+
+And these following commands accomplish the exact same tasks of creating a directory. 
+
+Subprocess: 
+
+subprocess.run(['mkdir', 'test_dir_subprocess2'])
+
+OS: 
+
+os.mkdir('test_dir_os2')
+
+Pathlib: 
+
+test_dir_pathlib2 = Path('test_dir_pathlib2')
+
+test_dir_pathlib2.mkdir(exist_ok=True) #Ensures the directory is created only if it doesn't already exist
+
+When to use subprocess
+Subprocess is best used when you need to interface with external processes, run complex shell commands, or need precise control over input and output. Subprocess also spawns fewer processes per task than OS, so subprocess can use less compute power. 
+
+Other advantages include:
+
+Subprocess can run any shell command, providing greater flexibility.
+
+Subprocess can capture stdout and stderr easily.
+
+On the other hand, OS is useful for basic file and directory operations, environment variable management, and when you don't need the object-oriented approach provided by Pathlib. 
+
+Other advantages include:
+
+OS provides a simple way to interface with the operating system for basic operations.
+
+OS is part of the standard library, so it's widely available.
+
+Finally, Pathlib is most helpful for working extensively with file paths, when you want an object-oriented and intuitive way to handle file system tasks, or when you're working on code where readability and maintainability are crucial. 
+
+Other advantages include: 
+
+Pathlib provides an object-oriented approach to handle file system paths.
+
+Compared to OS, Pathlib is more intuitive for file and directory operations. 
+
+Pathlib is more readable for path manipulations.
+
+Where subprocess shines
+The basic ways of using subprocess are the .run() and .Popen() methods. There are additional methods, .call(), .check_output(), and .check_call(). Usually, you will just want to use .run() or one of the two check methods when appropriate. However, when spawning parallel processes or communicating between subprocesses, .Popen() has a lot more power!
+
+You can think of .run() as the simplest way to run a command—it’s all right there in the name—and .Popen() as the most fully featured way to call external commands. 
+
+All of the methods, .run(), .call(),  .check_output(), and .check_call() are wrappers around the .Popen() class. 
+
+Run
+The .run() command is the recommended approach to invoking subprocesses. It runs the command, waits for it to complete, then returns a CompletedProcess instance that contains information about the process.
+
+Using .run() to execute the echo command:
+
+result_run = subprocess.run(['echo', 'Hello, World!'], capture_output=True, text=True)
+
+result_run.stdout.strip()  # Extracting the stdout and stripping any extra whitespace
+
+output:
+
+'Hello, World!'
+
+Call 
+The call() command runs a command, waits for it to complete, then returns the return code. Call is older and .run() should be used now, but it’s good to see how it works.
+
+Using call() to execute the echo command: 
+
+return_code_call = subprocess.call(['echo', 'Hello from call!'])
+
+return_code_call
+
+output:
+
+0
+
+The returned value 0 indicates that the command was executed successfully.
+
+Check_call and check_output
+Use check_call() to receive just the status of a command. Use check_output() to also obtain output. These are good for situations such as file IO, where a file might not exis, or the operation may otherwise fail. 
+
+The command check_call()is similar to call() but raises a CalledProcessError exception if the command returns a non-zero exit code.
+
+Using check_call() to execute the echo command:
+
+return_code_check_call = subprocess.check_call(['echo', 'Hello from check_call!'])
+
+return_code_check_call
+
+output:
+
+0
+
+The returned value 0 indicates that the command was executed successfully.
+
+Using check_output() to execute the echo command:
+
+output_check_output = subprocess.check_output(['echo', 'Hello from check_output!'], text=True)
+
+output_check_output.strip()  # Extracting the stdout and stripping any extra whitespace
+
+output:
+
+'Hello from check_output!'
+
+Note: Check_output raises a CalledProcessError if the command returns a non-zero exit code. For more on CalledProcessError, see 
+Exceptions
+.
+
+Popen
+Popen() offers more advanced features compared to the previously mentioned functions. It allows you to spawn a new process, connect to its input/output/error pipes, and obtain its return code.
+
+Using Popen to execute the echo command:
+
+process_popen = subprocess.Popen(['echo', 'Hello from popen!'], stdout=subprocess.PIPE, text=True)
+
+output_popen, _ = process_popen.communicate()
+
+output_popen.strip()  # Extracting the stdout and stripping any extra whitespace
+
+output:
+
+'Hello from popen!'
+
+Pro tip
+The Popen command is very useful when you need asynchronous behavior and the ability to pipe information between a subprocess and the Python program that ran that subprocess. Imagine you want to start a long-running command in the background and then continue with other tasks in your script. Later on, you want to be able to check if the process has finished. Here’s how you would do that using Popen.
+
+import subprocess
+
+Using Popen for asynchronous behavior: 
+
+process = subprocess.Popen(['sleep', '5'])
+
+message_1 = "The process is running in the background..."
+
+# Give it a couple of seconds to demonstrate the asynchronous behavior
+
+import time
+
+time.sleep(2)
+
+# Check if the process has finished
+
+if process.poll() is None:
+
+	message_2 = "The process is still running."
+
+else:
+
+	message_2 = "The process has finished."
+
+print(message_1, message_2)
+
+output:
+
+('The process is running in the background...',
+
+ 'The process is still running.')
+
+The process runs in the background as the script continues with other tasks (in this case, simply waiting for a couple of seconds). Then the script checks if the process is still running. In this case, the check was after 2 seconds' sleep, but Popen called sleep on 5 seconds. So the program confirms that the subprocess has not finished running. 
+
+====================================================================================
+
+Test cases
+The building blocks of unit tests within the unittest module are test cases, which enable developers to run multiple tests at once. To write test cases, developers need to write subclasses of TestCase or use FunctionTestCase. 
+
+To perform a specific test, the TestCase subclass needs to implement a test method that starts with the name test. This identifier is what informs the test runner about which methods represent tests.
+
+Examine the following example for test cases:
+
+import unittest
+
+
+class TestStringMethods(unittest.TestCase):
+
+
+    def test_upper(self):
+        self.assertEqual('foo'.upper(), 'FOO')
+
+
+    def test_isupper(self):
+        self.assertTrue('FOO'.isupper())
+        self.assertFalse('Foo'.isupper())
+
+
+    def test_split(self):
+        s = 'hello world'
+        self.assertEqual(s.split(), ['hello', 'world'])
+        # check that s.split fails when the separator is not a string
+        with self.assertRaises(TypeError): 
+            s.split(2)
+
+
+if __name__ == '__main__':
+    unittest.main()
+
+Notice how the following example contains three individual tests: test_upper(), test_isupper(), and test_split(), which are responsible for testing different string methods. This example code also includes four assertions (covered below) and a call to the command-line interface, which you’ll learn more about later in this reading.   
+
+
+Assertions
+The TestCase class also employs its own assert methods that work similarly to the assert statement: if a test fails, an exception is raised with an explanatory message, and unittest identifies the test case as a failure. In the above example, there are several assertions used:
+
+An assertEqual() to check for an expected result
+
+An assertTrue() and an assertFalse() to verify a condition
+
+An assertRaises() to verify that a specific exception gets raised
+
+Each of these assert methods is used in place of the standard assert statement so the test runner can gather all the test results and generate a report.
+
+
+Below is a list of commonly used assert methods in the TestCase class. For more information on each method, select the embedded link in the list provided.    
+
+The 
+assertEqual(a, b)
+ method checks that a == b
+
+The 
+assertNotEqual(a, b)
+ method checks that a != b
+
+The 
+assertTrue(x)
+ method checks that bool(x) is True
+
+The 
+assertFalse(x)
+ method checks that bool(x) is False
+
+The 
+assertIs(a, b)
+ method checks that a is b
+
+The 
+assertIsNot(a, b)
+ method checks that a is not b
+
+The 
+assertIsNone(x)
+ method checks that x is None
+
+The 
+assertIsNotNone(x)
+ method checks that x is not None
+
+The 
+assertIn(a, b)
+ method checks that a in b
+
+The 
+assertNotIn(a, b)
+ method checks that a not in b
+
+The 
+assertIsInstance(a, b)
+ method checks that isinstance(a, b)
+
+The 
+assertNotIsInstance(a, b)
+ method checks that not isinstance(a,  
+
+You can also use assert methods to generate exceptions, warnings, and log messages. For example, another important assert method in unit testing is assertRaises. It allows you to test whether exceptions are raised when they should be, ensuring that your program can handle errors. assertRaises also allows developers to check which specific exception type is raised, ensuring that the correct error handling is in place.
+
+Command-line interface
+The command-line interface allows you to interact with an application or program through your operating system command line, terminal, or console by beginning your code with a text command. When you want to run tests in Python, you can use the unittest module from the command line to run tests from modules, classes, or even individual test methods. This also allows you to run multiple files at one time. 
+
+To call an entire module:
+python -m unittest test_module1 test_module2 
+
+To call a test class:
+python -m unittest test_module.TestClass
+
+To call a test method:
+python -m unittest test_module.TestClass.test_method
+
+Test modules can also be called using a file path, as written below:
+python -m unittest tests/test_something.py
+
+Unit test design patterns
+One pattern that you can use for unit tests is made up of three phases: arrange, act, and assert. Arrange represents the preparation of the environment for testing; act represents the action, or the objective of the test, performed; and assert represents whether the results checked are expected or not. 
+
+Imagine building a system for a library. The objective is to test whether a new book can be added to the library's collection and then to check if the book is in the collection. Using the above structure of arrange, act, and assert, consider the following example code:
+
+What’s given (arrange): A library with a collection of books
+
+When to test (act): A new book is added to the collection
+
+Then check (assert): The new book should be present in the library's collection
+
+class Library:
+	def __init__(self):
+		self.collection = []
+
+	def add_book(self, book_title):
+		self.collection.append(book_title)
+
+	def has_book(self, book_title):
+		return book_title in self.collection
+
+# Unit test for the Library system
+class TestLibrary(unittest.TestCase):
+
+	def test_adding_book_to_library(self):
+    	# Arrange
+		library = Library()
+		new_book = "Python Design Patterns"
+
+    	# Act
+    	library.add_book(new_book)
+
+    	# Assert
+    	self.assertTrue(library.has_book(new_book))
+
+# Running the test
+library_test_output = unittest.TextTestRunner().run(unittest.TestLoader().loadTestsFromTestCase(TestLibrary))
+print(library_test_output)
+
+ Tests can be grouped together according to the features they test. In unittest, this functionality is known as a test suite, and it allows developers to organize how and in which order their tests are run. 
+
+
+In each respective phase, an instance of the library class was created. The title of the book was defined as “Python Design Patterns,” a new book was added to the library using the add_book method, and a check was run to see if the new book was successfully added to the library’s collection using the has_book method.  
+
+Test suites
+Testing can be time-intensive, but there are ways that you can optimize the testing process. The following methods and modules allow you to define instructions that execute before and after each test method:
+
+setUp() can be called automatically with every test that’s run to set up code. 
+
+tearDown() helps clean up after the test has been run. 
+
+If setUp()raises an exception during the test, the unittest framework considers this to be an error and the test method is not executed. If setUp() is successful, tearDown() runs even if the test method fails. You can add these methods to your unit tests, which you can then include in a test suite. Test suites are collections of tests that should be executed together—so all of the topics covered in this reading can be included within a test suite. 
+
+Consider the following code example to see how each of these unit testing components is used together and run within a test suite:
+
+import unittest
+import os
+import shutil
+
+# Function to test
+def simple_addition(a, b):
+	return a + b
+
+# Paths for file operations
+ORIGINAL_FILE_PATH = "/tmp/original_test_file.txt"
+COPIED_FILE_PATH = "/mnt/data/copied_test_file.txt"
+
+# Global counter
+COUNTER = 0
+
+# This method will be run once before any tests or test classes
+def setUpModule():
+	global COUNTER
+	COUNTER = 0
+    
+	# Create a file in /tmp
+	with open(ORIGINAL_FILE_PATH, 'w') as file:
+    	file.write("Test Results:\n")
+
+# This method will be run once after all tests and test classes
+def tearDownModule():
+	# Copy the file to another directory
+	shutil.copy2(ORIGINAL_FILE_PATH, COPIED_FILE_PATH)
+    
+	# Remove the original file
+	os.remove(ORIGINAL_FILE_PATH)
+
+class TestSimpleAddition(unittest.TestCase):
+
+	# This method will be run before each individual test
+	def setUp(self):
+    	global COUNTER
+    	COUNTER += 1
+
+	# This method will be run after each individual test
+	def tearDown(self):
+    	# Append the test result to the file
+    	with open(ORIGINAL_FILE_PATH, 'a') as file:
+        	result = "PASSED" if self._outcome.success else "FAILED"
+        	file.write(f"Test {COUNTER}: {result}\n")
+
+	def test_add_positive_numbers(self):
+    	self.assertEqual(simple_addition(3, 4), 7)
+
+	def test_add_negative_numbers(self):
+    	self.assertEqual(simple_addition(-3, -4), -7)
+
+# Running the tests
+suite = unittest.TestLoader().loadTestsFromTestCase(TestSimpleAddition)
+runner = unittest.TextTestRunner()
+runner.run(suite)
+
+# Read the copied file to show the results
+with open(COPIED_FILE_PATH, 'r') as result_file:
+	test_results = result_file.read()
+
+print(test_results)
+
+ In the example, a global counter is initialized in setUpModule. The counter is incremented in the setUp method before each test starts. After each test is completed, the tearDown method checks the test result and appends it to the temporary file. During module teardown in tearDownModule, the temporary file is copied to another directory and the original file is deleted.  
+
+
+
+===================================================================================================
+
+#!/usr/bin/env python3
+
+import unittest
+
+from validations import validate_user
+
+class TestValidateUser(unittest.TestCase):
+  def test_valid(self):
+    self.assertEqual(validate_user("validuser", 3), True)
+
+  def test_too_short(self):
+    self.assertEqual(validate_user("inv", 5), False)
+
+  def test_invalid_characters(self):
+    self.assertEqual(validate_user("invalid_user", 1), False)
+  def test_invalid_minlen(self):
+    self.assertRaises(ValueError, validate_user, "user", -1)
+
+
+# Run the tests
+unittest.main()
+
+Exception handling
+When performing exception handling, it is important to predict which exceptions can happen. Sometimes, to figure out which exceptions you need to account for, you have to let your program fail.
+
+The simplest way to handle exceptions in Python is by using the try and except clauses. 
+
+In the try clause, Python executes all statements until it encounters an exception. You use the except clause to catch and handle the exception(s) that Python encounters in the try clause.
+
+Here is the process for how it works: 
+
+Python runs the try clause, e.g., the statement(s) between the try and except keywords.
+
+If no error occurs, Python skips the except clause and the execution of the try statement is finished.
+
+If an error occurs during execution of the try clause, Python skips the rest of the try clause and transfers control to the corresponding except block. If the type of error matches what is listed after the except keyword, Python executes the except clause. The execution then continues on after the try/except block.
+
+If an exception occurs but it does not match what is listed in the except clause, it is passed onto try statements outside of that try/except block. However, if a handler for that exception cannot be found, the exception becomes an unhandled exception, the execution stops, and Python displays a designated error message. 
+
+Sometimes, a try statement can have more than one except clause so that the code can specify handlers for different exceptions. This can help to reduce the number of unhandled exceptions. 
+
+You can use exceptions to catch almost everything. It is good practice as a developer or programmer to be as specific as possible with the types of exceptions that you intend to handle, especially if you’re creating your own exception.
+
+Raise exceptions
+As a developer or programmer, you might want to raise an error yourself. Usually, this happens when some of the conditions necessary for a function to do its job properly aren't met and returning none or some other base value isn't good enough. You can raise an error or raise an exception (also known as “throwing an exception”), which forces a particular exception to occur, and notifies you that something in your code is going wrong or an error has occurred. 
+
+Here are some instances where raising an exception is a useful tool:
+
+A file doesn’t exist
+
+A network or database connection fails
+
+Your code receives invalid input
+
+In the example below, the code raises two built-in Python exceptions:  raise ValueError and raise ZeroDivisionError. You can find more information on these raises in the example below, along with explanations of potential errors that may occur during an exception.
+
+# File reading function with exception handling
+def read_file(filename):
+	try:
+		with open(filename, 'r') as f:
+			return f.read()
+	except FileNotFoundError:
+		return "File not found!"
+	finally:
+		print("Finished reading file.")
+
+
+def enhanced_read_and_divide(filename):
+	try:
+		with open(filename, 'r') as file:
+			data = file.readlines()
+       	 
+        # Ensure there are at least two lines in the file
+        if len(data) < 2:
+            raise ValueError("Not enough data in the file.")
+       	 
+        num1 = int(data[0])
+        num2 = int(data[1])
+       	 
+        # Check if second number is zero
+        if num2 == 0:
+            raise ZeroDivisionError("The denominator is zero.")
+       	 
+        return num1 / num2
+
+
+	except FileNotFoundError:
+    	     return "Error: The file was not found."
+	except ValueError as ve:
+    	     return f"Value error: {ve}"
+	except ZeroDivisionError as zde:
+    	     return f"Division error: {zde}"
+
+assert statements
+assert statements help you to verify if a certain condition is met and throw an exception if it isn’t. As is stated in the name, their purpose is to "assert" that certain conditions are true at specific points in your program. 
+
+The assert statement exists in almost every programming language and has two main uses:
+
+To help detect problems earlier in development, rather than later when some other operation fails. Problems that aren’t addressed until later in the development process can turn out to be more time-intensive and costly to fix.
+
+To provide a form of documentation for other developers reading the code.
+
+Automatic testing: A process where software checks itself for errors and confirms that it works correctly
+
+Black-box tests: A test where there is an awareness of what the program is supposed to do but not how it does it
+
+Edge cases: Inputs to code that produce unexpected results, found at the extreme ends of the ranges of input
+
+Pytest: A powerful Python testing tool that assists programmers in writing more effective and stable programs
+
+Software testing: A process of evaluating computer code to determine whether or not it does what is expected
+
+Test case: This is the individual unit of testing that looks for a specific response to a set of inputs
+
+Test fixture: This prepared to perform one or more tests
+
+Test suite: This is used to compile tests that should be executed together
+
+Test runner: This runs the test and provides developers with the outcome’s data
+
+unittest: A set of Python tools to construct and run unit tests
+
+Unit tests: A test to verify that small isolated parts of a program work correctly
+
+White-box test: A test where test creator knows how the code works and can write test cases that use the understanding to make sure it performs as expected
+
+
+
+===============================================================================
+^\D*(\d{3})\D*(\d{3})\D*(\d{4})$
+
+
+Let’s break down this line of code, piece by piece:
+
+^\D*
+
+This part of the code matches zero or more non-digit characters at the beginning of the string.
+
+(\d{3})
+
+This part of the code captures exactly three digits, which represent the area code.
+
+\D*
+
+This part of the code matches zero or more non-digit characters between the area code and exchange.
+
+(\d{3} ) 
+
+This part of the code captures the three-digit exchange.
+
+\D*       
+
+This part of the code matches zero or more non-digit characters between the exchange and line.
+
+(\d{4})$
+
+This part of the code captures exactly four digits at the end of the string.
+
+import re
+
+
+with open("data/phones.csv", "r") as phones:
+
+ for phone in phones:
+
+   new_phone = re.sub(r"^\D*(\d{3})\D*(\d{3})\D*(\d{4})$", r"(\1) \2-\3", phone)
+
+   print(new_phone)
+
+(123) 456-7890
+
+(123) 456-7890
+
+(123) 456-7890
+
+
+
+Now he has three capture groups: area code, exchange, and number. He then substitutes those groups into a new string using backreferences:
+
+(\1) \2-\3
+
+========================================================================================
+
+we can use below diff command process to merge file
+#diff -u original.file changed.file > changediff.file
+
+that diff command will create new file with changes  changediff.file
+
+now put updated.file changes to original.file by using changediff.file
+#patch original.file < changediff.file
+
+
+=========================================================================================
+GIT -----
+To create git repo
+#mkidr test;cd test
+Now initilized git repo
+#git init
+
+To check current config of your git repo
+#git config -l
+Note : .git directory contain all metadata about your git repo(like snapshot/config/commit history), you shouldn't mess with this directory. 
+Add files/code in working area
+#touch file{1..5}.txt
+
+To added files/code in staging area
+#git add .
+
+To commit(this will take snapshot) statging area file into git repo
+#git commit -m "Files are added to git repo"
+
+---------------
+Git config command
+The Git config command is used to set the values to identify who made changes to Git repositories. To set the values of user.email and user.name to your email and name, type: 
+
+: ~$ git config  - -global user.email “
+me@example.com
+”
+
+: ~$ git config  - -global user.name “My name”
+
+Git init command
+: ~/checks$ git init
+
+The Git init command can create a new empty repository in a current directory or re-initialize an existing one. 
+
+Git ls -la command
+: ~/checks$ ls -la
+
+The Git ls - la command checks that an identified directory exists.
+
+: ~/checks$ ls -l .git/
+
+The ls-l.git command checks inside the directory to see the different things that it contains. This is called the Git directory. The Git directory is a database for your Git project that stores the changes and the change history.
+
+Git add command
+:~/checks$ git add disk_usage.py
+
+Using the Git add command allows Git to track your file and uses the selected file as a parameter when adding it to the staging area. The staging area is a file maintained by Git that contains all the information about what files and changes are going to go into your next commit.
+
+Git status command
+:~/checks$ git status
+
+The Git status command is used to get some information about the current working tree and pending changes.
+
+Git commit command
+:~/checks$ git commit
+
+The .git commit command is run to remove changes made from the staging area to the .git directory. When this command is run, it tells Git to save changes. A text editor is opened that allows a commit message to be entered.
+-----------------------------
+
+git commit -a #### is shortcut to stage any changes to tracked files, and commit them in one step.. if modified files never added/commited to repo then still we will need use "git add ." for those files..
+
+
+HEAD alias --- Git uses the HEAD alias to represent the currently checked-out snapshot of your project..
+
+To check what was the patch created 
+#git log -p
+
+To check commited code/patch info
+#git show commitid
+
+To check how many lines where changed and in which file changes were made
+#git log --stat
+
+To review changes before we add them to staging..now this will prompt [y/n] that we want to stage our changes or not. 
+#git add -p
+
+If we call git diff after adding changes to staging area, it won't show any changes, git diff show only unstaged changes.
+#git diff
+
+If you want to see changes at staged area before commiting them then you can use below command
+#git diff --staged
+
+-------------------------------------------
+To remove any file from git repo, below command will remove file from git and will put it in stagged area for next commit
+#git rm filename
+
+#git commit -m "filename deleted from repo"
+
+To rename any file in existing git repo. below command will rename file in git and will put it in stagged area for next commit. 
+#git mv filename newfilename
+
+#git commit -m "filename has been renamed to newfilename"
+
+if we want to ignore any file and directory to be commited in git repo then update in .gitignore file, create this file in git repo.
+
+if you have made some changes in your git repo but yet those changes are not added into stagging area by git add . command then you can revert them bakcup by using below command
+#git checkout filename or .
+
+if we have added our changed in stagging area by using "git add" command then we can also revert them back by using "git reset" command, this will put command to unstagged area.
+#git reset HEAD filename
+
+#git commit -m "it should be put to unstagged area"
+
+If you have added some files in git commit and you want to make some changes in that commit then you can use --amend to sort this out.
+Firstly make your changes and then put them in stagging area
+#touch file{2..4}
+#git add .
+#git commit --amend
+
+Note :- ammednign commits are applicable for local repo but not for pubilc or remote repo. so don't use it on remote and public repo. only use for your local repo, which you have commited in local repo and want to make changes in local commit id.
+
+if we have commited into remote and public repo and want to revert changes back then we will use "git revert" command, it will undo changes but will maintain git commit/log history.
+
+#git revert HEAD
+
+To revert to any previous commit ID other than current HEAD commit
+Firstly check your previous commitd
+#git log -4
+
+Now take 5-8 starting character of commit id to which you want to revert and run below command, update commit message and save it.
+#git revert 4058g
+
+it will create new commit id and revert back to given commited id.
+
+-----------------------------
+git checkout
+ is used to switch branches. For example, you might want to pull from your main branch. In this case, you would use the command git checkout main. This will switch to your main branch, allowing you to pull. Then you could switch to another branch by using the command  git checkout <branch>.
+
+git reset
+  can be somewhat difficult to understand. Say you have just used the command git add. to stage all of your changes, but then you decide that you are not ready to stage those files. You could use the command git reset to undo the staging of your files.
+
+There are some other useful articles online, which discuss more aggressive approaches to
+ resetting the repo
+ (Git repository). As discussed in this article, doing a hard reset can be extremely dangerous. With a hard reset, you run the risk of losing your local changes. There are safer ways to achieve the same effect. For example, you could run git stash, which will temporarily shelve or stash your current changes. This way, your current changes are kept safe, and you can come back to them if needed.
+
+git commit --amend
+ is used to make changes to your most recent commit after-the-fact, which can be useful for making notes about or adding files to your most recent commit. Be aware that this git --amend command rewrites and replaces your previous commit, so it is best not to use this command on a published commit.
+
+git revert
+ makes a new commit which effectively rolls back a previous commit. Unlike the git reset command which rewrites your commit history, the git revert command creates a new commit which undoes the changes in a specific commit. Therefore, a revert command is generally safer than a reset command.
+
+-------------------------------------
+To check all of the branches in repository
+#git branch
+
+To create new branch
+#git branch branch-name
+
+validate created branch
+#git branch
+
+To switch to our new created branch
+#git checkout branch-name
+
+To create new branch and switch to it in single command
+#git checkout -b branch-name
+
+To delete branch
+#git branch -d branch-name
+
+If your branch haven't been merged then use below command to delete the branch
+#git branch -D branch-name
+
+Merging brach into master branch merge history of branch and code to master brnach
+
+To merge branch into master branch
+#git merge branch-name
+
+
+If in same file changes were made in master branch and new-branch then during merging git will conflict...it will also update in conflicting file what is conflicting
+now you will need to sort this out by manually checking confilicting file code and correcting or deleting lines.
+
+after doing it, run git add on conflicting file...
+#git add filename
+
+now run git status
+#git status
+
+Now commit to git 
+#git commit
+
+Now check your git commit history 
+#git log --graph --oneline
+
+if you don't want to sort manually conflict issue and want to abort merge then use below command
+#git merge --abort
+
+there are 2 type of merge algorithms - 
+fast-forward merge - In this if files are not conflicting then it will happend straight forward
+three-way merge - In this this if files are conflicting then will happened
+
+Branch: A pointer to a particular commit, representing an independent line of development in a project
+
+Commit ID: An identifier next to the word commit in the log
+
+Fast-forward merge: A merge when all the commits in the checked out branch are also in the branch that's being merged
+
+Head: This points to the top of the branch that is being used
+
+Master: The default branch that Git creates for when a new repository initialized, commonly used to place the approved pieces of a project
+
+Merge conflict: This occurs when the changes are made on the same part of the same file, and Git won't know how to merge those changes
+
+Rollback: The act of reverting changes made to software to a previous state 
+
+Three-way merge: A merge when the snapshots at the two branch tips with the most recent common ancestor, the commit before the divergence
+
+===========================================================================
+To get remote repository URL and orgin info
+#git remote -v
+
+To get more information about remote repo..
+#git remote show origin
+
+To check our remote branches, which git tracking...
+#git branch -r
+
+TO check remote origin info
+#git remote show origin
+
+
+TO get remote branches update to local branch and review them by using git log and then we can merge remote changes to local repo, follow below steps..
+#git fetch
+
+To check remote branch history
+#git log origin/master
+
+
+To merge our remote repo changes to our local repo
+#git merge origin/master
+
+To fetch and merge changes to local repo from remote, we will use below command
+#git pull
+
+when we have any other branch on remote brach, we can use below command to check it..
+#git remote show origin
+
+we can checkout to that remote branch by using below command..it will get checkout branch code.
+#git checkout another-branch
+
+
+git remote 
+
+$ git remote
+ allows you to manage the set of repositories or “remotes” whose branches you track.
+
+git remote -v
+
+$ git remote -v
+ is similar to $ git remote, but adding the -v shows more information such as the remote URL.
+
+git remote show <name>
+
+$ git remote show <name>
+ shows some information about a single remote repo.
+
+git remote update
+
+$ git remote update
+ fetches updates for remotes or remote groups.
+
+git fetch
+
+$ git fetch
+ can download objects and refs from a single repo, a single URL, or from several repositories at once.
+
+git branch -r
+
+$ git branch -r
+ lists remote branches and can be combined with other branch arguments to manage remote branches.
+-------------------------------------
+
+To push specific branch to remote
+#git push -u origin new-branch
+
+Git rebase - it does take other  branch commit and put them on the top of latest commit on master branch, In this way repo commits maintained in linear way.
+
+#git checkout master
+
+#git log --graph --oneline --all
+
+Now checkout to that branch which you want to rebase with master
+#git checkout new-branch
+
+Now rebase it with master
+#git rebase master
+
+#git log --graph --oneline
+
+Now checkout to the master branch
+#git checkout master
+
+now merge your branch
+#git merge new-branch
+
+To delete branch on remote repo
+#git push --delete origin new-branch
+
+Now also delete your branch from your local repo
+#git branch -d new-branch
+
+Now push changes on remote repo
+#git push
+
+Tips for resolving merge conflicts
+Here are some tips to keep in mind when you’re resolving merge conflicts: 
+
+After running Git merge, a message will appear informing that a conflict occurred on the file.
+
+Read the error messages that imply you cannot push your local changes to GitHub, especially the remote changes with Git pull. 
+
+Use the command line or GitHub Desktop to push the change to your branch on GitHub after you make a local clone of the repository for all other types of merge conflicts. 
+
+Before merging any commits to the master branch, push it into a remote repository so that collaborators can view the code, test it, and inform you that it’s ready for merging. 
+
+Use the Git rebase command to replay the new commits on top of the new base and then merge the feature branch back into the master.
+
+--------------------------------------------------------------------
+ To open interactive rebase
+#git rebase -i master
+
+squash - can combine 2 commit to single commit
+
+After squash check log history
+#git log --graph --oneline -all -4
+
+Now after squash you will  do "git push" then you will face issue, you have to execute git push -f to force current repo to remote repo as is.
+#git push -f
+
+After this once again run git log and you will divergence has gone...
+#git log --graph --oneline -all -4
+
+Pull requests
+Pull requests allow you to inform fellow contributors about changes that have been made to a branch in Git. When pulling requests, you can discuss and evaluate proposed changes before implementing changes to the primary branch.
+
+You can eventually merge changes back into the main repository (or repo) by creating a pull request. However, it is important to note that before any changes are made to the original code, GitHub creates a fork (or a copy of the project), which allows changes to be committed to the fork copy even if changes cannot be pushed to the other repo. Anyone can suggest changes through the inline comment in pull requests, but the owner only has rights to review and approve changes before merging them. To create a pull request:
+
+Make changes to the file.
+
+Change the proposal and complete a description of the change.
+
+Click the Proposed File Change button to create a commit in the forked repo to send the change to the owner.
+
+Enter comments about the change. If more context is needed about the change, use the text box.
+
+Click Pull Request.
+
+When creating multiple commits, a number next to the pull request serves as the identifier for accessing the pull requests in the future. This is important because it allows project maintainers to follow up with questions or comments.  
+
+For more information on creating pull requests, click the following link: 
+Creating a pull request 
+
+Pull request merges
+
+You can merge pull requests by retaining the commits. Below is a list of pull request merge options that you can use when merging pull requests.
+
+Merge commits. All commits from the feature branch are added to the base branch in a merge commit using the -- no–ff option. 
+
+Squash and merge commits. Multiple commits of a pull request are squashed, or combined into a single commit, using the fast-forward option. It is recommended that when merging two branches, pull requests are squashed and merged to prevent the likelihood of conflicts due to redundancy.
+
+Merge message for a squash merge. GitHub generates a default commit message, which you can edit. This message may include the pull request title, pull request description, or information about the commits.
+
+Rebase and merge commits. All commits from the topic branch are added onto the base branch individually without a merge commit. 
+
+Indirect merges. GitHub can merge a pull request automatically if the head branch is directly or indirectly merged into the base branch externally.
+
+
+-------------------------------------
+
+==================================Debugging and Troubleshooting===================================
+System calls  - Calls that the programs running on our computer maker to the running kernel....
+strace command can used to check system calls for any programme..
+strace mkdir test
+
+ltrace - command used to check library calls for any programme...
+
+to store strace log in file
+#strace -o stracelog.log mkdir test
+
+
+Memory leak - a memory when no longer needed is not gettting released, we called it memory leak.
+
+ab command we can use to check a website request benchmark 
+#ab -n 500 google.com 
+
+this command will send 500 request to google.come and then provide you state..
+
+resmon - window command to check resource utilization by process on window
+
+Profiler -- A tool that measures the resources that our code is using, giving us a better understanding of what's going on..
+
+Python profiler -- pprofile3
+
+#pprofile -f callgrind -o profile.out ./pythonscript.py 
+
+In this command callgrind is format and profile.out is output..then give script name..
+
+kcachegrind is command, which we use to look into file which was created by callgrind, it is GUI based command..
+#kcachegrind profile.out
+
+Profiling 
+Software profiling is a diagnostic technique used to analyze real-time resource utilization of applications and monitor applications. This process involves examining key performance metrics like CPU utilization, memory consumption, and disk space usage. By dissecting these aspects, developers can gain valuable insights that guide performance improvements and optimization strategies. Additionally, benchmarking is a crucial practice in software development that involves a deep analysis of where your application spends its time and cycles. This is done by assessing the time and resources it consumes. It allows you to gauge code speed against a baseline and even against competing software or products. In Python, you benchmark through the Timeit module. This measures the execution time of your code segments, helping you pinpoint potential bottlenecks by conducting mini benchmarks for individual functions. In this way, you can improve your application's efficiency and optimize the code.
+
+Profiling tools, such as Flat, Call-graph, and Input-sensitive, are integral to debugging. Developers can use these tools to generate detailed source code reports to understand how an application behaves and uses resources.
+
+The importance of profiling extends beyond the development of software. It’s also useful in the development of computer architecture and compilers. Through profile-guided optimization, developers can predict program behavior on new hardware configurations, enabling optimization algorithms to be refined and performance to be improved.
+
+-----------------------------------------
+Concurrency and parallelism
+In Python, you can use concurrency to allow multiple tasks to make progress at the same time, even if they don't actually run simultaneously. This is useful when you want to optimize how tasks are scheduled and resources are used, especially for I/O-bound tasks. Concurrency lets you efficiently manage these tasks, ensuring they can smoothly move forward without being held back by other tasks.
+
+Parallelism, on the other hand, involves running multiple processors or CPU cores at the same time. This is great for tasks that are CPU intensive. By dividing the work among multiple cores, parallelism can speed up these tasks significantly and reduce processing time.
+
+By combining concurrency and parallelism in your Python programs, you can double their power. This should make your programs run more efficiently and responsively.
+
+Concurrency for I/O-bound tasks
+Python has two main approaches to implementing concurrency: threading and asyncio.
+
+Threading is an efficient method for overlapping waiting times. This makes it well-suited for tasks involving many I/O operations, such as file I/O or network operations that spend significant time waiting. There are however some limitations with threading in Python due to the Global Interpreter Lock (GIL), which can limit the utilization of multiple cores.
+
+Alternatively, asyncio is another powerful Python approach for concurrency that uses the event loop to manage task switching. Asyncio provides a higher degree of control, scalability, and power than threading for I/O-bound tasks. Any application that involves reading and writing data can benefit from it, since it speeds up I/O-based programs. Additionally, asyncio operates cooperatively and bypasses GIL limitations, enabling better performance for I/O-bound tasks.
+
+Python supports concurrent execution through both threading and asyncio; however, asyncio is particularly beneficial for I/O-bound tasks, making it significantly faster for applications that read and write a lot of data.
+
+Parallelism for CPU-bound tasks
+Parallelism is a powerful technique for programs that heavily rely on the CPU to process large volumes of data constantly. It's especially useful for CPU-bound tasks like calculations, simulations, and data processing.
+
+Instead of interleaving and executing tasks concurrently, parallelism enables multiple tasks to run simultaneously on multiple CPU cores. This is crucial for applications that require significant CPU resources to handle intense computations in real-time.
+
+Multiprocessing libraries in Python facilitate parallel execution by distributing tasks across multiple CPU cores. It ensures performance by giving each process its own Python interpreter and memory space. It allows CPU-bound Python programs  to process data more efficiently by giving each process its own Python interpreter and memory space; this eliminates conflicts and slowdowns caused by sharing resources. Having said that, you should also remember that when running multiple tasks simultaneously, you need to manage resources carefully.
+
+Combining concurrency and parallelism
+Combining concurrency and parallelism can improve performance. In certain complex applications with both I/O-bound and CPU-bound tasks, you can use asyncio for concurrency and multiprocessing for parallelism.
+
+With asyncio, you make I/O-bound tasks more efficient as the program can do other things while waiting for file operations.
+
+On the other hand, multiprocessing allows you to distribute CPU-bound computations, like heavy calculations, across multiple processors for faster execution.
+
+By combining these techniques, you can create a well-optimized and responsive program. Your I/O-bound tasks benefit from concurrency, while CPU-bound tasks leverage parallelism.
+
+Selecting the right approach
+Before developing your program, it is essential to determine whether you want to incorporate concurrency, as it is generally easier to add it later than to remove it. In order to make this decision, you must understand the tasks your application needs to perform. Your approach will depend on whether your program is CPU-bound (processing) or I/O-bound (communicating).
+
+When you need to wait for external resources, concurrency with asyncio or threading would be more appropriate. Taking advantage of idle time during I/O operations allows your program to handle multiple tasks concurrently.
+
+On the other hand, if you're dealing with CPU-intensive tasks, such as compression, rendering high-definition videos, or running complex simulations, multiprocessing is a good choice. By doing so, you can ensure that your system performs well by taking advantage of the power of multiple processors. You can reduce processing time by distributing computational tasks across multiple cores.
+
+To learn more about the differences between concurrency and parallelism and how to choose the appropriate approach based on your tasks,  read more 
+here
+.
+
+Asyncio events and task loops
+Python's asyncio library enables concurrent execution of multiple tasks through asynchronous operations using event loops and coroutines. A coroutine can pause execution while waiting for a specific operation, such as reading or saving data. Event loops are essential for scheduling and managing tasks, allowing smooth execution and reducing completion times. Unlike threading, this lightweight approach keeps long-running tasks from blocking the main application.
+
+With Asyncio, you can efficiently handle small tasks, like sending emails or notifications, without creating many threads, resulting in faster notification responses. When combined with aiohttp, asyncio effectively manages multiple API calls concurrently. Asyncio offers an efficient way to handle data input/output tasks, allowing developers to create high-performance applications through simultaneous task execution.
+
+-----------------------------------------------------------
+
+Activity Monitor: Mac OS tool that shows what's using the most CPU, memory, energy, disk, or network
+
+Cache: This stores data in a form that's faster to access than its original form
+
+Executor: This is the process that's in charge of distributing the work among the different workers
+
+Expensive actions: Actions that can take a long time to complete
+
+Futures: A module provides a couple of different executors, one for using threads and the other one for using processes
+
+Lists: Sequences of elements
+
+Memory leak: This happens when a chunk of memory that's no longer needed is not released
+
+Profiler: A tool that measures the resources the code is using to see how the memory is allocated and how the time is spent
+
+Real time: The amount of actual time that it took to execute the command
+
+Resource Monitor (or Performance Monitor): Windows OS tool that shows what's using the most CPU, memory, energy, disk, or network
+
+Sys time: The time spent doing system level operations
+
+Threads: Run parallel tasks inside a process
+
+User time: The time spent doing operations in the user space
+---------------------------------------------------------------------------------------
+
+Valgrind - very powerful tool that can tell us if the code is doing any invalid operations, no matter if it crashes or not...
+
+to generate the core file for any programme, when it crash, we can follow below...
+#ulimit -c ulimited
+
+gdb debugger usually uses to debug C code....
+#./program
+
+Now you can check core file with name "core"
+#ls 
+
+Now we can pass the core file to gdb debugger
+#gdb -l core
+
+#gdb -c core example
+
+in this gdb prompt type backtrace to trace the error..
+gdb> backtrace
+
+
+to debug python code pdb3 command will take you to pdb3 prompt...
+#pdb3 script.py 
+
+--------------------------------
+import logging
+logging.warning('This is a warning message')
+logging.error('This is an error message')
+logging.basicConfig(level=logging.DEBUG)
+logging.debug('This is a debug message')
+logging.basicConfig(filename='app.log', level=logging.DEBUG)
+logging.info('This message will be written to app.log')
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
+logging.error('This is an error with a custom format')
+
+def user_login(username, password):
+    logging.info(f"Attempting to log in user: {username}")
+    # ... (some code for authentication)
+    if authentication_failed:
+        logging.error(f"Login failed for user: {username}")
+    else:
+        logging.info(f"Successfully logged in user: {username}")
+
+---------------------------------------
+
+The basics
+Postmortems are documents that describe what happened, who and what was affected, how it was resolved, and what the takeaways are. The purpose is to highlight what worked well, as well as learn from what didn’t.
+
+The main sections of the document should follow a pattern similar to the following:
+
+What happened and when
+
+Who was affected
+
+What the root cause was
+
+How the issue was resolved and when
+
+Why it happened, including improvement plans or other remediation actions
+
+-----------------------------------------------
+Memory leak - when chunk of memory no longer needed but not released
+
+Garbage collector - In charge of freeing up memory which is not in used..
+
+------------------------------------------------------
+
+A/B testing: A way to compare two versions of something to find out which version performs better
+
+Automatic scaling: This service uses metrics to automatically increase or decrease the capacity of the system
+
+Autoscaling: Allows the service to increase or reduce capacity as needed, while the service owner only pays for the cost of the machines that are in use at any given time
+
+Capacity: How much the service can deliver
+
+Cold data: Accessed infrequently and stored in cold storage
+
+Containers: Applications that are packaged together with their configuration and dependencies
+
+Content Delivery Networks (CDN): A network of physical hosts that are geographically located as close to the end users as possible
+
+Disk image: A snapshot of a virtual machine’s disk at a given point in time
+
+Ephemeral storage: Storage used for instances that are temporary and only need to keep local data while they’re running
+
+Hot data: Accessed frequently and stored in hot storage
+
+Hybrid cloud: A mixture of both public and private clouds
+
+Input/Output Operations Per Second (IOPS): Measures how many reads or writes you can do in one second, no matter how much data you're accessing
+
+Infrastructure as a Service (or IaaS): When a Cloud provider supplies only the bare-bones computing experience
+
+Load balancer: Ensures that each node receives a balanced number of requests
+
+Manual scaling: Changes are controlled by humans instead of software
+
+Multi-cloud: A mixture of public and/or private clouds across vendors
+
+Object storage: Storage where objects are placed and retrieved into a storage bucket
+
+Orchestration: The automated configuration and coordination of complex IT systems and services
+
+Persistent storage: Storage used for instances that are long lived and need to keep data across reboots and upgrades
+
+Platform as a Service (or PaaS): When a Cloud provider offers a preconfigured platform to the customer
+
+Private cloud: When your company owns the services and the rest of your infrastructure
+
+Public cloud: The cloud services provided to you by a third party
+
+Rate limits: Prevent one service from overloading the whole system
+
+Reference images: Store the contents of a machine in a reusable format
+
+Software as a Service (or SaaS): When a Cloud provider delivers an entire application or program to the customer
+
+Sticky sessions: All requests from the same client always go to the same backend server
+
+Templating: The process of capturing all of the system configuration to let us create VMs in a repeatable way
+
+Throughput: The amount of data that you can read and write in a given amount of time
+
+Utilization limits: Cap the total amount of a certain resource that you can provision
+
+---------------------------------------
+
+There are several types of software testing that you can execute with Docker containers:
+
+Unit tests: These are small, granular tests written by the developer to test individual functions in the code. In Docker, unit tests are run directly on your codebase before the Docker image is built, ensuring the code is working as expected before being packaged.
+
+Integration tests: These refer to testing an application or microservice in conjunction with the other services on which it relies. In a Dockerized environment, integration tests are run after the docker image is built and the container is running, testing how different components operate together inside the Docker container. 
+
+End-to-end (E2E) tests: This type of testing simulates the behavior of a real user (e.g., by opening the browser and navigating through several pages). E2E tests are run against the fully deployed docker container, checking that the entire application stack with its various components and services functions correctly as a whole.
+
+Performance tests: This type of testing identifies bottlenecks. Performance tests are run against the fully deployed Docker container and test various stresses and loads to ensure the application performs at expectations. 
+
+Docker makes it easy to set up and tear down tests in a repeatable and predictable way. Testing Docker containers ensures the reliability, stability, and quality of the application running within them. By testing containers, you can discover bugs and compatibility and performance issues to ensure your application functions as intended.
+
+-------------------------------------------
+
+The control plane
+The Kubernetes control plane is responsible for making decisions about the entire cluster and desired state and for ensuring the cluster’s components work together. Components of the control plane include: 
+
+etcd
+
+API server
+
+Scheduler
+
+Controller manager
+
+Cloud controller manager
+
+etcd is used as Kubernetes backing store for all cluster data as a distributed database. This key-value store is highly available and designed to run on multiple nodes.
+
+The Kubernetes API server acts as the front-end for developers and other components interacting with the cluster. It is responsible for ensuring requests to the API are properly authenticated and authorized.
+
+The scheduler is a component of the control plane where pods are assigned to run on particular nodes in the cluster.
+
+The control manager hosts multiple Kubernetes controllers. Each controller continuously monitors the current state of the cluster and works towards achieving the desired state.
+
+The cloud controller manager is a control plane component that embeds cloud-specific control logic. It acts as the interface between Kubernetes and a specific cloud provider, managing the cloud’s resources.
+
+-------------------------------------------
+
+Key terms
+Here are some key terms to be familiar with as you’re working with Kubernetes.
+
+Pod lifecycle: Pods have specific lifecycle phases, starting from "Pending" when they are being scheduled, to "Running" when all containers are up and running, "Succeeded" when all containers successfully terminate, and "Failed" if any container within the Pod fails to run. Pods can also be in a "ContainerCreating" state if one or more containers are being created.
+
+Pod templates: Pod templates define the specification for creating new Pods. They are used in higher-level controllers like ReplicaSets, Deployments, and StatefulSets to ensure the desired state of the Pods.
+
+Pod affinity and anti-affinity: Pod affinity and anti-affinity rules define the scheduling preferences and restrictions for Pods. They allow you to influence the co-location or separation of Pods based on labels and other attributes.
+
+Pod autoscaling: Kubernetes provides Horizontal Pod Autoscaler (HPA) functionality that automatically scales the number of replicas (Pods) based on resource usage or custom metrics.
+
+Pod security policies: Pod security policies are used to control the security-related aspects of Pods, such as their access to certain host resources, usage of privileged containers, and more.
+
+Init containers: Init containers are additional containers that run and complete before the main application containers start. They are useful for performing initialization tasks, such as database schema setup or preloading data.
+
+Pod eviction and disruption: Pods can be evicted from nodes due to resource constraints or node failures. Understanding Pod eviction behavior is important for managing application reliability.
+
+Pod health probes: Kubernetes supports different types of health probes (liveness, readiness, and startup probes) to check the health of containers within a Pod. These probes help Kubernetes decide whether a Pod is considered healthy and ready to receive traffic.
+
+Taints and tolerations: Taints are applied to nodes to repel Pods, while tolerations are set on Pods to allow them to be scheduled on tainted nodes.
+
+Pod DNS: Pods are assigned a unique hostname and IP address. They can communicate with each other using their hostname or service names. Kubernetes provides internal DNS resolution for easy communication between Pods.
+
+Pod annotations and labels: Annotations and labels can be attached to Pods to provide metadata or facilitate Pod selection for various purposes like monitoring, logging, or routing.
+--------------------------------------------------------
+
+Pods and Python
+To manage Kubernetes pods using Python, you can use the kubernetes library. Here is some example code of how to create, read, update, and delete a Pod using Python.
+
+
+from kubernetes import client, config
+
+# Load the Kubernetes configuration from the default location
+config.load_kube_config()
+
+# Alternatively, you can load configuration from a specific file
+# config.load_kube_config(config_file="path/to/config")
+
+# Initialize the Kubernetes client
+v1 = client.CoreV1Api()
+
+# Define the Pod details
+pod_name = "example-pod"
+container_name = "example-container"
+image_name = "nginx:latest"
+port = 80
+
+# Create a Pod
+def create_pod(namespace, name, container_name, image, port):
+	container = client.V1Container(
+    	name=container_name,
+    	image=image,
+    	ports=[client.V1ContainerPort(container_port=port)],
+	)
+
+	pod_spec = client.V1PodSpec(containers=[container])
+	pod_template = client.V1PodTemplateSpec(
+    	metadata=client.V1ObjectMeta(labels={"app": name}), spec=pod_spec
+	)
+
+	pod = client.V1Pod(
+    	api_version="v1",
+    	kind="Pod",
+    	metadata=client.V1ObjectMeta(name=name),
+    	spec=pod_spec,
+	)
+
+	try:
+    	response = v1.create_namespaced_pod(namespace, pod)
+    	print("Pod created successfully.")
+    	return response
+	except Exception as e:
+    	print("Error creating Pod:", e)
+
+
+# Read a Pod
+def get_pod(namespace, name):
+	try:
+    	response = v1.read_namespaced_pod(name, namespace)
+    	print("Pod details:", response)
+	except Exception as e:
+    	print("Error getting Pod:", e)
+
+
+# Update a Pod (e.g., change the container image)
+def update_pod(namespace, name, image):
+	try:
+    	response = v1.read_namespaced_pod(name, namespace)
+    	response.spec.containers[0].image = image
+
+    	updated_pod = v1.replace_namespaced_pod(name, namespace, response)
+    	print("Pod updated successfully.")
+    	return updated_pod
+	except Exception as e:
+    	print("Error updating Pod:", e)
+
+
+# Delete a Pod
+def delete_pod(namespace, name):
+	try:
+    	response = v1.delete_namespaced_pod(name, namespace)
+    	print("Pod deleted successfully.")
+	except Exception as e:
+    	print("Error deleting Pod:", e)
+
+
+if __name__ == "__main__":
+	namespace = "default"
+
+	# Create a Pod
+	create_pod(namespace, pod_name, container_name, image_name, port)
+
+	# Read a Pod
+	get_pod(namespace, pod_name)
+
+	# Update a Pod
+	new_image_name = "nginx:1.19"
+	update_pod(namespace, pod_name, new_image_name)
+
+	# Read the updated Pod
+	get_pod(namespace, pod_name)
+
+	# Delete the Pod
+	delete_pod(namespace, pod_name)
+
+
+---------------------------------------------------------------------
+
+Services ::----
+This application is composed of multiple components such as a web server, a caching layer, and a database, each running in separate Pods. These components need to communicate with each other to function properly, but there’s a wrinkle: Pods have ephemeral life cycles and their IP addresses can change dynamically due to reasons like scaling, rescheduling, or node failures. But this isn’t the only challenge you’re facing! 
+
+Imagine that your web server, for instance, was directly communicating with the database Pod using its Pod IP address. The server would need constant updates whenever this IP changes—a manual and error-prone process.
+
+Furthermore, consider if your caching layer is designed to handle high traffic and hence is replicated into multiple Pods for load balancing. Now, your web server needs to distribute requests among all these cache Pods. Maintaining and managing direct communication with every single cache Pod by their individual IP addresses would be a daunting task, and an inefficient use of resources.
+
+Plus, there's the issue of service discovery. Say your web server needs to connect with a new analytics service you've just launched. It would require an updated list of all the active Pods and their IP addresses for this service—a difficult and dynamic challenge.
+
+What is a Python developer to do in this scenario?
+
+Services to the rescue
+Fortunately, services come to the rescue in these scenarios. Services offer an abstraction layer over Pods. For starters, they provide a stable virtual IP and a DNS name for each set of related Pods (like your caching layer or database), and these remain constant regardless of the changes in the underlying Pods. So, your web server only needs to know this Service IP or DNS name, saving it from the ordeal of tracking and updating numerous changing Pod IPs.
+
+Furthermore, Services automatically set up load balancing. When your web server sends a request to the caching layer's Service, Kubernetes ensures the request is distributed evenly among all available caching Pods. This automatic load balancing allows for efficient use of resources and improved performance.
+
+In essence, a Service acts like a stable intermediary within the cluster. Instead of applications (like a front-end interface) directly addressing specific Pods, they communicate with the Service. The Service then ensures the request reaches the right backend Pods. This layer of abstraction streamlines intra-cluster communication, making the system more resilient and easier to manage—even as the underlying Pod configurations change dynamically.
+
+Types of Services
+Let's imagine that, with the basic challenges addressed, you've expanded your Python web application and it now includes a user interface, an API layer, a database, and an external third-party service. Different components of your application have different networking needs, and Kubernetes services, with their various types, can cater to these needs effectively.
+
+First, you have the ClusterIP service. This is the default type and serves as the go-to choice when you need to enable communication between components within the cluster. For example, your API layer and your database might need to communicate frequently, but these exchanges are internal to your application. A ClusterIP service would give you a stable, cluster-internal IP address to facilitate this communication.
+
+Next, you may want to expose your API layer to external clients. You could use a NodePort service for this purpose. It makes your API layer available on a specific port across all nodes in your cluster. With this setup, anyone with access to your node's IP address can communicate with your API layer by contacting the specified NodePort.
+
+However, a NodePort might not be enough if your application is hosted in a cloud environment and you need to handle large volumes of incoming traffic. A LoadBalancer service might be a better choice in this scenario. It exposes your service using your cloud provider's load balancer, distributing incoming traffic across your nodes, which is ideal for components like your user interface that might experience heavy traffic.
+
+Finally, you might be integrating an external third-party service into your application. Rather than expose this service directly within the cluster, you can use an ExternalName service. This gives you an alias for the external service that you can reference using a Kubernetes DNS name.
+
+In summary, Kubernetes provides different types of services tailored to various networking requirements:
+
+ClusterIP: Facilitates internal communication within the cluster
+
+NodePort: Enables external access to services at a static port across nodes
+
+LoadBalancer: Provides external access with load balancing, often used with cloud provider load balancers
+
+ExternalName: Serves as an alias for an external service, represented with a Kubernetes DNS name
+
+Other features
+So far we’ve just scratched the surface of services. There are several features that extend the capabilities of services and can be employed to address specific use cases within your application's networking requirements. 
+
+Service discovery with DNS: As your application grows, new services are added and existing ones might move around as they are scheduled onto different nodes. Kubernetes has a built-in DNS service to automatically assign domain names to services. For instance, your web server could reach the database simply by using its service name (e.g., database-service.default.svc.cluster.local), rather than hard-coding IP addresses.
+
+Headless services: Let's say you want to implement a distributed database that requires direct peer-to-peer communication. You can use a headless service for this. Unlike a standard service, a headless service doesn't provide load-balancing or a stable IP, but instead returns the IP addresses of its associated pods, enabling direct pod-to-pod communication.
+
+Service topology: Suppose your application is deployed in a multi-region environment, and you want to minimize latency by ensuring that requests are served by the nearest pods. Service topology comes to the rescue, allowing you to preferentially route traffic based on the network topology, such as the node, zone, or region.
+
+External Traffic Policy: If you want to preserve the client source IP for requests coming into your web server, you can set the External Traffic Policy to "Local". This routes the traffic directly to the Pods running on the node, bypassing the usual load balancing and ensuring the original client IP is preserved.
+
+Session affinity (sticky sessions): Suppose users log into your application, and their session data is stored locally on the server pod handling the request. To maintain this session data, you could enable session affinity on your service, so that all requests from a specific user are directed to the same pod.
+
+Service slicing: Imagine you're rolling out a new feature and want to test it with a subset of your users. Service Slicing enables you to direct traffic to different sets of pods based on custom labels, providing granular control over traffic routing for A/B testing or canary releases.
+
+Connecting external databases: Perhaps your application relies on an external database hosted outside the Kubernetes cluster. You can create a Service with the type ExternalName to reference this database. This allows your application to access the database using a DNS name without needing to know its IP address, providing a level of indirection and increasing the flexibility of your application configuration.
+
+--------------
+Services and Python
+Here’s an example of some Python code that uses the Kubernetes Python client to create, list, and delete Kubernetes Services in a given namespace.
+
+from kubernetes import client, config
+
+def create_service(api_instance, namespace, service_name, target_port, port, service_type):
+	# Define the Service manifest based on the chosen Service type
+	service_manifest = {
+    	"apiVersion": "v1",
+    	"kind": "Service",
+    	"metadata": {"name": service_name},
+    	"spec": {
+        	"selector": {"app": "your-app-label"},
+        	"ports": [
+            	{"protocol": "TCP", "port": port, "targetPort": target_port}
+        	]
+    	}
+	}
+
+	if service_type == "ClusterIP":
+    	# No additional changes required for ClusterIP, it is the default type
+    	pass
+	elif service_type == "NodePort":
+    	# Set the NodePort field to expose the service on a specific port on each node
+    	service_manifest["spec"]["type"] = "NodePort"
+	elif service_type == "LoadBalancer":
+    	# Set the LoadBalancer type to get an external load balancer provisioned
+    	service_manifest["spec"]["type"] = "LoadBalancer"
+	elif service_type == "ExternalName":
+    	# Set the ExternalName type to create an alias for an external service
+    	service_manifest["spec"]["type"] = "ExternalName"
+    	# Set the externalName field to the DNS name of the external service
+    	service_manifest["spec"]["externalName"] = "my-external-service.example.com"
+
+	api_response = api_instance.create_namespaced_service(
+    	body=service_manifest,
+    	namespace=namespace,
+	)
+	print(f"Service '{service_name}' created with type '{service_type}'. Status: {api_response.status}")
+
+
+def list_services(api_instance, namespace):
+	api_response = api_instance.list_namespaced_service(namespace=namespace)
+	print("Existing Services:")
+	for service in api_response.items:
+    	print(f"Service Name: {service.metadata.name}, Type: {service.spec.type}")
+
+
+def delete_service(api_instance, namespace, service_name):
+	api_response = api_instance.delete_namespaced_service(
+    	name=service_name,
+    	namespace=namespace,
+	)
+	print(f"Service '{service_name}' deleted. Status: {api_response.status}")
+
+
+if __name__ == "__main__":
+	# Load Kubernetes configuration (if running in-cluster, this might not be necessary)
+	config.load_kube_config()
+
+	# Create an instance of the Kubernetes API client
+	v1 = client.CoreV1Api()
+
+	# Define the namespace where the services will be created
+	namespace = "default"
+
+	# Example: Create a ClusterIP Service
+	create_service(v1, namespace, "cluster-ip-service", target_port=8080, port=80, service_type="ClusterIP")
+
+	# Example: Create a NodePort Service
+	create_service(v1, namespace, "node-port-service", target_port=8080, port=30000, service_type="NodePort")
+
+	# Example: Create a LoadBalancer Service (Note: This requires a cloud provider supporting LoadBalancer)
+	create_service(v1, namespace, "load-balancer-service", target_port=8080, port=80, service_type="LoadBalancer")
+
+	# Example: Create an ExternalName Service
+	create_service(v1, namespace, "external-name-service", target_port=8080, port=80, service_type="ExternalName")
+
+	# List existing Services
+	list_services(v1, namespace)
+
+	# Example: Delete a Service
+	delete_service(v1, namespace, "external-name-service")
+
+------------------------------
+
+Deployment :::--
+
+What are deployments?
+Let’s continue the example of the Python-based web application running in a Kubernetes cluster, specifically the web server component of the application. As traffic to your application grows, you'll need to scale the number of web server instances to keep up with demand. Also, to ensure high availability, you want to maintain multiple replicas of the web server so that if one instance fails, others can take over. This is where Kubernetes Deployments come in.
+
+In Kubernetes, a Deployment is like your application's manager. It's responsible for keeping your application up and running smoothly, even under heavy load or during updates. It ensures your application, encapsulated in Pods, always has the desired number of instances—or “replicas”—running.
+
+Think of a Deployment as a blueprint for your application's Pods. It contains a Pod Template Spec, defining what each Pod of your application should look like, including the container specifications, labels, and other parameters. The Deployment uses this template to create and update Pods.
+
+A Kubernetes Deployment also manages a ReplicaSet, a lower-level resource that makes sure the specified number of identical Pods are always running. The Deployment sets the desired state, such as the number of replicas, and the ReplicaSet ensures that the current state matches the desired state. If a Pod fails or is deleted, the ReplicaSet automatically creates new ones.  In other words, Deployments configure ReplicaSets, and thus, they are the recommended way to set up replication.
+
+And by default, deployments support rolling updates and rollbacks. If you update your web server's code, for example, you can push the new version with a rolling update, gradually replacing old Pods with new ones without downtime. If something goes wrong, you can use the Deployment to rollback to a previous version.
+
+So, in summary, a Kubernetes Deployment consists of several key components:
+
+Desired Pod template: This is the specification that defines the desired state of the Pods managed by the Deployment. It includes details such as container images, container ports, environment variables, labels, and other configurations.
+
+Replicas: This field specifies the desired number of identical copies of the Pod template that should be running. Kubernetes ensures this number of replicas is maintained, automatically scaling up or down as needed.
+
+Update strategy: This defines how the Deployment handles updates. The default is a rolling update strategy, where Kubernetes performs updates by gradually replacing Pods, keeping the application available throughout the process. This strategy can be further customized with additional parameters.
+
+Powerful features
+Deployments not only help maintain high availability and scalability, but they also provide several powerful features:
+
+Declarative updates: With a declarative update, you just specify the desired state of your application and the Deployment ensures that this state is achieved. If there are any differences between the current and desired state, Kubernetes automatically reconciles them. 
+
+Scaling: You can easily adjust the number of replicas in your Deployment to handle increased or decreased loads. For example, you might want to scale up during peak traffic times and scale down during off-peak hours.
+
+History and revision control: Deployments keep track of changes made to the desired state, providing you with a revision history. This can be useful for debugging, auditing, and rolling back to specific versions.
+
+A Kubernetes Deployment is typically defined using a YAML file that specifies these components. Here is an example YAML manifest.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-deployment
+spec:
+  replicas: 3
+  selector:
+	matchLabels:
+  	app: example-app
+  template:
+	metadata:
+  	labels:
+    	app: example-app
+	spec:
+  	containers:
+  	- name: example-container
+    	image: example-image:latest
+    	ports:
+    	- containerPort: 80
+
+
+This Deployment specifies that it should maintain three replicas of the example-container Pod template. The Pods are labeled with app: example-app, and the container runs an image tagged as example-image:latest on port 80. The default rolling update strategy will be used for any updates to this Deployment. 
+
+By utilizing Deployments, you can manage your Python web server's life cycle more efficiently, ensuring its high availability, scalability, and smooth updates. 
+
+Deployments and Python
+The following Python script uses the Kubernetes Python client to create, list, and delete Kubernetes Services in a given namespace.
+
+
+from kubernetes import client, config
+
+def create_deployment(api_instance, namespace, deployment_name, image, replicas):
+	# Define the Deployment manifest with the desired number of replicas and container image.
+	deployment_manifest = {
+    	"apiVersion": "apps/v1",
+    	"kind": "Deployment",
+    	"metadata": {"name": deployment_name},
+    	"spec": {
+        	"replicas": replicas,
+        	"selector": {"matchLabels": {"app": deployment_name}},
+        	"template": {
+            	"metadata": {"labels": {"app": deployment_name}},
+            	"spec": {
+                	"containers": [
+                    	{"name": deployment_name, "image": image, "ports": [{"containerPort": 80}]}
+                	]
+            	},
+        	},
+    	},
+	}
+
+	# Create the Deployment using the Kubernetes API.
+	api_response = api_instance.create_namespaced_deployment(
+    	body=deployment_manifest,
+    	namespace=namespace,
+	)
+	print(f"Deployment '{deployment_name}' created. Status: {api_response.status}")
+
+def update_deployment_image(api_instance, namespace, deployment_name, new_image):
+	# Get the existing Deployment.
+	deployment = api_instance.read_namespaced_deployment(deployment_name, namespace)
+
+	# Update the container image in the Deployment.
+	deployment.spec.template.spec.containers[0].image = new_image
+
+	# Patch the Deployment with the updated image.
+	api_response = api_instance.patch_namespaced_deployment(
+    	name=deployment_name,
+    	namespace=namespace,
+    	body=deployment
+	)
+	print(f"Deployment '{deployment_name}' updated. Status: {api_response.status}")
+
+def delete_deployment(api_instance, namespace, deployment_name):
+	# Delete the Deployment using the Kubernetes API.
+	api_response = api_instance.delete_namespaced_deployment(
+    	name=deployment_name,
+    	namespace=namespace,
+    	body=client.V1DeleteOptions(
+        	propagation_policy="Foreground",
+        	grace_period_seconds=5,
+    	)
+	)
+	print(f"Deployment '{deployment_name}' deleted. Status: {api_response.status}")
+
+
+if __name__ == "__main__":
+	# Load Kubernetes configuration (if running in-cluster, this might not be necessary)
+	config.load_kube_config()
+
+	# Create an instance of the Kubernetes API client for Deployments
+	v1 = client.AppsV1Api()
+
+	# Define the namespace where the Deployment will be created
+	namespace = "default"
+
+	# Example: Create a new Deployment
+	create_deployment(v1, namespace, "example-deployment", image="nginx:latest", replicas=3)
+
+	# Example: Update the image of the Deployment
+	update_deployment_image(v1, namespace, "example-deployment", new_image="nginx:1.19.10")
+
+	# Example: Delete the Deployment
+	delete_deployment(v1, namespace, "example-deployment")
+
+Beyond the fundamental concepts, you should be aware of a few additional features and best practices related to Kubernetes Deployments.
+
+A fresh start: While the default update strategy is rolling updates, Kubernetes also supports a "Recreate" strategy. In the "Recreate" strategy, all existing Pods are terminated before new Pods are created. This strategy may lead to brief periods of downtime during updates but can be useful in specific scenarios where a clean restart is necessary.
+
+Don’t get stuck: Deployments have a progressDeadlineSeconds field, which sets the maximum time (in seconds) allowed for a rolling update to make progress. If progress stalls beyond this duration, the update is considered failed. This field helps prevent deployments from getting stuck in a partially updated state. Likewise, the minReadySeconds field specifies the minimum time Kubernetes should wait after a Pod becomes ready before proceeding with the next update. This can help ensure the new Pods are fully functional and ready to handle traffic before more updates are made.
+
+Press pause: Deployments can be paused and resumed to temporarily halt the progress of rolling updates. This feature is helpful when investigating issues or performing maintenance tasks. Pausing a Deployment prevents further updates until it is explicitly resumed.
+
+It’s alive!: Deployments can utilize liveness and readiness probes to enhance the health management of Pods. Liveness probes determine if a Pod is still alive and running correctly, while readiness probes determine if a Pod is ready to accept traffic. These probes help Kubernetes decide whether to consider a Pod as healthy or not during rolling updates and scaling operations.
+
+--------------------------------------------------------------------------------
+Kubernetes YAML files define and configure Kubernetes resources. They serve as a declarative blueprint for your application infrastructure, describing what resources should be created, what images to use, how many replicas of your service should be running, and more.
+
+Structure of Kubernetes YAML files
+Every Kubernetes YAML file follows a specific structure with key components: API version, kind, metadata, and spec. These components provide Kubernetes with everything it needs to manage your resources as desired. 
+
+apiVersion: This field indicates the version of the Kubernetes API you're using to create this particular resource.
+
+kind: This field specifies the type of resource you want to create, such as a Pod, Deployment, or Service.
+
+metadata: This section provides data that helps identify the resource, including the name, namespace, and labels.
+
+spec: This is where you define the desired state for the resource, such as which container image to use, what ports to expose, and so on.
+
+
+Let's illustrate this with a simple Kubernetes YAML file for creating a Deployment of your Python web application:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-web-app
+  labels:
+    app: python-web-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: python-web-app
+  template:
+    metadata:
+      labels:
+        app: python-web-app
+    spec:
+      containers:
+      - name: python-web-app
+        image: your-docker-repo/python-web-app:latest
+        ports:
+        - containerPort: 5000
+
+In the YAML file above, we're defining a "Deployment" resource for a Kubernetes cluster. A Deployment is a way to tell Kubernetes how to run our application. This YAML file tells Kubernetes to create a Deployment named "python-web-app", which will ensure that three instances of our Python web application are always running.
+
+Key components and fields in Kubernetes YAML files
+YAML files can include many other fields, depending on the type of object and your specific needs. 
+
+Pods
+As you’ve learned, a Pod is the smallest and simplest unit in the Kubernetes object model. It represents a single instance of a running process in a cluster and can contain one or more containers. Because it is the simplest unit, a Pod’s YAML file typically contains the basic key components highlighted above:
+
+apiVersion: This is the version of the Kubernetes API you're using to create this object.
+
+kind: This is the type of object you want to create. In this case, it's a Pod.
+
+metadata: This includes data about the Pod, like its name and namespace.
+
+spec: This is where you specify the desired state of the Pod, including the containers that should be running. Specifications include:
+
+Containers: An array of container specifications, including "name", "image", "ports", and "env".
+
+Volumes: Array of volume mounts to be attached to containers
+
+restartPolicy: Defines the Pod's restart policy (e.g., "Always," "OnFailure," "Never")
+
+Deployments
+A Deployment is a higher-level concept that manages Pods and ReplicaSets. It allows you to describe the desired state of your application, and the Deployment controller changes the actual state to the desired state at a controlled rate. In addition to the fields mentioned above, a Deployment's YAML file includes:
+
+spec.replicas: This is the number of Pods you want to run.
+
+spec.selector: This is how the Deployment identifies the Pods it should manage.
+
+spec.template: This is the template for the Pods the Deployment creates.
+
+Services
+A Service in Kubernetes is an abstraction which defines a logical set of Pods and a policy by which to access them. Key components in a Service's YAML file include:
+
+spec.type: This defines the type of Service. Common types include ClusterIP, NodePort, and LoadBalancer.
+
+spec.ports: This is where you define the ports the Service should expose.
+
+spec.selector: This is how the Service identifies the Pods it should manage.
+
+ConfigMaps
+A ConfigMap is an API object used to store non-confidential data in key-value pairs. In addition to the common fields, a ConfigMap's YAML file includes the data field, which is where you define the key-value pairs.
+
+Secrets
+A Secret is similar to a ConfigMap, but is used to store sensitive information, like passwords or API keys. A Secret's YAML file includes:
+
+type: The type of Secret. Common types include Opaque (for arbitrary user-defined data), kubernetes.io/service-account-token (for service account tokens), and others.
+
+data: This is where you define the key-value pairs. The values must be base64-encoded.
+
+Each of these resources can be defined and managed using Kubernetes YAML files. For example, a YAML file for a Secret resource might look like this:
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+type: Opaque
+data:
+  db_username: dXNlcm5hbWU=  # base64 encoded username
+  db_password: cGFzc3dvcmQ=  # base64 encoded password
+
+
+Parameterizing YAML files with Python
+As you’ve seen, YAML files are the backbone of defining and managing resources. However, static YAML files can be limiting, especially when you need to manage different configurations for different environments or deployment scenarios. This is where Python comes in, offering a dynamic and flexible approach to parameterize your YAML files.
+
+For instance, you can customize your rolling update strategy using Python with the following example code.
+
+
+from kubernetes import client, config
+
+def update_deployment_strategy(deployment_name, namespace, max_unavailable):
+    config.load_kube_config()
+    apps_v1 = client.AppsV1Api()
+
+    deployment = apps_v1.read_namespaced_deployment(deployment_name, namespace)
+    deployment.spec.strategy.rolling_update.max_unavailable = max_unavailable
+    apps_v1.patch_namespaced_deployment(deployment_name, namespace, deployment)
+
+if __name__ == "__main__":
+    update_deployment_strategy('my-deployment', 'my-namespace', '25%')
+
+..............................................................
+
+Multidimensional scaling
+Multidimensional scaling is a combination of horizontal and vertical scaling. This is sometimes called diagonal scaling, because you are doing some horizontal scaling, adding more containers to add to the number of resources, and some vertical scaling, increasing the performance of existing or added resources. 
+
+Imagine it’s autumn and someone is burning a pile of leaves, but the fire is a little bigger than they planned. That’s pretty dangerous, so they call the fire department. Meanwhile, they fill a bucket and use it to throw water on the fire. Neighbors come over, each with their own bucket, and start throwing more buckets of water. That’s horizontal scaling, the addition of more small resources. 
+
+The fire truck rolls up and hooks up the big hose, but the pressure isn’t very good. In fact it isn’t any better than the pressure from the hoses that other neighbors have stretched from their own homes. All these hoses are moving more water than the buckets, though. That’s diagonal scaling; more resources with a bit more performance in each. 
+
+But then the fire department cranks open the valve on the fire hydrant, and a huge jet of water flies out of the big hose. That’s vertical scaling; increasing resources to a single response unit to increase its performance. 
+
+
+DevOps tools
+So, what are DevOps tools? They’re any software tools that help to make automated processes possible. DevOps tools are designed to address many of the pain points common to software development organizations everywhere.
+
+While you can certainly build your own tools from scratch, using DevOps tools can save you a lot of time and effort. 
+
+There are many different types of DevOps tools including: 
+
+Source code repositories, such as GitHub or Bitbucket
+
+CI/CD tools, such as Github Actions, Jenkins, and Google Cloud Deploy
+
+Infrastructure as Code (IaC) tools, such as Terraform or Ansible
+
+Container management tools, such as Docker or Kubernetes
+
+Security scanning tools, such as Snyk or SonarQube
+
+Production monitoring tools, such as DataDog or AppDynamics
+
+
+==========================================================================================
+API endpoint: The part of the program that listens on the network for API calls
+
+Data serialization: The process of taking an in-memory data structure, like a Python object, and turning it into something that can be stored on disk or transmitted across a network
+
+Flask: A Python library that makes it easier to create web applications and REST web services
+
+JSON: A data-interchange format used in RESTful APIs to facilitate communication between clients and servers
+
+REST (Representational State Transfer): Every request carries all the parameters and data needed for the server to satisfy that request
+
+RESTful APIs: Rely on the HTTP protocol, can be further secured using HTTPS, and API endpoints can authenticate users via authorization tokens, API keys, or other security mechanisms
+
+REST architecture: An architectural style for designing networked applications and web services
+
+Richardson Maturity Model (RMM): A framework that categorizes and describes different levels of implementation for RESTful APIs based on their adherence to the six constraints
+
+Web application: An application that you interact with over HTTP
+------------------------------------------------------------------------------------
+Printing
+print() is a function that prints objects (strings, but also most anything else). The syntax for using the print() function to print to a file is: 
+
+print(open(“my_file.txt”,”r”).read(),file=open(“new_file.txt”,”w”))
+
+
+Logging
+The logging module provides an object-oriented way to print out statements with the additional advantage of using severity levels. More advanced features include the ability to filter which messages you care about, to route to more destinations than just the console/terminal, and to see the difference between normal print() statements and print() statements used for debugging purposes.
+
+Built-in logging levels 
+The logging module provides five built-in log levels. In order of severity, they are debug, info, warning, error, and critical. These are referred to as methods of the logging object. 
+
+The output of a logging statement will resemble:
+
+[LOG_LEVEL]:root:[MESSAGE]
+
+The name “root” in this context means logging was called directly instead of setting up a logger by name.
+The following is an example of import logging:
+
+# Set up basic configuration to display all log levels
+logging.basicConfig(level=logging.DEBUG)
+
+# Log messages for each severity level
+logging.debug("This is a DEBUG message.")
+logging.info("This is an INFO message.")
+logging.warning("This is a WARNING message.")
+logging.error("This is an ERROR message.")
+logging.critical("This is a CRITICAL message.")
+
+
+# Set the minimum logging level to INFO,
+logging.basicConfig(level=logging.INFO)
+
+# Get a logger object
+log = logging.getLogger(__name__)
+
+# Start the log file
+log.info("Hello world")
+
+The __name__ parameter adds your Python module name to the logger’s output, so if your module is called stuff.py, your log would include “[stuff]” in its output. This way, multiple modules can log to the same file, but you can still quickly find messages from a particular module.
+
+except statements ::::
+In Python, you use the except statement as part of exception handling to catch and handle specific types of exceptions that may occur during the execution of a program. It is used to recover from the error or notify the user. 
+
+An example of an except statement is:
+try:
+  # Try to append to a file that is normally not writable
+  # for anyone other than root 
+  f = open("/etc/hosts", "w+")
+except IOError as ex:
+  # The variable "ex" will hold details about the error
+  # that occurred
+  print("Error appending to file: " + str(ex))
+else:
+  # If there was no exception, close the file.
+  f.close()
+
+--------------------------------------------------
+
+We'll start by using the 
+email.message.EmailMessage class
+ to create an empty email message.
+
+from email.message import EmailMessage
+message = EmailMessage()
+print(message)
+
+sender = "me@example.com"
+recipient = "you@example.com"
+
+message['From'] = sender
+message['To'] = recipient
+print(message)
+
+From: me@example.com
+To: you@example.com
+
+message['Subject'] = 'Greetings from {} to {}!'.format(sender, recipient)
+print(message)
+
+From: me@example.com
+To: you@example.com
+Subject: Greetings from me@example.com to you@example.com!
+
+Let's go ahead and add a message body!
+
+body = """Hey there!
+
+I'm sending emails using Python!"""
+message.set_content(body)
+message.set_content(body)
+
+Alright, now what does that look like?
+
+print(message)
+
+From: me@example.com
+To: you@example.com
+Subject: Greetings from me@example.com to you@example.com!
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Hey there!
+
+I'm sending email using Python! 
+
+-----------------------
+Adding Attachments ::
+Remember, email messages are made up completely of strings. When you add an attachment to an email, whatever type the attachment happens to be, it’s encoded as some form of text. The Multipurpose Internet Mail Extensions (MIME) standard is used to encode all sorts of files as text strings that can be sent via email. 
+
+Let's dive in and break down how that works.
+
+In order for the recipient of your message to understand what to do with an attachment, you  need to label the attachment with a MIME type and subtype to tell them what sort of file you’re sending. The Internet Assigned Numbers Authority (IANA) (iana.org) 
+hosts a registry of valid MIME types. If you know the correct type and subtype of the files you’ll be sending, you can use those values directly. If you don't know, you can use the Python mimetypes module to make a good guess!
+
+import os.path
+attachment_path = "/tmp/example.png"
+attachment_filename = os.path.basename(attachment_path)
+import mimetypes
+mime_type, _ = mimetypes.guess_type(attachment_path)
+print(mime_type)
+image/png
+
+Alright, that mime_type string contains the MIME type and subtype, separated by a slash. The EmailMessage type needs a MIME type and subtypes as separate strings, so let's split this up:
+
+mime_type, mime_subtype = mime_type.split('/', 1)
+print(mime_type)
+image
+print(mime_subtype)
+png
+
+
+Now, finally! Let's add the attachment to our message and see what it looks like.
+
+with open(attachment_path, 'rb') as ap:
+     message.add_attachment(ap.read(),
+                            maintype=mime_type,
+                            subtype=mime_subtype,
+                            filename=os.path.basename(attachment_path))
+ 
+print(message)
+Content-Type: multipart/mixed; boundary="===============5350123048127315795=="
+
+--===============5350123048127315795==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Hey there!
+
+I'm learning to send email using Python!
+
+--===============5350123048127315795==
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="example.png"
+MIME-Version: 1.0
+
+iVBORw0KGgoAAAANSUhEUgAAASIAAABSCAYAAADw69nDAAAACXBIWXMAAAsTAAALEwEAmpwYAAAg
+AElEQVR4nO2dd3wUZf7HP8/M9k2nKIJA4BCUNJKgNJWIBUUgEggCiSgeVhA8jzv05Gc5z4KHiqin
+eBZIIBDKIXggKIeCRCAhjQAqx4UiCARSt83uzDy/PzazTDZbwy4BnHde+9qZydNn97Pf5/uUIZRS
+(...We deleted a bunch of lines here...)
+wgAAAABJRU5ErkJggg==
+
+--===============5350123048127315795==--
+
+
+Sending the Email Through an SMTP Server
+
+As we called out, to send emails, our computers use the 
+Simple Mail Transfer Protocol (SMTP)
+. This protocol specifies how computers can deliver email to each other. There are certain steps that need to be followed to do this correctly. But, as usual, we won't do this manually; we’ll send the message using the built-in 
+smtplib Python module
+. Let's start by importing the module.
+
+import smtplib
+
+With smtplib, we'll create an object that will represent our mail server, and handle sending messages to that server. If you’re using a Linux computer, you might already have a configured SMTP server like postfix or sendmail. But maybe not. Let's create a smtplib.SMTP object and try to connect to the local machine.
+
+mail_server = smtplib.SMTP('localhost')
+
+You can connect to a remote SMTP server using Transport Layer Security (TLS). An earlier version of the TLS protocol was called Secure Sockets Layer (SSL), and you’ll sometimes see TLS and SSL used interchangeably. This SSL/TLS is the same protocol that's used to add a secure transmission layer to HTTP, making it HTTPS. Within the smtplib, there are two classes for making connections to an SMTP server: The 
+SMTP class
+ will make a direct SMTP connection, and the 
+SMTP_SSL class
+ will make a SMTP connection over SSL/TLS. Like this:
+
+
+mail_server = smtplib.SMTP_SSL('smtp.example.com')
+
+If you want to see the SMTP messages that are being sent back and forth by the smtplib module behind the scenes, you can set the debug level on the SMTP or SMTP_SSL object. The examples in this lesson won’t show the debug output, but you might find it interesting!
+
+mail_server.set_debuglevel(1)
+
+Now that we’ve made a connection to the SMTP server, the next thing we need to do is authenticate to the SMTP server. Typically, email providers wants us to provide a username and password to connect. Let's put the password into a variable so it's not visible on the screen.
+
+import getpass
+mail_pass = getpass.getpass('Password? ')
+Password?
+
+print(mail_pass)
+It'sASecr3t!
+
+Now that we have the email user and password configured, we can authenticate to the email server using the SMTP object's login method.
+
+mail_server.login(sender, mail_pass)
+(235, b'2.7.0 Accepted')
+
+Sending your message
+Alright! We're connected and authenticated to the SMTP server. Now, how do we send the message?
+
+mail_server.send_message(message)
+
+let's close the connection to the mail server.
+mail_server.quit()
+
+Introduction to Generating PDFs ::
+
+Depending on what your automation does, you might want to generate a PDF report at the end, which lets you decide exactly how you want your information to look like.
+
+There's a few tools in Python that let you generate PDFs with the content that you want. Here, we'll learn about one of them: 
+ReportLab
+. ReportLab has a lot of different features for creating PDF documents. We'll cover just the basics here, and give you pointers for more information at the end.
+
+For our examples, we'll be mostly using the high-level classes and methods in the Page Layout and Typography Using Scripts (PLATYPUS) part of the ReportLab module.
+
+Let's say that I have an awesome collection of fruit, and I want to create a PDF report of all the different kinds of fruit I have! I can easily represent the different kinds of fruit and how much of each I have with a Python dictionary. It might look something like this:
+
+fruit = {
+  "elderberries": 1,
+  "figs": 1,
+  "apples": 2,
+  "durians": 3,
+  "bananas": 5,
+  "cherries": 8,
+  "grapes": 13
+}
+
+
+Now let's take this information and turn it into a report that we can show off! We're going to use the SimpleDocTemplate class to build our PDF. 
+
+>>> from reportlab.platypus import SimpleDocTemplate
+>>> report = SimpleDocTemplate("/tmp/report.pdf")
+
+The report object that we just created will end up generating a PDF using the filename /tmp/report.pdf. Now, let's add some content to it! We'll create a title, some text in paragraphs, and some charts and images. For that, we're going to use what reportlab calls Flowables. Flowables are sort of like chunks of a document that reportlab can arrange to make a complete report. Let's import some Flowable classes.
+
+>>> from reportlab.platypus import Paragraph, Spacer, Table, Image
+
+Each of these items (Paragraph, Spacer, Table, and Image) are classes that build individual elements in the final document. We have to tell reportlab what style we want each part of the document to have, so let's import some more things from the module to describe style.
+
+>>> from reportlab.lib.styles import getSampleStyleSheet
+>>> styles = getSampleStyleSheet()
+
+You can make a style all of your own, but we’ll use the default provided by the module for these examples. The styles object now contains a default "sample" style. It’s like a dictionary of different style settings. If you've ever written HTML, the style settings will look familiar. For example h1 represents the style for the first level of headers. Alright, we're finally ready to give this report a title!
+
+>>> report_title = Paragraph("A Complete Inventory of My Fruit", styles["h1"])
+
+Let's take a look at what this will look like. We can build the PDF now by using the build() method of our report. It takes a list of Flowable elements, and generates a PDF with them.
+
+>>> report.build([report_title])
+
+Let's spice this up by adding a Table. To make a Table object, we need our data to be in a list-of-lists, sometimes called a two-dimensional array. We have our inventory of fruit in a dictionary. How can we convert a dictionary into a list-of-lists?
+
+>>> table_data = []
+>>> for k, v in fruit.items():
+...   table_data.append([k, v])
+...
+>>> print(table_data)
+[['elderberries', 1], ['figs', 1], ['apples', 2], ['durians', 3], ['bananas', 5], ['cherries', 8], ['grapes', 13]]
+
+Great, we have the list of lists. We can now add it to our report and then generate the PDF file once again by calling the build method.
+
+>>> report_table = Table(data=table_data)
+>>> report.build([report_title, report_table])
+
+Okay, it worked! It's not very easy to read, though. Maybe we should add some style to report_table. For our example, we'll add a border around all of the cells in our table, and move the table over to the left. TableStyle definitions can get pretty complicated, so feel free to take a look at the documentation for a more complete idea of what’s possible.
+
+>>> from reportlab.lib import colors
+>>> table_style = [('GRID', (0,0), (-1,-1), 1, colors.black)]
+>>> report_table = Table(data=table_data, style=table_style, hAlign="LEFT")
+>>> report.build([report_title, report_table])
+
+Adding Graphics to our PDFs ::
+
+Up to now, we've generated a report with a title and a table of data. Next let's add something a little more graphical. What could be better than a fruit pie (graph)?! We’re going to need to use the Drawing Flowable class to create a Pie chart.
+
+from reportlab.graphics.shapes import Drawing
+from reportlab.graphics.charts.piecharts import Pie
+report_pie = Pie(width=3*inch, height=3*inch)
+
+To add data to our Pie chart, we need two separate lists: One for data, and one for labels. Once more, we’re going to have to transform our fruit dictionary into a different shape. For an added twist, let's sort the fruit in alphabetical order:
+
+
+report_pie.data = []
+report_pie.labels = []
+for fruit_name in sorted(fruit):
+    report_pie.data.append(fruit[fruit_name])
+    report_pie.labels.append(fruit_name)
+
+print(report_pie.data)
+# output: [2, 5, 8, 3, 1, 1, 13]
+print(report_pie.labels)
+# output: ['apples', 'bananas', 'cherries', 'durians', 'elderberries', 'figs', 'grapes']
+
+
+The Pie object isn’t Flowable, but it can be placed inside of a Flowable Drawing.
+
+report_chart = Drawing()
+report_chart.add(report_pie)
+
+Now, we'll add the new Drawing to the report, and see what it looks like.
+
+report.build([report_title, report_table, report_chart])
+
+-----------------------------
+Definition of an error budget
+An error budget is the maximum amount of time a software program can fail and still be in compliance with the service-level objective (SLO). An error budget is typically represented by a percentage. A simple example is this: If an SLO states that a website should function properly 99.9% of the time, then the error budget is only 0.1%.
+
+Now let’s calculate the error budget using time as a measurement in the question below. Here is an example in which an error budget is computed for a month’s time frame using the following formula:
+
+Error budget = Total time * (1-SLO)
+
+What is the error budget, in minutes, with an SLO of 99.9% uptime over a month?
+
+The total time is the total time in minutes for a given time period. (Assume a 30-day month for this example.) The SLO is the service-level objective represented as a decimal.
+
+Total time = 30*24*60 = 43,200. This formula multiplies 30 days by 24 hours in each day by 60 minutes in each hour to get a total of 43,200 minutes.
+
+SLO = 99.9/100 = 0.999. This value represents the SLO as a decimal.  Substitute these values into the formula to get:
+
+Error budget = 43,200 * (1–0.999)
+
+Error budget = 43.1 minutes. This means the maximum amount of time the service can be down  is up to 43 minutes per month without violating the agreed-upon reliability standards (the SLO).
+
+Error budgets: Represented as the maximum amount of time that a program is able to fail without violating an agreement
+
+Service-level agreements (SLAs): An agreement between a vendor and its clients or users that can be legally binding
+
+Service-level objectives (SLOs):  A specific and measurable target that defines the level of performance, reliability, or quality a service should consistently deliver 
+
