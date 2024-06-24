@@ -1,0 +1,305 @@
+Create new Chat and firstly write to Chat GPT to act as that subject expert/teacher/etc.....
+
+Act as a Software developer for Web Programming
+
+After typing below try to ask web devlopment related quries...
+
+LLM : -
+A Large Language Model (LLM) is an advanced type of artificial intelligence designed to understand, generate, and manipulate human language. These models, such as GPT-4 by OpenAI, are trained on vast amounts of text data and utilize deep learning techniques to perform various language tasks, including text completion, translation, summarization, and conversation. Their large size, often involving billions of parameters, enables them to generate coherent and contextually relevant responses.
+
+
+you can also ask your question like below 
+From now on, when I ask a question, suggest a better version of my question and ask me if I would like to use it...
+
+-----------------------------
+Format of the Persona Pattern
+To use this pattern, your prompt should make the following fundamental contextual statements:
+
+Act as Persona X
+
+Perform task Y
+
+You will need to replace "X" with an appropriate persona, such as "speech language pathologist" or "nutritionist". You will then need to specify a task for the persona to perform.
+
+Examples:
+
+Act as a speech language pathologist. Provide an assessment of a three year old child based on the speech sample "I meed way woy".
+
+Act as a computer that has been the victim of a cyber attack. Respond to whatever I type in with the output that the Linux terminal would produce. Ask me for the first command.
+
+Act as a the lamb from the Mary had a little lamb nursery rhyme. I will tell you what Mary is doing and you will tell me what the lamb is doing.
+
+Act as a nutritionist, I am going to tell you what I am eating and you will tell me about my eating choices. 
+
+Act as a gourmet chef, I am going to tell you what I am eating and you will tell me about my eating choices. 
+
+Question Refinement Pattern ::-
+Whenever I ask the question suggest a better question and ask me If I would like to use it instead..
+
+Examples:
+
+From now on, whenever I ask a question, suggest a better version of the question to use instead
+
+From now on, whenever I ask a question, suggest a better version of the question and ask me if I would like to use it instead
+
+
+Tailored Examples:
+
+Whenever I ask a question about dieting, suggest a better version of the question that emphasizes healthy eating habits and sound nutrition. Ask me for the first question to refine.
+
+Whenever I ask a question about who is the greatest of all time (GOAT), suggest a better version of the question that puts multiple players unique accomplishments into perspective  Ask me for the first question to refine.
+
+
+ Audience Persona Pattern ::-
+Explain how the supply chains for US grocery stores work to me. Assume that I am person from 1800. 
+
+Question Refinement Pattern :
+Whenever I ask a question about who is the greatest of all time (GOAT), suggest a better version of the question that puts multiple players unique accomplishments into perspective  Ask me for the first question to refine.
+
+
+Few Shot with intermediate steps :-
+Situation : I am travelling 50 miles per hour and I see the brake lights on the car in front of me come on
+Think : I need to slow the car down before I hit the car in front of me.
+Action : Press foot on brake
+Action : check if the shoulder is wide enough to swerve into
+Think: The shoulder is wide enough
+
+Game Play Pattern ::--
+Create a cave exploration game  for me to discover a lost language. Describe where I am in the cave and what I can do. I should discover new words and symbols for the lost civilization in each area of the cave I visit. Each area should also have part of a story that uses the language. I should have to collect all the words and symbols to be able to understand the story. Tell me about the first area and then ask me what action to take
+
+Template Pattern ::--
+I am going to provide a template for your output 
+
+X is my placeholder for content 
+
+Try to fit the output into one or more of the placeholders that I list 
+
+Please preserve the formatting and overall template that I provide 
+
+This is the template: PATTERN with PLACEHOLDERS
+
+You will need to replace "X" with an appropriate placeholder, such as "CAPITALIZED WORDS" or "<PLACEHOLDER>". You will then need to specify a pattern to fill in, such as "Dear <FULL NAME>" or "NAME, TITLE, COMPANY".
+
+Examples:
+
+Create a random strength workout for me today with complementary exercises. I am going to provide a template for your output . CAPITALIZED WORDS are my placeholders for content. Try to fit the output into one or more of the placeholders that I list. Please preserve the formatting and overall template that I provide. This is the template: NAME, REPS @ SETS, MUSCLE GROUPS WORKED, DIFFICULTY SCALE 1-5, FORM NOTES
+
+Meta language Creation ::--
+When I say X, I mean Y (or would like you to do Y)
+You will need to replace "X" with an appropriate statement, symbol, word, etc. You will then need to may this to a meaning, Y.
+Examples:
+When I say "variations(<something>)", I mean give me ten different variations of <something>
+Usage: "variations(company names for a company that sells software services for prompt engineering)"
+Usage: "variations(a marketing slogan for pickles)"
+
+Recipe Pattern ::--
+You will need to replace "X" with an appropriate task. You will then need to specify the steps A, B, C that you know need to be part of the recipe / complete plan.
+
+Examples:
+
+I would like to  purchase a house. I know that I need to perform steps make an offer and close on the house. Provide a complete sequence of steps for me. Fill in any missing steps.
+
+I would like to drive to NYC from Nashville. I know that I want to go through Asheville, NC on the way and that I don't want to drive more than 300 miles per day. Provide a complete sequence of steps for me. Fill in any missing steps.
+
+Alternative Approaches Pattern::
+For every prompt I give you, If there are alternative ways to word a prompt that I give you, list the best alternate wordings . Compare/contrast the pros and cons of each wording. 
+
+
+Ask for Input Pattern::--
+
+You will need to replace "X" with an input, such as a "question", "ingredient", or "goal".
+
+Examples:
+
+From now on, I am going to cut/paste email chains into our conversation. You will summarize what each person's points are in the email chain. You will provide your summary as a series of sequential bullet points. At the end, list any open questions or action items directly addressed to me. My name is Jill Smith. 
+Ask me for the first email chain.
+
+
+Outline Expansion Pattern ::--
+Examples:
+
+Act as an outline expander. Generate a bullet point outline based on the input that I give you and then ask me for which bullet point you should expand on. Each bullet can have at most 3-5 sub bullets. The bullets should be numbered using the pattern [A-Z].[i-v].[* through ****]. Create a new outline for the bullet point that I select.  At the end, ask me for what bullet point to expand next. Ask me for what to outline.
+
+Menu Actions Pattern ::--
+
+You will need to replace "X" with an appropriate pattern, such as "estimate <TASK DURATION>" or "add FOOD". You will then need to specify an action for the menu item to trigger, such as "add FOOD to my shopping list and update my estimated grocery bill".
+
+Examples:
+
+Whenever I type: "add FOOD", you will add FOOD to my grocery list and update my estimated grocery bill. Whenever I type "remove FOOD", you will remove FOOD from my grocery list and update my estimated grocery bill. Whenever I type "save" you will list alternatives to my added FOOD to save money. At the end, you will ask me for the next action.  
+Ask me for the first action. 
+
+
+
+Fact Check List Pattern::::---
+Whenever you output text, generate a set of facts that are contained in the output. The set of facts should be inserted at the end of the output. The set of facts should be the fundamental facts that could undermine the veracity of the output if any of them are incorrect.
+
+
+Tail Generation Pattern :::---
+Act as an outline expander. Generate a bullet point outline based on the input that I give you and then ask me for which bullet point you should expand on. Create a new outline for the bullet point that I select. At the end, ask me for what bullet point to expand next.   
+Ask me for what to outline.
+
+Semantic Filter Pattern ::---
+
+Filter this information to remove X
+
+You will need to replace "X" with an appropriate definition of what you want to remove, such as. "names and dates" or "costs greater than $100".
+
+Examples:
+
+Filter this information to remove any personally identifying information or information that could potentially be used to re-identify the person. 
+
+Filter this email to remove redundant information.
+
+
+You can only use Advanced Data Analysis with a ChatGPT+ or Enterprise subscription.
+
+you can also upload video to Chat GPT and ask to extract the frame from video.
+
+or we can upload image and ask chat GPT to resize it. (maintain the aspect ratio)
+
+Example :-- Resize each image (maintain the aspect ratio) to 300px wide.
+
+----------------------------
+Yes, Achieve isn't perfect in many ways.
+
+Yes, it is a bit goofy to have IEV map to "Inspire Better Problem Solving and Creativity". 
+
+Hopefully, the fact that Code Interpreter created an imperfect acronym will remind you that we want to support and not replace human reasoning with this tool
+===================================================
+
+Imagine I have given you one 50 pages long ppt for Linux Infra setup ,The initial outline should have one bullet item per slide. Incrementally build out the outline so that it specifies what should go on each slide and stores the outline for each slide in a separate file. 
+
+1. Saving Intermediate Files
+Why: To prevent loss of progress, allow assembly of multiple outputs, and enable various directions based on intermediate files. 
+
+How: Regularly save files at different stages of the project, allowing for flexibility in assembling outputs or taking the idea in multiple directions. These act as safety nets, ensuring that no work is lost. If ChatGPT Advanced Data Analysis times out, provide it the files that you previously downloaded. You can also ask for a Zip file with all the files generated thus far. You can also take an intermediate output and iterate on it in multiple independent conversations by uploading it to each one. 
+
+2. Always Plan Step-by-Step
+Why: For a seamless process that enhances repeatability. 
+
+How: Collaborate with ChatGPT Advanced Data Analysis to outline specific, detailed, and actionable steps. Save these plans for future reference or to restart a process, making the process more reliable. You can use human or AI planning, but having a step by step plan is key. Save plans as a file so that they are easier to repeat by uploading them at the start of a new conversation.
+
+3. Use Mementos
+Why: To have reminders of the state of the ongoing process. 
+
+How: Have ChatGPT Advanced Data Analysis create files listing the entire plan, the current step, and summarizing what has or hasn't been done. These mementos are different from the plan itself and act as a guide to the current state of the process. You can upload these to restart a process from a given point or help Code Interpreter remember where it is in the process.
+
+4. Always Have ChatGPT Advanced Data Analysis Read and Explain Documents/Data
+Why: To synchronize your understanding with GPT-4's understanding. 
+
+How: Request ChatGPT Advanced Data Analysis to explain what it reads in several ways and test its understanding by having it generate examples or explanations that demonstrate the concepts in the document. Make sure that you and Code Interpreter have the same understanding regarding the documents, data, etc. that you provide. Asking it to generate new examples of concepts is a great way to test reasoning. 
+
+5. Use Error Detection Methods
+Why: To ensure consistency and accuracy. 
+
+How: Employ references to specific identifiers or quotations to ensure that the output is supported by the documents you provided. Build custom test cases with real or synthetic data to ensure outputs are consistent with the input documents. If you can't work with real data yet, generate synthetic data to test out a process and accuracy.
+
+6. Ask ChatGPT Advanced Data Analysis to Try Alternate Approaches
+Why: To overcome failure and make continuous progress. 
+
+How: If an approach fails, prompt ChatGPT Advanced Data Analysis to explore different strategies. Provide hints or ask it to plan, list, describe the rationale behind, and employ alternate methods.
+
+7. Think of Prompts as Constraints
+Why: For targeted and desired outputs. 
+
+How: Be explicit about your goals, requirements, and constraints. ChatGPT Advanced Data Analysis will try to generate any solution that fits, so the more specific you are, the closer the output will be to your needs. Don't ask for a fruit if you really want a green banana. 
+
+8. Edit the Conversation When Errors Occur
+Why: To avoid error propagation. 
+
+How: Edit and correct any chat message that produces a bad output immediately and regenerate the output. Clean conversation histories are preferred to prevent introducing erroneous information that causes problems later.
+
+9. Get Key Information into the Conversation
+Why: To enhance reasoning and understanding. 
+
+How: Include all necessary information directly in the conversation so you and ChatGPT Advanced Data Analysis have a common understanding. Visibility of information makes reasoning more effective. If you can see the information in a recent chat message, Code Interpreter can as well.
+
+10. Tell ChatGPT Advanced Data Analysis to Analyze Without Python When Needed
+Why: Not all tasks require code. 
+
+How: If you are getting poor reasoning on unstructured text, direct ChatGPT Advanced Data Analysis to analyze, read, or summarize "without using Python code" or "manually". In most cases, you don't want Python code doing the textual analysis.
+
+
+The Achieve acronym summarizes this as:
+
+A: Aiding human coordination
+
+C: Cutting out tedious tasks
+
+H: Helping provide a safety net
+
+IEV: Inspiring better problem solving and creativity
+
+E: Enabling great ideas to scale faster
+
+Filtering & Citation ::---
+
+Filtering is a useful application for generative AI, but it should be applied to information the user already has access to, not to decide what information the user should have access to. There needs to be a separate process to determine appropriate access. It should not be used to determine what information can be released to the outside world, but to support human reasoning. 
+
+When using generative AI for filtering, traceability back to the original information is crucial. This allows fact checking by including identifiers like line numbers, quotations, etc.
+
+Variations like summarization and explanation can also be appropriate if traceability is maintained. However, we need to avoid tasks where incorrect outputs could lead to harmful downstream consequences.
+
+Filtering is a safe operation because the output is a subset of the input. This makes it easy to check that the filtered information is contained in the original.
+
+Blindly prompting for summaries or citations without providing source information is unlikely to work well. The AI needs original content to filter and cite.
+
+The key is using generative AI to augment human reasoning, not replace it. Tasks like medical decision making may be better supported by directing users to human experts rather than generating direct advice.
+
+========================================================================
+
+Ideation and Creativity --------:::::
+The goal should be to inspire the human user, not replace them. Generative AI is a tool to spark creativity, imagination, and new perspectives.
+
+Ideation using AI involves generating ideas that the human then responds to, reacts to, and builds upon. The human is still the key creator.
+
+Ideation is cheap with AI - you can generate many ideas quickly, discard ones that don't resonate, and focus on ones that inspire new thinking.
+
+Generative AI is not meant to directly provide final work products or solutions. The human user should evaluate, refine, and own the final output.
+
+Fun, low-risk brainstorming about silly or hypothetical ideas is a great way to get creative juices flowing and see new angles.
+
+Diagramming and visualizing complex topics and relationships can spur new insights when using AI to ideate.
+
+The human should feel ownership over the ideation process and resulting ideas, not just take whatever the AI outputs.
+
+Used appropriately as a creativity tool, generative AI holds great promise for augmenting human ideation and imagination. But the human must direct the process.
+
+-------------------------------
+Prompt Pattern ::---
+Allows accessing sensitive information without directly generating it, avoiding potential inaccuracies
+
+If AI guides incorrectly, users can recognize the information is wrong or missing, limiting harm
+
+Leverages and enhances existing validated data sources instead of creating new unverified outputs
+
+Saves users time finding information themselves through complex apps/systems
+
+Translates natural language questions into system navigation
+
+
+Tell me where I can find information about my next appointment using the list of information locations below.
+
+-------------------
+
+Login Screen: This screen allows users to log in to the mobile healthcare app using their username and password. It may also have options to register a new account or reset a forgotten password.
+
+Home Screen: The home screen is the main screen of the app, which users can access after logging in. It may include:
+
+User profile information (e.g. name, photo, age, gender)
+
+Quick access to frequently used features (e.g. appointment scheduling, medication tracker, health tracker)
+
+Dashboard with charts and graphs to track health progress and goals
+
+Notifications for upcoming appointments or reminders for medication
+
+Appointment Scheduler: This screen allows users to schedule, modify, or cancel appointments with healthcare providers. Information on this screen may include:
+
+Calendar view of available dates and times
+
+List of healthcare providers with available time slots
+
+Confirmation of scheduled appointment with details (e.g. date, time, location, healthcare provider)
+
