@@ -1,0 +1,461 @@
+To find get only 5 row by using limit
+>SELECT "first_name", "last_name" FROM "tablename" LIMIT 5;
+
+To find only those names where last name is equal to "Burton"
+>SELECT "first_name", "last_name" FROM "tablename" WHERE "last_name" = "Burton";
+
+To find names where last name is not equal to "Burton"
+>SELECT "first_name", "last_name" FROM "tablename" WHERE "last_name" != "Burton";
+
+To find only those names where last name is equal to "Burton" and first_name equal to "Edward"
+>SELECT "first_name", "last_name" FROM "tablename" WHERE "last_name" = "Burton" AND "first_name" = "Edward;
+
+To find only those names where last name is equal to "Burton" or "Hank"
+>SELECT "first_name", "last_name" FROM "tablename" WHERE "last_name" = "Burton" AND "first_name" = "Hank;
+
+you can also extend where condition by using ()
+>SELECT "first_name", "last_name" FROM "tablename" WHERE ("first_name" = "Edward" OR "Jose") AND "last_name" = "Burton";
+
+To find those names where last_name value is equal to null (None)
+>SELECT "first_name", "last_name" FROM "tablename" WHERE "last_name" IS NULL;
+
+To find those names where last_name value is not null
+>SELECT "first_name", "last_name" FROM "tablename" WHERE "last_name" IS NOT NULL;
+
+If you want to find some name which match specific expression then you can use LIKE for it. 
+below example for if first_name has anywhere 'war'
+>SELECT "first_name", "last_name" FROM "tablename" WHERE "first_name" LIKE '%war%';
+
+below example if first_name start with 'Edw'
+>SELECT "first_name", "last_name" FROM "tablename" WHERE "first_name" LIKE 'Edw%';
+
+To match only any single character, you can extend _ according to numbers of character your want to match.
+>SELECT "first_name" FROM "tablename" WHERE "first_name" LIKE 'Ed_ard';
+
+To find first_name of those people whose birth year greater or equal to 1995 and less than or equal to 2000
+>SELECT "first_name", "birth_year" FROM "tablename" WHERE "birth_year" >= 1995 AND "birth_year" <= 2000;
+
+you can also use BETWEEN keyword to find row for specific range of years
+>SELECT "first_name", "birth_year" FROM "tablename" WHERE "birth_year" BETWEEN 1995 AND 2000;
+
+
+Note :: "=" is case sensitive condition and "LIKE" is non-case sensitive condition. 
+
+To get name info along with ordered birth_year info. In this query we can use DESC for descending and ASC for ascending order. 
+>SELECT "first_name", "birth_year" FROM "tablename" ORDER BY "birth_year" DESC LIMIT 10;
+
+
+Aggregate function [COUNT, AVG, MIN, MAX, SUM...] can be apply in table's row
+
+To select average balance.
+>SELECT AVG("balance") FROM "tablename";
+
+To round output to 2 decimal point.
+>SELECT ROUND(AVG("balance"), 2) FROM "tablename";
+
+To give any other title  for selected item.
+>SELECT ROUND(AVG("balance"), 2) AS "average balance" FROM "tablename";
+
+To count birth_year without duplication 
+>SELECT COUNT(DISTINCT "birth_year") FROM "tablename";
+
+SQL Subqueries :
+
+we have jobtable which stores job_name and "name_id", column and second table "tablename" which contains person name and birth year info with some other info.  here we are selecting job_name on the basis of person name_id information which we are getting after subquery from "tablename" 
+
+>SELECT "job_name" FROM "jobtable" WHERE "name_id" = (SELECT "id" FROM "tablename" WHERE "first_name" = "Edward" AND "last_name" = "Burton");
+
+one person can also have many tech skills, we have skilltable with "skillname" and "name_id", let's find all tech skill of a person by subquery.
+>SELECT "skillname" FROM "skilltable" WHERE "name_id" = (SELECT "id" FROM "tablename" WHERE "first_name" = "Edward" AND "last_name" = "Burton");
+  
+
+For nested subquery like one name can be linked to jobtable and skilltable and reversely they can be linked to name which is in "tablename"
+
+Let's find a skill name of a person which is working under specific job_name.
+>SELECT "skill" FROM "skilltable" WHERE "name_id" = (SELECT "name_id" FROM "jobtable" WHERE "name_id" = (SELECT "id" FROM "tablename" WHERE "first_name" = "Edward" AND "last_name" = "Burton"));  
+ 
+JOIN we can use to join 2 table in single query.
+let's join jobname and tablename tables with their id and name_id
+
+In simple join it will display only matched name_id and id data
+>SELECT * FROM "tablename" JOIN "jobtable" ON "jobtable"."name_id" = "tablename"."id";
+
+tablename - LEFT & jobtable - RIGHT
+In LEFT JOIN it will also keep left table data whereas it doesn't have matchable id in right table
+>SELECT * FROM "tablename" LEFT JOIN "jobtable" ON "jobtable"."name_id" = "tablename"."id";
+
+In RIGHT JOIN it will also keep RIGHT table data whereas it doesn't have matchable id in left table
+>SELECT * FROM "tablename" RIGHT JOIN "jobtable" ON "jobtable"."name_id" = "tablename"."id";
+
+FULL JOIN will keep all data from both side whereas it isn't matchable
+>SELECT * FROM "tablename" FULL JOIN "jobtable" ON "jobtable"."name_id" = "tablename"."id";
+
+
+In NATURAL JOIN both table will be matched on the basis of ID and similar column name
+>SELECT * FROM "tablename" NATURAL JOIN "jobtable";
+
+
+let's explore set based queries here, we have 2 tables directors and actors and these tables have name and other column.
+
+run query to display only unique names which are present in both tables;
+>SELECT "name" FROM "directors" UNION SELECT "name" FROM "actors";
+
+To give them additional column as profession run below query
+>SELECT 'director" AS "profession", "name" FROM "directors" UNION SELECT 'actor' AS "profession", "name" FROM "actors";
+
+run query to display only those names which are present in both tables (like they are both actor and director)
+>SELECT "name" FROM "directors" INTERSECT SELECT "name" FROM "actors";
+
+run query to display only those names which are director and exclude those name which are both director and actor
+>SELECT "name" FROM "directors" EXCEPT SELECT "name" FROM "actors";
+
+run query with GROUP BY to find average ratings for movie, which was given by many persons.
+>SELECT "movie_id", ROUND(AVG("rating"), 2) AS "average rating" FROM "ratings" GROUP BY "movie_id";
+
+Now let's use condition on GROUP BY rating by using HAVING keyword
+>SELECT "movie_id", ROUND(AVG("rating"), 2) AS "average rating" FROM "ratings" GROUP BY "movie_id" HAVING "average rating" > 4.0;
+
+Designing Databases ::-
+
+SCHEMA describes how data is stored and organized in a database.
+
+you can find SCHEMA of a table in MySQL or Maria DB by using below command
+>DESCRIBE table_name;
+
+In SQLite
+>.schema table_name;
+
+these schema info commands can be  differ on different - different database engine.
+
+In MySQL/MariaDB you can crate db by using below command
+>CREATE database test;
+
+In SQLite you can create DB by using below command
+#sqlite3 test.db
+
+To create table we can use below command
+>CREATE TABLE "passengers" ("id" INT, "name" TEXT);
+
+you can also create your database SCHEMA in this you can create your database tables structure/blueprint and then you can import it in your database to create tables.
+
+there are mainly 2 type of table constraints.
+PRIMARY KEY  & FORIGEN KEY
+
+there are many column constraints.
+like DEFAULT, NOT NULL, UNIQUE etc....
+
+let's create simple SCHEMA
+
+CREATE TABLE "actors" ( "id" INTEGER, "name" TEXT NOT NULL, PRIMARY KEY("id");
+CREATE TABLE "movies" ( "id" INTEGER, "name" TEXT, PRIMARY KEY("id");
+CREATE TABLE "movie_cast" ( "actor_id" INTEGER, "movie_id" INTEGER, FOREIGN KEY("actor_id") REFERENCES "actors"("id") 
+                             \ FOREIGN KEY("movie_id) REFERENCES "movies"("id"));
+
+
+ALTER table you can use to change existing schema of table
+Like you can ADD, RENAME and DROP Column from a table.
+
+>ALTER TABLE "actors" ADD COLUMN "birth_year" INT;
+>ALTER TABLE "actors" RENAME COLUMN "birth_year" TO "birthyear";
+>ALTER TABLE "actors" DROP COLUMN "birthyear";
+
+
+To import SCHEMA in your SQLite Database.
+>.read db_schema.sql
+
+To import SCHEMA in your MySQL Database.
+>source /path/db_schema.sql
+
+To INSERT data into our table
+>INSERT INTO "actors" ("id", "name", "birthyear") VALUES (1, 'Marlon', '1995');
+
+while inserting data and you don't give id value then this value will be fill automatically if we have defined PRIMARY KEY constraint during creation of table.
+>INSERT INTO "actors" ("name", "birthyear") VALUES ('Marlon', '1995');
+
+To INSERT many values in single go
+>INSERT INTO "actors" ("name", "birthyear") 
+\VALUES ('Tim', '1995'), ('Tom', '1999'), ('Sinn', '2001');
+
+To Insert data in SQLite db table from CSV file
+>.import /path/actorinfo.csv actors;
+
+To Insert data in SQLite db table from CSV file
+>LOAD DATA INFILE '/path/actorinfo.csv' INTO TABLE actors
+\FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS;
+
+
+To insert similar data from one table to another table;
+>INSERT INTO "actors" ("name", "birthyear") SELECT "ref_name", "ref_brithyear" FROM "reftable";
+
+To Delete all data from your table rows;
+>DELETE FROM "actors";
+
+To Delete specific row from table
+>DELETE FROM "actors" WHERE "name" = 'Tim';
+
+To delete only those row which has actor name null
+>DELETE FROM "actors" WHERE "name" IS NULL;
+
+If we also want to delete foreign key constraint data, once we will delete reference key then firstly we have to apply ON DELETE CASCADE at table schema then when we delete reference id data then foreign key constraint data will be also deleted.
+
+CREATE TABLE "actors" ( "id" INTEGER, "name" TEXT NOT NULL, PRIMARY KEY("id");
+CREATE TABLE "movies" ( "id" INTEGER, "name" TEXT, PRIMARY KEY("id");
+CREATE TABLE "movie_cast" ( "actor_id" INTEGER, "movie_id" INTEGER, FOREIGN KEY("actor_id") REFERENCES "actors"("id") ON DELETE CASCADE 
+                             \ FOREIGN KEY("movie_id) REFERENCES "movies"("id") ON DELETE CASCADE);
+
+
+we can also UPDATE existing row data in table by using UPDATE.
+
+To remove white trailing space from a table's column data
+>UPDATE "actors" SET "name" =  trim("name");
+
+To make column data in upper case (you can also apply lower case in similar way there are several other function like that)
+>UPDATE "actors" SET "name" = upper("name");
+
+To update specific value for column's data
+>UPDATE "actors" SET "name" = 'Tony' WHERE "name" = 'Tim';
+
+Trigger - if you want to update other table when you delete, add, update... in a table then for such type action you can create a trigger to update other table upon on your action.
+
+let's create a table genre which should be updated whenever we add any new movie name.
+>CREATE TABLE "genre" (id INT, "name", "genre" PRIMARY KEY("id"));
+
+
+Create trigger, which will update movie genre to Not applicable in genre table, whenever movie will be deleted in movies table.
+>CREATE TRIGGER "del_movie" BEFORE DELETE on "movies" FOR EACH ROW
+     /BEGIN INSERT INTO "genre" ("name", "genre") VALUES(OLD."name", 'NOT APPLICABLE'); END;
+
+Create trigger, which will update movie genre to comedy, whenever any movie name will be added in movies table.
+>CREATE TRGGER "add_movie"  AFTER INSERT ON "movies" FOR EACH ROW
+      /BEGIN INSERT INTO "genre" ("name", "genre") VALUES(NEW."name", "comedy"); END;
+
+
+
+To View movie name where actor Tim acted.
+
+>SELECT "name" FROM "movies" WHERE "id" IN (SELECT "movie_id" FROM "movie_cast"
+                \WHERE "actor_id" = (SELECT "id" FROM "actors" WHERE "name" = 'Tim'));
+
+
+To view actor name and movie name together.
+>SELECT "actor_name", "movie_name" FROM "actors" JOIN "movie_cast" ON "actors"."id" = "movie_cast"."actor_id"
+                   \ JOIN "movies" ON "movies"."id" = "movie_cast"."movie.id";
+
+
+we can also CREATE VIEW of previous query to save movie name & actor name together in view and you can query it like table later.
+>CREATE VIEW "move_actor" AS SELECT "actor_name", "movie_name" FROM "actors" JOIN "movie_cast" ON "actors"."id" = "movie_cast"."actor_id"
+                   \ JOIN "movies" ON "movies"."id" = "movie_cast"."movie.id";
+
+ 
+Now you can query created view
+>SELECT * FROM "movie_actor";
+
+As you can see now you can query "movie_actor" to get movies and actors name, whereas both info is not being saved in any table but "movie_actor" view is acting like a table when you are running any query on it. so creating view is very useful to save memory when we need to see many tables column output together. Remember you cannot update data on created view. as name suggest it's only to view data.
+
+
+To create VIEW to get average movie ratings
+>CREATE VIEW "avg_movie_ratings" AS SELECT "moive_id", "movie_name", ROUND(AVG("rating"), 2) AS "movie_rating" FROM "ratings"
+            \ JOIN "movies" ON "ratings"."movie_id" = "movie"."id" GROUP BY "movie_id";
+
+
+TEMPORARY VIEW only stay in database until we have database connection established, once database connection quit/closed then they also get flushed. so they are not stored in DB SCHEMA permanently.
+
+you can remove view, as we remove db or table by using DROP command
+>DROP VIEW "avg_movie_ratings";
+
+If we want to show only movie id and movie and want to hide movie_rating with dummy data
+>SELECT "movie_id", "moive_name" 'Nonapplicable' AS "movie_rating";
+
+
+To delete or update on the basis of created VIEW you can use TRIGGER with INSTEAD OF DELETE option,
+>CREATE TRIGGER "delete" INSTEAD OF DELETE ON "avg_movie_rating" FOR EACH ROW
+      \BEGIN
+       DELETE "name" FROM "movies" WHERE "name" = OLD."name";
+       END;
+
+Now if you will try to delete movie name by using VIEW then our trigger will execute.
+>DELETE FROM "movie_rating" WHERE "name" = "Split";
+
+Crete a trigger which will add new movie in movies table
+>CREATE TRIGGER "insertdata" INSTEAD OF INSERT ON "avg_movie_rating" FOR EACH ROW 
+     \BEGIN IF NEW."name" NOT IN (SELECT "name" FROM "movies") THEN 
+       INSERT INTO "movies" ("name") VALUES(NEW."name") END IF;
+
+let's add new movie into view which will add movie into movie table by using trigger.
+>INSERT INTO "avg_movie_rating" ("name") VALUES ("Tringle");
+
+
+Speed up query by using INDEX
+Database index is a data structure that helps you quickly access data in a database table, A balanced tree structure commonly used to create an index.
+An index acts as a lookup table that points to the location of data in a database. It's similar to the index in the back of a book
+Remember when you will create INDEX then will consume some storage in your database and when you will try to insert any data in Indexed table it will also take more time to insert data, so only create INDEXES for required data which you will frequently query.
+
+To create a INDEX for table column data
+>CREATE INDEX "actor_name" ON "actors" ("name");
+
+Now try to search for any actor name in actors table and you will see your result the quickest than earlier.
+>SELECT * FROM "actors" WHERE "name" = 'Tim';
+
+To remove created INDEX you can use DROP INDEX. 
+>DROP INDEX "actor_name";
+
+After dropping Indexes you also need to run VACUUM in SQLite and in other DB you can run other command OPTMIZE in order to give back space to OS for dropping Index.
+>VACUUM;
+
+if you want to create INDEX for 2 column in table
+>CREATE INDEX "actor_name" ON "actors" ("name", "birthyear");
+
+
+Partial Index - An INDEX that includes only a subset of rows from a table. so partial Index will be created only for WHERE condition data.
+
+TO create partial index on the basis of actors age
+>CREATE INDEX "new_actor" on actors ("name") WHERE "birthyear" < 1990;
+
+Transaction ::--> A database transaction is a logical unit of work that is performed on a database, and is either completed in full or not at all. Transactions are used to create, update, or retrieve data in a database. transaction does support ACID terminology.
+
+Atomicity - All statements in a transaction are treated as a single unit, either all executed or none executed. 
+Consistency - Transactions only make changes to tables in predictable ways, ensuring the database is always in a consistent state. 
+Isolation - Transactions are isolated from each other, so the intermediate state of one transaction is invisible to other transactions. 
+Durability - Changes made by successfully executed transactions are saved, even if the system fails. 
+
+let's create firstly a table
+>CREATE TABLE "bank_accounts" (
+   "id" INT, 
+    "name" TEXT NOT NULL,
+    "account_balance" INT CHECK ("account_balance" >= 0),   # you will get error if balance will be less than 0
+     PRIMARY KEY("id")
+);
+
+insert same names and balance for them in this table.
+
+>INSERT INTO "bank_accounts" ("name", "account_balance") VALUES ("Tom", 2000), ("Tim", 5000), ("Shane" 1000) ("Nyan" 1500);
+
+Now we want to transfer 500 from Nyan to Shane and we don't want to update DB until this transfer complete successfully, so we will create transaction for it like below.
+
+>BEGIN TRANSACTION;
+>UPDATE "bank_accounts" SET "account_balance" = "account_balance" + 500 WHERE "name" = 'Shane';
+>UPDATE "bank_accounts" SET "account_balance" = "account_balance" - 500 WHERE "name" = 'Nyan';
+>COMMIT;
+
+
+ROLLBACK TRANSACTION -  we can erase all data modifications made from the start of the transaction or to a savepoint. so if any transaction failed our condition and validation in mid of execution of transaction then we can use ROLLBACK to revert all changes which were made before failure of transaction.
+
+>BEGIN TRANSACTION;
+>UPDATE "bank_accounts" SET "account_balance" = "account_balance" + 5000 WHERE "name" = 'Shane';
+>UPDATE "bank_accounts" SET "account_balance" = "account_balance" - 5000 WHERE "name" = 'Nyan';
+>ROLLBACK;
+
+
+Scalability ::-- Ability to increase or decrease capacity to meet demand.
+
+SQLite is embedded database, whereas like MySQL and PostgreSQL etc... are fully fledged databases.
+
+To create database on MySQL/MariaDB 
+#mysql
+>CREATE DATABSE testing;
+>USE testing;
+>show tables;
+
+In MYSQL you can run query without " or ' it is your call you want to surround table name row name with ' or " or backtick ``
+
+see example below, In which I am not using " or '.
+mysql> create table name (id INT AUTO_INCREMENT,  PRIMARY KEY (id));
+
+
+Stored Procedures ::-- stored procedure is a prepared SQL code that you can save, so the code can be reused over and over again
+
+To create procedure, we can use below command.
+mysql> CREATE PROCEDURE `find_id`()
+        \ BEGIN SELECT `id` FROM `name` WHERE `id` < 5; END;
+
+Now you can call created procedure by using CALL and it will show your mentioned query output.
+mysql>CALL `find_id`();
+
+let's create another table
+mysql>CREATE TABLE accounts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    balance DECIMAL(10, 2) NOT NULL,
+    account_type ENUM('savings', 'checking', 'credit') NOT NULL
+);
+
+now let's insert some data in this table.
+mysql>INSERT INTO accounts (name, balance, account_type) VALUES
+('Alice Smith', 1500.75, 'savings'),
+('Bob Johnson', 2500.00, 'checking'),
+('Charlie Brown', 1200.50, 'credit'),
+('Diana Prince', 3000.00, 'savings');
+
+Now create procedure which will take argument
+mysql>DELIMITER //
+
+mysql>CREATE PROCEDURE UpdateAccount(
+    IN p_id INT,
+    IN p_name VARCHAR(100),
+    IN p_account_type ENUM('savings', 'checking', 'credit')
+)
+BEGIN
+    UPDATE accounts
+    SET name = p_name, account_type = p_account_type
+    WHERE id = p_id;
+mysql>END //
+
+mysql>DELIMITER ;
+
+now call procedure to update name and account type
+mysql>CALL UpdateAccount(1, 'Alice Johnson', 'checking');
+
+
+PostgreSQL you can have similar experience of DB, only some changes here and there... you can use "" as you use them in SQLite DB.
+
+To login to posgresql use below command 
+#psql Postgresql://postgres@127.0.0.1:5432/postgres
+
+enter your password and you will get into postgres CLS
+postgres=#
+
+to check all databases info
+postgres=#\l
+
+To create database in PostgreSQL 
+postgres=#CREATE DATABASE "testing";
+
+To Use created database
+postgres=#\c "testing"
+
+To list your tables
+postgres=#\dt
+
+For creating table in postgresql db you can use SQLite or MySQL base commands 
+
+To describe any table in postgresql you can use \d instead of DESCRIBE
+postgres=#\d "accounts"
+
+To quit postgres CLI
+postgres=#\q
+
+DB Replication - this process help to keep copies of database on many servers.
+
+PREPARE Statement in SQL that can include placeholder ? for parameters.
+-- Step 1: Prepare the statement
+mysql>PREPARE stmt FROM 'INSERT INTO accounts (name, balance, account_type) VALUES (?, ?, ?)';
+
+-- Step 2: Set the parameters
+mysql>SET @name = 'John Doe';
+mysql>SET @balance = 2000.00;
+mysql>SET @account_type = 'savings';
+
+-- Step 3: Execute the statement
+mysql>EXECUTE stmt USING @name, @balance, @account_type;
+
+-- Step 4: Deallocate the statement
+mysql>DEALLOCATE PREPARE stmt;
+
+PREPARE stmt FROM ...: Prepares an SQL statement, which in this case is an INSERT statement with placeholders (?) for the parameters.
+SET: Assigns values to the user-defined variables (@name, @balance, and @account_type).
+EXECUTE stmt USING ...: Executes the prepared statement, substituting the placeholders with the provided values.
+DEALLOCATE PREPARE stmt: Cleans up and removes the prepared statement from memory.
+
+Prepared Statements benefits :::
+Performance: Prepared statements can be compiled once and executed multiple times, which can improve performance for repetitive queries.
+Security: They help prevent SQL injection attacks by separating SQL code from data.
