@@ -18,7 +18,7 @@ screen -S CPU -dm bash -c "sar -u 5 >> testing"
 nc -vzw2 10.1.0.23 53
 
 
-screen -S ${res_file[i]} -dm bash -c "sar -${parm[i]} 5 >> /home/username/sar/$(hostname)/$date_dir/${res_file[i]}/$(echo ${res_file[i]}
+screen -S ${res_file[i]} -dm bash -c "sar -${parm[i]} 5 >> /home/c5324258/sar/$(hostname)/$date_dir/${res_file[i]}/$(echo ${res_file[i]}|
 
 awk -F'/' '$2 == "SWAP_Paging" {print $2} $2 != "SWAP_Paging" {print $1}')"
 
@@ -79,7 +79,7 @@ lvcreate --extents 100%FREE --stripes 8 --stripesize 256 --name lv_name vg_name
 How to check existing volume is stripped or not
 lvs --segments
 
-rsync -axrvP /datatransfer/export_path/* /import_path/
+rsync -axrvP /datatransfer/export_SPC1117885045/* /install/import_SPC1117885045/
 
 zypper command to list all availivale version of packages
 zypper search -s openssl
@@ -153,11 +153,11 @@ To assign a new UID to user called foo, enter:
 To assign a new GID to group called foo, enter:
 # groupmod -g 3000 foo
 
-TO add user (adm) in primary (sys) & Secondry (secondl) group 
-useradd -g sys -G second adm
+TO add user (gd1adm) in primary (sapsys) & Secondry (dbgd1ctl) group 
+useradd -g sapsys -G dbgd1ctl gd1adm
 
-To add user (adm) in primary group (sys)
-useradd -g sys adm
+To add user (sapadm) in primary group (sapsys)
+useradd -g sapsys sapadm
 
 patching commands
 Use the following commands:
@@ -231,7 +231,8 @@ To check port via tracroute command
 traceroute -T -p 445 172.16.3.5
 
 ##############Azure Log query#####
-Perf|where _ResourceId contains "servername" |where CounterName == "% Free Space"
+Perf|where _ResourceId contains "deinfraeuwvm01" |where CounterName == "% Free Space"
+
 
 #####################
 Find the dependency of installed packge.
@@ -261,13 +262,13 @@ How to activite /etc/security/access.conf in Suse linux
 
 
 how to allow AD user by relam command if user is unable to login
-#realm permit username
+#realm permit bmcdiscovery.linux
 
 to allow everyone
 #realm permit --all
 
 to allow a group
-#realm permit -g groupname
+#realm permit -g ag-linux-admins
 
 to list realm policy
 #realm list
@@ -278,10 +279,8 @@ login-policy: allow-permitted-logins (if you have this policy then you have to a
 In sssd.conf access_provider should be simple
 access_provider = simple
 
-If ports are not listening on destination server and we want to check reachablity on specfic port from source to destination then we can use below command
-but remember that tracepath works on ICMP packets, so ping should be enable to destination IP address in order to validate port.
 To check port connectivity via traceroute
-#traceroute -T -p 21 10.10.10.10
+#traceroute -T -p 21 172.21.85.31
 
 how to unlock AD account
 #faillock --user ina1absa --reset
@@ -324,7 +323,7 @@ export HISTTIMEFORMAT="%F %T "
 The output doesn't show the server certificate or SSL session. This scenario often occurs if the command traverses a network virtual appliance (NVA) that does SSL packet inspection. This inspection causes the NVA to inject its own SSL certificate into the encrypted session. Because SUSE uses certificate pinning, another injected SSL certificate can break the pinning operation. If pinning is broken, the SUSE repository denies the connection.
 ========================================================
 To Validate Certificate
-#openssl s_client -connect IP/URL:443
+#openssl s_client -connect 52.149.120.86:443
 
 
 To remove kernel old version on RHEL 8 & 9
@@ -333,57 +332,6 @@ dnf remove $(dnf repoquery --installonly --latest-limit=-2)
 
 --latest-limit=-1 will remove all except current one.
 =============================================================================
-
-he job that requested the file read make the request to read then it blocks waiting on data to come back before it can operate on it and so it's CPU run queue, so it's get turn on it's time slice.
-
-
-when you run top command then you see then see %CPU
-%CPU(s): 50.6 us, 48.7 sy, 0.0 ni, 0.0 id, 0.0 wa, 0.6 hi, 0.0 si, 0.0 st
-
-If you see anything under 'wa' section then it is related to disk read/write.
-
-#logwatch --detail=high --service=all
-
-In below command output "vmstat -5m" beow show info related to disk in and disk out
-bo : block in (disk block in)
-bo : block out(disk block out)
-
-
-ps out put "VIRT" "SHR" & "REZ"
-
-"VIRT" Virtual size how much the application requested the memory.
-
-"REZ" how much it is storing/using in the memory.
-
-"SHR" how much it is using between cross linked in the memory.
-
-OOM killer : started killing processes until it has enough memory to run OS.
-
-oom killer works on oom_score, you can find process oom score in below location
-#cd /proc/432
-#cat omm_score
-
-higher the oom score, most unlikly your process will get killed
-by using below command you can adjust oom score
-#cd /proc/432
-#echo 10 > oom_score_adj
-
-
-If you hvae many symbolic links in file system then it can also chew up inode on file system, symbolic links chewed up inode but not data
-df -ihT
-=============================================================================================
-CIFS mount example
-# mount -t cifs -o username=<share user>,password=<sharepassword>,dir_mode=0755,file_mode=0755 //WIN_PC_IP/<share name> /mnt
-//WIN_PC_IP/<share name>    /<mntpoint>   cifs  _netdev,credentials=/root/.credfile,dir_mode=0755,file_mode=0755,uid=500,gid=500 0 0
-
-To extract joebloggs from this string in bash using parameter expansion without any extra processes...
-MYVAR="/var/cpanel/users/joebloggs:DNS9=domain.com" 
-
-NAME=${MYVAR%:*}  # retain the part before the colon
-NAME=${NAME##*/}  # retain the part after the last slash
-echo $NAME
-Doesn't depend on joebloggs being at a particular depth in the path
----------------------------------------------
 
 To PID process start and running time
 ps -eo pid,comm,cmd,start,etime | grep -i <name of the process>
@@ -430,15 +378,224 @@ You should be able to:
 then:
 #rpm --rebuilddb
 
+
 For checking port connectivity from Window...
 #tnc 172.17.16.68 -port 3389
 
-if increases any existing data disk size on public cloud then at Linux OS level we will need to execute below command to make it visiable on linux os
-#echo 1>/sys/class/block/sdb/device/rescan
+==========================
+If you get below error 
+sssd[7037]: Child [7275] ('nss':'nss') was terminated by own WATCHDOG
+sssd[7037]: Child [7276] ('pam':'pam') was terminated by own WATCHDOG
 
-If we want to split very huge file into chunks then we can use splunk command, below command will split messages file in /directory with 5G file size.
-#split --bytes=5G messages /directory/
+then do update timeout=20 or 30 changes in /etc/sssd/sssd.conf and restart sssd
+[domain/exmaple.com]
+timeout = 20
+id_provider = ad
+auth_provider = ad
+====================================
 
-Combine/convert Certificate and Private Key into PFX
-#openssl pkcs12 -export -out mycert.pfx -inkey private.key -in signed_certificate.crt
+To release access policy for a container
+az storage container lease release \
+    --account-name xxxxstorageaccountnamexxx \
+    --account-key xxxxxxxxxxxxxxxx \
+    --container-name xxxxxcontainername \
+    --lease-id xxxxxx-xxx-xxx-xxx-xxxxxx
 
+
+To check All network connections.
+ss -a|egrep -i "TIME-WAIT|CLOSE-WAIT|ESTAB"
+
+To rescan existing disk on VMware.
+echo 1>/sys/class/block/sdd/device/rescan
+
+
+To check URL connectivity by curl command
+curl -I https://rhui4-1.microsoft.com
+
+
+To scan 
+#for host in /sys/class/scsi_host/host*/scan; do echo "- - -" > $host; done
+
+To check which process is consuming most of the SWAP 
+
+Run top
+Press f to select displayed fields
+Navigate down to SWAP using arrow keys
+Hit Space - SWAP will become preceded by asterisk *
+Press right arrow key - this will allow you to move SWAP to a convenient place in the listing, for example between %MEM and TIME+
+Press q to return to top view
+
+"zypper lu -t patch"    - to check for updates! 
+"zypper -n up -l"       - to install all updates!
+
+#rsync -avHx --progress 
+
+For generating bootstrap script.
+mgr-bootstrap --activation-keys=<ACTIVATION_KEYS> --script=bootstrap-<EDITED_NAME>.sh
+https://documentation.suse.com/suma/4.3/en/suse-manager/client-configuration/registration-bootstrap.html
+
+
+=======================
+Procedure: Resolving Duplicate Machine IDs in Cloned Salt Clients
+On the cloned machine, change the hostname and IP addresses. Make sure /etc/hosts contains the changes you made and the correct host entries.
+For distributions that support systemd: If your machines have the same machine ID, as root, delete the files on each duplicated client and re-create it:
+rm /etc/machine-id
+rm /var/lib/dbus/machine-id
+rm /var/lib/zypp/AnonymousUniqueId
+dbus-uuidgen --ensure
+systemd-machine-id-setup
+For distributions that do not support systemd: As root, generate a machine ID from dbus:
+rm /var/lib/dbus/machine-id
+rm /var/lib/zypp/AnonymousUniqueId
+dbus-uuidgen --ensure
+
+https://documentation.suse.com/suma/4.3/en/suse-manager/administration/troubleshooting/tshoot-registerclones.html
+=========================
+
+AD Join related realmd article.
+https://www.suse.com/support/kb/doc/?id=000021263
+
+1. Install the required packages 
+
+zypper in -y krb5-client realmd adcli sssd sssd-tools sssd-ad samba-client
+2. Leave the domain   
+
+realm leave CORP.DOMAIN.COM -U adadmin --remove
+If the system is already left from the domain, please manually delete the computer object from Active Directory.
+
+Before joining the domain, please ensure the following: the current computer has been removed from Active Directory, the system clock is synchronized, DNS resolution is working properly, and network connectivity is normal.
+
+3. Join the domain 
+
+realm discover CORP.DOMAIN.COM
+realm join CORP.DOMAIN.COM -U adadmin -v
+realm list
+systemctl status sssd
+
+
+Please disable caching of passwd/group/netgroup/services databases: 
+# /etc/nscd.conf
+
+    enable-cache        passwd        no
+    enable-cache        group        no
+and restart nscd.service or just stop and disable nscd.service: 
+systemctl stop nscd.service
+systemctl disable nscd.service
+==================================
+
+Azure AMA agent re-installation 
+https://learn.microsoft.com/en-us/answers/questions/1819314/unable-to-install-ama-linux-agent
+
+sudo /var/lib/waagent/Microsoft.Azure.Monitor.AzureMonitorLinuxAgent-1.30.2/./shim.sh -install
+
+For Installing AzureMonitorLinuxAgent on AzureArc enabled servers
+#az connectedmachine extension create --resource-group co-deu-arc-rg-01 --machine-name alfpcae0001 --location westeurope --name AzureMonitorLinuxAgent --publisher "Microsoft.Azure.Monitor" --type "AzureMonitorLinuxAgent"
+
+Kindly run the command "az connectedmachine extension create --name AzureMonitorLinuxAgent --publisher Microsoft.Azure.Monitor --type AzureMonitorLinuxAgent --machine-name <arc-server-name> --resource-group <resource-group-name> --location <arc-server-location> --enable-auto-upgrade true" . This will install the extennion for the ARC machine.
+
+#az connectedmachine extension create --resource-group co-deu-arc-rg-01 --machine-name alfpcae0001 --location westeurope --name AzureMonitorLinuxAgent  --publisher "Microsoft.Azure.Monitor" --type "AzureMonitorLinuxAgent"
+
+For deleting extension on existing Arc enabled server.
+#az connectedmachine extension delete --resource-group co-deu-arc-rg-01 --machine-name alfpcae0001 --name AzureMonitorLinuxAgent
+
+https://learn.microsoft.com/en-us/azure/azure-monitor/agents/azure-monitor-agent-manage?tabs=azure-cli#azure-arc-enabled-servers-1
+##############################################    
+=VLOOKUP(A2,'SHEET1ACOLUMN'!A:B,2,0)
+#############################################
+
+Curl related proxy information can be also in below file
+cat /root/.curlrc
+
+# Changed by YaST2 module proxy 03/25/24
+#--proxy "http://proxy.com:8080"
+#--noproxy "localhost,127.0.0.1"
+
+=============              
+"zypper lu -t patch"    - to check for updates!  
+"zypper -n up -l"       - to install all updates!
+===================
+For generating script on suse manager
+
+### On SUMA Server ###
+mgr-bootstrap --activation-keys=<ACTIVATION_KEYS> --script=bootstrap-sle-12-sp5.sh
+### On mesa-line138 ###
+curl -Sks https://coeuwsumavm01.corp.passivesafety.com/pub/bootstrap/bootstrap-sle-12-sp5.sh | /bin/bash
+
+
+To find parent id of process id 45678
+#ps -o ppid= -p 45678
+
+
+To check which device is being used with btrfs file system.
+#btrfs device usage /
+
+For increasing btrfs file system
+#btrfs device add <disk you are adding> <mount point>
+
+========================
+TO allow and disallow users/groups via /etc/security/access.conf, make below changes.
+1. firstly update below line in /etc/pam.d/sshd
+account required pam_access.so
+2. Make UsePam yes in sshd config file.
+ cat /etc/ssh/sshd_config|grep -i UsePam
+UsePAM yes
+=========================
+how pass password for splunkforwarder in single line.
+/opt/splunkforwarder/bin/splunk set deploy-poll 127.0.0.1:8089 -auth username:password
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+==================
+Initramfs & grub2 build.
+
+https://www.suse.com/de-de/support/kb/doc/?id=000018770
+https://www.suse.com/support/kb/doc/?id=000019909
+===================================================
+
+1. boot the server into rescue mode attaching the same version ISO.
+2. check the root partition by lsblk command
+3. mount the root partition by "say x"
+   #mount /dev/sdax /mnt
+4. Now mount the below mount as shown:
+              #mount --rbind /proc /mnt/proc
+              #mount --rbind /sys /mnt/sys
+              #mount --rbind /dev /mnt/dev
+              #mount --rbind /run /mnt/run
+5. Run
+   #chroot /mnt
+6. If required to rebuild the initramfs then
+              >check the installed kernel version by uname -r in "precheck logs", o
+              >if don't have precheck then check by using command #ls -1 /boot/vmlinuz-* /lib/modules
+              >Run #dracut -f --kver <kernel version> 
+              >e.g. #dracut -f --kver 4.3.18-150300.59.147-default
+
+if above steps worked then fine reboot the server or else rebuild the grub as per below process:
+
+7. To build/install grub
+              > #grub2-install -v /dev/sda
+              > #grub2-mkconfig -o /boot/grub2/grub.cfg
+              > exit from rescue mode #exit
+              > reboot the server #reboot
+
+
+=========================================================================
+dracut is a tool used to build the initramfs (initial RAM filesystem) in Linux systems.
+
+Initramfs is a small, temporary root filesystem loaded into memory very early during boot — before the real root filesystem is available.
+
+dracut generates this initramfs automatically based on your current system setup
+=========================================================
+mportant: grub2-mkconfig Cannot Repair UEFI Secure Boot Tables
+If you are using UEFI Secure Boot and your system is not reaching GRUB 2 correctly anymore, you may need to additionally reinstall Shim and regenerate the UEFI boot table. To do so, use:
+
+shim-install --config-file=/boot/grub2/grub.cfg
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+if you want to send one file by using tcp to nc listening port 
+Firstly listen on any free port by using your server IP.
+#nc -l 10.10.10.10 9000
+for listening permanently
+#nc -lk 10.10.10.10 9000
+
+now go to other server and try to send file by using below command
+#cat /etc/passwd >/dev/tcp/10.10.10.10/9000
+========================================================================================
