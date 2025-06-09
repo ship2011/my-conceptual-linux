@@ -1,3 +1,6 @@
+trap command - trap command in our script we can use to ignore signal or run any cleanup command when any signal received.
+trap is used to catch signals or script exits and run custom cleanup or commands when a signal (like CTRL+C or EXIT) is received.
+
 df -BG -T|awk '{split($6,a,"%"); if (a[1] > 30) print}'
 
 su - $(df -hPT |awk '/\/usr\/sap\// {print $NF}'|awk -F'/' 'NR==1 {print $NF}')adm
@@ -599,3 +602,19 @@ for listening permanently
 now go to other server and try to send file by using below command
 #cat /etc/passwd >/dev/tcp/10.10.10.10/9000
 ========================================================================================
+RedHat registration commands
+https://access.redhat.com/solutions/238533
+
+- Simple Content Access (SCA) is a capability in Red Hat’s subscription tools that simplifies the behaviour of the entitlement tooling, making it easier to consume the content provided by your Red Hat subscriptions without the complexity of configuring subscription tooling.
+
+** IMPORTANT- Once SCA is enabled, you just have to register the systems and enable the required repositories.
+# subscription-manager register
+# subscription-manager refresh
+# subscription-manager identity                       -----> To check whether system is registered or not.
+# subscription-manager repos --enable=<Repo-Id>
+# yum clean all
+# yum repolist -v                                     -----> To check enabled repos
+
+=========================================================================================
+
+ 
