@@ -32,8 +32,9 @@ user@hostname
 user1@hostname
 
 -k connection password (user which will be used to established connection)
+-b to become sudo user (in latest version we can also use -b to execute command as sudo user)
 -K sudo password (it will ask for sudo or escalation password) 
--b to become sudo user (in laest version we can also use -b to execute command as sudo user)
+
 
 To run Ad-hoc command by using password..
 Login from your user to ansible node..
@@ -91,7 +92,7 @@ To enable plubin in ansible cfg file, update below in your ansible.cfg
 [inventory]
 enable_plugins = host_list,script,auto,yaml,ini,toml
 
-To connect to AWS enviornment by using your VM, you shuld install boto3 & botocore on VM (pip install boto3, pip install botocore)
+To connect to AWS enviornment by using your VM, you should install boto3 & botocore on VM (pip install boto3, pip install botocore)
 
 To generate dynamic invetory from AWS cloud on ansible node, create cred at AWS and then export those cred in env variable on ansible node.
 export AWS_ACCESS_KEY_ID='AK123'
@@ -158,7 +159,7 @@ To run playbook in Dry Run mode
 
 as well as to see verbose mode, you can execute playbook with -v keyword.
 
-ansible data collection can store muliple value in variable.
+ansible data collection can store multiple value in variable.
 
 variable type 
 stri = val1
@@ -170,6 +171,9 @@ or
     -4
 
 map = {"OS":"linux", "Region": "West US"}
+map :
+   OS : "Linux"
+   Region: "West US"
 
 registers module : To store return value of registers module.
 
@@ -258,7 +262,7 @@ tasks:
       - "{{ users }}"
       - "{{ groups }}"
 
-untill loop example :
+until loop example :
 - name: Ensure apache is running
   service:
      name: sshd
@@ -269,7 +273,7 @@ untill loop example :
   delay: 5
 
 
-you can alos use loop keyword to iterate through item
+you can also use loop keyword to iterate through item
 loop example :
 - name: Install packages 
   yum:
@@ -313,7 +317,7 @@ to skip tag
 to see all tags
 #ansible-playbook play.yml --list-tags
 
-if you are task failed and you want to continue with execution of playbook then write task like below example.
+if your task failed and you want to continue with execution of playbook then write task like below example.
 tasks:
 - name: install git
     yum:
@@ -350,7 +354,7 @@ tasks:
           command: touch /tmp/test.txt
 
 rescue : rescue's tasks get executed whenever any failure in your block.
-always: always tasks get executected all time, wheather block failed or successed.
+always: always tasks get executed all time, whether block failed or succussed.
 
 
 Modules:
@@ -373,7 +377,7 @@ tasks:
       src: /home/user/ipadd.txt
       dest: /opt/
 
-delegate_to  : we can use it when we want to execute specifc tasks to specific module. delegate_to is a directive and it is not an individual moudle, it integrates with other moudles and it controls the task execution by deciding which host should run the task at runtime.
+delegate_to  : we can use it when we want to execute specific tasks to specific module. delegate_to is a directive and it is not an individual module, it integrates with other modules and it controls the task execution by deciding which host should run the task at runtime.
 code example:
 vars:
   file_name = /opt/ipinfo
@@ -386,4 +390,65 @@ tasks:
 - name: delegation task ### so this task will get executed on ansible master node.
   shell: echo {{ inventory_hostname }} >> {{ file_name }}
   delegate_to: ansiblenode # ansiblenode name, if you want to execute on any other host then give that hostname.
+
+
+If we give any_errors_fatal: true then when any error happened then entire play/ansible playbook will get failed .
+tasks:
+- name: get ip info
+  shell: hostname > {{ file_name }}
+  any_errors_fatal: true
+
+
+
+- name: Run long task in background
+  shell: /usr/local/bin/long_task.sh
+  async: 300
+  poll: 0
+
+Line	Meaning
+- name:	Describes the task in a human-readable way.
+shell:	Runs the specified shell command (/usr/local/bin/long_task.sh).
+async: 300	Allows the task to run asynchronously for up to 300 seconds (5 minutes).
+poll: 0	Tells Ansible not to wait for the task to complete (i.e., run it in the background).
+
+
+
+Changing loop variable name from item to any other name
+
+vars:
+  users:
+    - name: User First
+      username: user1
+    - name: User Second
+      username: user2
+
+tasks:
+ - name: create user
+   user:
+     name: "{{ user.username }}}"
+     #name: "{{ item.username }}}"  : if loop_control is not mentioned.
+     comment: "{{ user.name }}"
+     state: present
+   loop: "{{ users }}"
+   loop_control:
+       loop_var: user
+
+
+Ansible speed up article :-
+https://www.redhat.com/en/blog/faster-ansible-playbook-execution
+
+Ansible pipelining :-
+pipelining in the context of tools like Ansible can significantly reduce SSH overhead and improve performance. Pipelining reduces the number of SSH connections required to execute tasks by sending commands directly to the remote host's standard input (STDIN) through a persistent connection, rather than copying files and running them. This bypasses the need for multiple SSH connections for each task, leading to faster execution times.
+
+Benefits of Pipelining:
+Reduced SSH overhead: Pipelining minimizes the number of SSH operations, leading to faster execution speeds.
+Faster execution: By sending commands directly to STDIN, pipelining can significantly reduce the time it takes to execute Ansible playbooks, especially for tasks involving multiple modules.
+Improved performance: Pipelining can lead to performance improvements of over 600% in certain scenarios. 
+
+Enabling Pipelining:
+To enable pipelining, you can add pipelining = True to the [ssh_connection] section of your ansible.cfg file or use the ANSIBLE_PIPELINING or ANSIBLE_SSH_PIPELINING environment variables.
+
+
+
+
 
